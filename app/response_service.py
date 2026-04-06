@@ -355,6 +355,10 @@ def compose_followup_response(session: SessionState, intent: DialogIntent, recom
 
     preface = {
         "cheaper_alternative": "Нашёл более доступный вариант, который всё ещё выглядит вкусно и не дешево по ощущению.",
+        "premium_alternative": "Поднял подборку в более премиальный сегмент — с акцентом на качество финиша и стойкость.",
+        "transform_radiant": "Сделал подборку более сияющей, чтобы кожа выглядела живее и свежее.",
+        "transform_matte": "Сдвинул подборку в более матовый сценарий для аккуратного контролируемого финиша.",
+        "transform_natural": "Собрал более натуральную версию: мягче покрытие и спокойнее общий эффект.",
         "replace_product": "Вот версия, которая выглядит выигрышнее и современнее.",
         "exclude_ingredient": "Пересобрал подборку так, чтобы сохранить эффект, но убрать лишнее ограничение из состава.",
         "simplify_routine": "Собрал более лёгкую версию — чтобы выглядело дорого, но без лишних шагов.",
@@ -379,6 +383,11 @@ def compose_followup_response(session: SessionState, intent: DialogIntent, recom
             lines.append(_pick_highlight_line(item))
     for frame_line in selling_frame(visible_items, session.current_plan, session.user_preferences):
         lines.append(frame_line)
+    previous = session.dialog_context.current_recommendations or {}
+    changed_categories = [item.category for item in visible_items if previous.get(item.category) and previous.get(item.category) != item.sku]
+    if changed_categories:
+        labels = [CATEGORY_LABELS.get(category, category.value) for category in changed_categories[:3]]
+        lines.append(f"По сравнению с прошлым шагом обновил: {', '.join(labels)}.")
     harmony_cta = build_cta_from_harmony(session.dialog_context.look_profile) if session.dialog_context.look_profile else TONE_CTA.get(_style_mode(session), TONE_CTA['default'])
     lines.append(cta_for_conversion(session.current_plan, session.user_preferences))
     lines.append(harmony_cta)

@@ -48,6 +48,16 @@ SKINCARE_CATEGORIES = {
 LIP_CATEGORIES = {ProductCategory.lipstick, ProductCategory.lip_tint, ProductCategory.lip_gloss, ProductCategory.lip_liner, ProductCategory.lip_balm}
 EYE_CATEGORIES = {ProductCategory.mascara, ProductCategory.eyeliner, ProductCategory.eyeshadow_palette, ProductCategory.brow_pencil, ProductCategory.brow_gel}
 CHEEK_CATEGORIES = {ProductCategory.blush, ProductCategory.bronzer, ProductCategory.highlighter, ProductCategory.contour}
+HERO_DEMO_CATEGORIES = [
+    ProductCategory.cleanser,
+    ProductCategory.serum,
+    ProductCategory.moisturizer,
+    ProductCategory.spf,
+    ProductCategory.foundation,
+    ProductCategory.skin_tint,
+    ProductCategory.concealer,
+    ProductCategory.powder,
+]
 
 
 def domains_to_products(domain: IntentDomain) -> list[ProductDomain]:
@@ -172,6 +182,10 @@ def build_plan(profile: SkinProfile, context: UserContext, intent: DialogIntent 
             if cat not in ordered:
                 ordered.append(cat)
         categories = ordered
+    else:
+        ordered = [cat for cat in HERO_DEMO_CATEGORIES if cat in categories]
+        ordered.extend([cat for cat in categories if cat not in ordered])
+        categories = ordered
 
     preferred_finishes = [item.value for item in (context.preferred_finish or profile.complexion.preferred_finish)]
     preferred_coverages = [item.value for item in (context.preferred_coverage or profile.complexion.preferred_coverage)]
@@ -199,7 +213,7 @@ def build_plan(profile: SkinProfile, context: UserContext, intent: DialogIntent 
         preferred_tags.append("value")
 
     return RecommendationPlan(
-        required_categories=list(dict.fromkeys(categories)),
+        required_categories=list(dict.fromkeys(categories[:7])),
         preferred_tags=sorted(set(preferred_tags)),
         exclude_tags=["high-irritation"],
         preferred_skin_types=[profile.skin_type.value],

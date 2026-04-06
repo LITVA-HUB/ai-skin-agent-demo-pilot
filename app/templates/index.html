@@ -1118,11 +1118,11 @@
         </div>
 
         <div class="cta-row">
-          <button id="suggestLook" class="quick-btn" type="button">Собери полный образ</button>
-          <button id="suggestEvening" class="quick-btn" type="button">Сделай вариант на вечер</button>
-          <button id="suggestLips" class="quick-btn" type="button">Добавь что-то для губ</button>
-          <button id="suggestEyes" class="quick-btn" type="button">Сделай акцент на глаза</button>
-          <button id="suggestCheap" class="quick-btn" type="button">Покажи подешевле</button>
+          <button id="suggestCheap" class="quick-btn" type="button">Сделать дешевле</button>
+          <button id="suggestRadiant" class="quick-btn" type="button">Более сияющий</button>
+          <button id="suggestEvening" class="quick-btn" type="button">На вечер</button>
+          <button id="suggestNatural" class="quick-btn" type="button">Натуральнее</button>
+          <button id="addAllToCart" class="quick-btn" type="button">Добавить всё в корзину</button>
         </div>
       </section>
 
@@ -1363,6 +1363,22 @@
         setStatus(`Не удалось очистить корзину: ${error.message}`, true);
       }
     }
+    async function addAllVisibleToCart() {
+      if (!state.sessionId) {
+        setStatus('Сначала получи первую подборку.', true);
+        return;
+      }
+      const items = state.lastRecommendations || [];
+      if (!items.length) {
+        setStatus('Пока нет товаров для добавления.', true);
+        return;
+      }
+      setStatus('Добавляю всю текущую подборку в корзину...');
+      for (const item of items) {
+        await addToCart(item);
+      }
+      setStatus('Готово: вся подборка добавлена в корзину.');
+    }
 
     async function toBase64(file) {
       return await new Promise((resolve, reject) => {
@@ -1487,11 +1503,11 @@
       }
     });
 
-    $('suggestLook').addEventListener('click', () => sendMessage('собери мне полный образ'));
+    $('suggestCheap').addEventListener('click', () => sendMessage('сделай дешевле'));
+    $('suggestRadiant').addEventListener('click', () => sendMessage('сделай более сияющий'));
     $('suggestEvening').addEventListener('click', () => sendMessage('сделай вариант на вечер'));
-    $('suggestLips').addEventListener('click', () => sendMessage('добавь что-то для губ'));
-    $('suggestEyes').addEventListener('click', () => sendMessage('сделай акцент на глаза'));
-    $('suggestCheap').addEventListener('click', () => sendMessage('покажи вариант подешевле'));
+    $('suggestNatural').addEventListener('click', () => sendMessage('сделай натуральнее'));
+    $('addAllToCart').addEventListener('click', addAllVisibleToCart);
 
     $('resetBtn').addEventListener('click', () => {
       state.photoB64 = null;

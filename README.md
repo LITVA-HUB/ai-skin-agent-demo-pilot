@@ -7,9 +7,10 @@
 - **Archive baseline:** `v0.2.0`
 - **Current demo branch snapshot:** `v0.5.1`
 
-Текущее состояние ветки ориентировано на **стабильный demo-сценарий**, а не на production:
+Текущее состояние ветки ориентировано на **стабильный demo-сценарий guided choice**, а не на production:
 - photo-driven старт (анализ фото + первая подборка),
 - session-aware follow-up диалог,
+- быстрые quick actions для управляемого refinement (`дешевле / сияющий / вечер / натуральнее`),
 - сервер-авторитативная корзина,
 - SQLite-backed session storage с in-memory fallback,
 - health/ready endpoints с диагностикой конфигурации.
@@ -78,7 +79,7 @@ SQLITE_PATH=app/data/sessions.sqlite3
 
 ## Caveats (честно про demo)
 
-Это **pilot demo**, не production-ready система.
+Это **pilot demo AI beauty advisor**, не medical-диагностика и не production-ready система.
 
 Ограничения:
 - каталог synthetic/mock,
