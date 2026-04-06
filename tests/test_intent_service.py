@@ -32,3 +32,16 @@ def test_heuristic_intent_sets_target_category() -> None:
     intent = heuristic_intent('подбери консилер под глаза')
     assert intent.target_category == ProductCategory.concealer
     assert intent.domain == IntentDomain.makeup
+
+
+def test_heuristic_intent_maps_critical_quick_actions() -> None:
+    cheaper = heuristic_intent('сделай дешевле')
+    assert cheaper.intent == 'cheaper_alternative'
+    assert cheaper.preference_updates['budget_direction'] == 'cheaper'
+
+    radiant = heuristic_intent('сделай более сияющий')
+    assert radiant.preference_updates['preferred_finish'] == ['radiant']
+
+    natural = heuristic_intent('сделай натуральнее')
+    assert natural.preference_updates['preferred_coverage'] == ['sheer', 'light']
+    assert natural.preference_updates['preferred_finish'] == ['natural']

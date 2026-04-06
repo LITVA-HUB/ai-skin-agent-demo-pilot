@@ -64,6 +64,18 @@ ACTION_HINTS = {
     IntentAction.simplify: ["упрост", "короче", "минимал", "simplify", "short", "быстрый макияж"],
     IntentAction.refine: ["уточни", "refine", "чуть", "более", "менее", "подстрой", "собери образ", "полный образ"],
 }
+CRITICAL_INTENT_RULES: list[tuple[str, dict[str, object]]] = [
+    ("сделай дешевле", {"action": IntentAction.cheaper, "intent": "cheaper_alternative", "budget_direction": BudgetDirection.cheaper.value}),
+    ("покажи подешевле", {"action": IntentAction.cheaper, "intent": "cheaper_alternative", "budget_direction": BudgetDirection.cheaper.value}),
+    ("сделай дороже", {"action": IntentAction.refine, "intent": "premium_alternative", "budget_direction": BudgetDirection.premium.value}),
+    ("сделай премиальнее", {"action": IntentAction.refine, "intent": "premium_alternative", "budget_direction": BudgetDirection.premium.value}),
+    ("сделай более сияющ", {"action": IntentAction.refine, "intent": "transform_radiant", "preferred_finish": ["radiant"]}),
+    ("сделай более матов", {"action": IntentAction.refine, "intent": "transform_matte", "preferred_finish": ["matte"]}),
+    ("сделай на вечер", {"action": IntentAction.refine, "intent": "transform_evening", "occasion": "party"}),
+    ("сделай натуральнее", {"action": IntentAction.refine, "intent": "transform_natural", "preferred_finish": ["natural"], "preferred_coverage": ["sheer", "light"]}),
+    ("объясни почему", {"action": IntentAction.explain, "intent": "explain_product"}),
+    ("сравни варианты", {"action": IntentAction.compare, "intent": "compare_products"}),
+]
 POSITIVE_FEEDBACK = ["нрав", "устраивает", "подходит", "leave", "keep", "ok"]
 NEGATIVE_FEEDBACK = ["не нрав", "не подход", "убери", "не то", "too much", "not working", "replace"]
 INGREDIENT_HINTS = ["niacinamide", "retinol", "acids", "fragrance", "alcohol", "acid", "bha", "aha"]
@@ -140,6 +152,9 @@ def detect_domain(text: str) -> IntentDomain:
 
 def detect_action(text: str) -> IntentAction:
     normalized = normalize_text(text)
+    for phrase, payload in CRITICAL_INTENT_RULES:
+        if phrase in normalized:
+            return payload["action"]
     for action, hints in ACTION_HINTS.items():
         if any(hint in normalized for hint in hints):
             return action
@@ -213,6 +228,15 @@ def extract_preference_updates(text: str) -> dict[str, object]:
     if any(token in normalized for token in ["sexy", "сексу", "соблазн", "дерзк"]):
         updates.setdefault("preferred_styles", [])
         updates["preferred_styles"] = list(dict.fromkeys([*updates["preferred_styles"], "sexy"]))
+    if "на вечер" in normalized or "вечерн" in normalized:
+        updates["occasion"] = "party"
+    if "более сия" in normalized:
+        updates["preferred_finish"] = ["radiant"]
+    if "более матов" in normalized:
+        updates["preferred_finish"] = ["matte"]
+    if "натуральн" in normalized:
+        updates["preferred_finish"] = ["natural"]
+        updates["preferred_coverage"] = ["sheer", "light"]
     brands = extract_brands(normalized)
     if brands:
         updates["preferred_brands"] = brands
@@ -250,6 +274,9 @@ def extract_constraint_updates(text: str) -> dict[str, object]:
 
 
 def intent_name(action: IntentAction, text: str) -> str:
+    for phrase, payload in CRITICAL_INTENT_RULES:
+        if phrase in text:
+            return str(payload["intent"])
     if any(token in text for token in ["сделай на вечер", "повечерн", "more evening", "glam version"]):
         return "transform_evening"
     if any(token in text for token in ["сделай sexy", "сексуаль", "дерзк", "more sexy"]):
@@ -322,6 +349,17 @@ def heuristic_intent(message: str, session: SessionState | None = None) -> Dialo
 
     if any(token in name for token in ["transform_", "focus_"]):
         constraints_update["look_transform"] = name
+    for phrase, payload in CRITICAL_INTENT_RULES:
+        if phrase in normalized:
+            if "budget_direction" in payload:
+                preference_updates["budget_direction"] = payload["budget_direction"]
+            if "preferred_finish" in payload:
+                preference_updates["preferred_finish"] = list(payload["preferred_finish"])
+            if "preferred_coverage" in payload:
+                preference_updates["preferred_coverage"] = list(payload["preferred_coverage"])
+            if "occasion" in payload:
+                preference_updates["occasion"] = payload["occasion"]
+            break
     if action not in {IntentAction.compare, IntentAction.explain}:
         constraints_update.setdefault("goal", message)
 

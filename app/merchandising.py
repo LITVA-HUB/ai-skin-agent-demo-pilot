@@ -3,28 +3,26 @@ from __future__ import annotations
 from .models import ProductCategory, RecommendationItem, RecommendationPlan, UserContext
 
 HERO_PRIORITY = {
-    ProductCategory.lipstick: 100,
-    ProductCategory.foundation: 95,
-    ProductCategory.skin_tint: 92,
-    ProductCategory.eyeshadow_palette: 90,
-    ProductCategory.blush: 86,
-    ProductCategory.mascara: 84,
-    ProductCategory.concealer: 82,
-    ProductCategory.primer: 78,
-    ProductCategory.lip_tint: 77,
-    ProductCategory.highlighter: 76,
-    ProductCategory.eyeliner: 74,
-    ProductCategory.powder: 66,
+    ProductCategory.cleanser: 100,
+    ProductCategory.serum: 98,
+    ProductCategory.moisturizer: 96,
+    ProductCategory.spf: 94,
+    ProductCategory.foundation: 92,
+    ProductCategory.skin_tint: 90,
+    ProductCategory.concealer: 86,
+    ProductCategory.powder: 82,
+    ProductCategory.primer: 70,
     ProductCategory.brow_gel: 60,
     ProductCategory.setting_spray: 58,
 }
 
 BUNDLE_SUPPORT = {
-    ProductCategory.foundation: [ProductCategory.concealer, ProductCategory.blush, ProductCategory.setting_spray],
-    ProductCategory.skin_tint: [ProductCategory.blush, ProductCategory.brow_gel, ProductCategory.lip_tint],
-    ProductCategory.lipstick: [ProductCategory.blush, ProductCategory.mascara, ProductCategory.highlighter],
-    ProductCategory.eyeshadow_palette: [ProductCategory.mascara, ProductCategory.eyeliner, ProductCategory.lip_gloss],
-    ProductCategory.blush: [ProductCategory.highlighter, ProductCategory.lip_tint, ProductCategory.brow_gel],
+    ProductCategory.cleanser: [ProductCategory.serum, ProductCategory.moisturizer, ProductCategory.spf],
+    ProductCategory.serum: [ProductCategory.moisturizer, ProductCategory.spf, ProductCategory.cleanser],
+    ProductCategory.moisturizer: [ProductCategory.spf, ProductCategory.serum, ProductCategory.cleanser],
+    ProductCategory.foundation: [ProductCategory.concealer, ProductCategory.powder, ProductCategory.spf],
+    ProductCategory.skin_tint: [ProductCategory.concealer, ProductCategory.powder, ProductCategory.spf],
+    ProductCategory.concealer: [ProductCategory.foundation, ProductCategory.skin_tint, ProductCategory.powder],
 }
 
 
@@ -62,7 +60,9 @@ def bundle_story(items: list[RecommendationItem]) -> tuple[RecommendationItem | 
 
 def cta_for_conversion(plan: RecommendationPlan, context: UserContext) -> str:
     if context.budget_segment.value == 'premium':
-        return 'Если хочешь, я соберу ещё более дорогую и эффектную версию без потери баланса.'
+        return 'Если хочешь, соберу более премиальную версию этого же набора и сразу отмечу, за что именно доплата.'
+    if context.budget_direction.value == 'cheaper':
+        return 'Если нужно, могу ещё сильнее удешевить набор и оставить только шаги с максимальной отдачей.'
     if plan.look_strategy == 'sensual':
         return 'Если хочешь, я сразу доберу к этому ещё 1-2 вещи, чтобы образ сильнее цеплял.'
     if plan.look_strategy == 'soft_luxury':

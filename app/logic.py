@@ -197,11 +197,6 @@ def apply_intent(session: SessionState, intent: DialogIntent) -> SessionState:
         accepted = [sku for sku in constraint_updates["accepted_products"] if sku in visible_products]
         updated.accepted_products = list(dict.fromkeys([*updated.accepted_products, *accepted]))
 
-    if intent.intent in {"replace_product", "cheaper_alternative"} and intent.target_category:
-        current_sku = current.get(intent.target_category)
-        if current_sku and current_sku not in updated.rejected_products:
-            updated.rejected_products.append(current_sku)
-
     updated.accepted_products = [sku for sku in updated.accepted_products if sku not in updated.rejected_products]
     prefs.rejected_products = list(dict.fromkeys(updated.rejected_products))
     prefs.accepted_products = list(dict.fromkeys(updated.accepted_products))
@@ -281,6 +276,7 @@ async def handle_message(message: str, store: SessionStore, session_id: str, gem
     model_intent = await gemini.parse_intent(message, session_summary(session))
     heuristic = heuristic_intent(message, session=session)
     intent = merge_intents(model_intent, heuristic)
+    previous_recommendations = dict(session.dialog_context.current_recommendations or {})
     updated = apply_intent(session, intent)
     append_conversation_turn(updated, "user", message)
 
@@ -296,6 +292,14 @@ async def handle_message(message: str, store: SessionStore, session_id: str, gem
         updated.user_preferences.accepted_products = list(updated.accepted_products)
         updated.user_preferences.rejected_products = list(updated.rejected_products)
         updated.dialog_context.current_recommendations = {item.category: item.sku for item in recommendations}
+        if intent.intent in {"replace_product", "cheaper_alternative", "premium_alternative"} and intent.target_category:
+            previous_sku = previous_recommendations.get(intent.target_category)
+            next_sku = updated.dialog_context.current_recommendations.get(intent.target_category)
+            if previous_sku and next_sku and previous_sku != next_sku and previous_sku in updated.shown_products:
+                updated.rejected_products = list(dict.fromkeys([*updated.rejected_products, previous_sku]))
+                updated.accepted_products = [sku for sku in updated.accepted_products if sku != previous_sku]
+                updated.user_preferences.rejected_products = list(updated.rejected_products)
+                updated.user_preferences.accepted_products = list(updated.accepted_products)
         attach_look_profile(updated, recommendations)
     else:
         target_categories = intent.target_categories or ([intent.target_category] if intent.target_category else None)

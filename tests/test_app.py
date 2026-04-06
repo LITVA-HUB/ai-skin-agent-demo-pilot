@@ -190,6 +190,26 @@ def test_analyze_photo_does_not_auto_accept_unshown_products() -> None:
     assert session['accepted_products'] == []
 
 
+def test_followup_rejected_products_stay_within_shown_products() -> None:
+    analyze = client.post('/v1/photo/analyze', json={
+        'image_url': 'https://example.com/rejected-scope.jpg',
+        'user_context': {
+            'budget_segment': 'mid',
+            'preferred_brands': [],
+            'excluded_ingredients': [],
+            'routine_size': 'standard',
+            'goal': 'pick foundation and concealer'
+        }
+    })
+    session_id = analyze.json()['session_id']
+    followup = client.post(f'/v1/session/{session_id}/message', json={'message': 'сделай дешевле'})
+    assert followup.status_code == 200
+    state = followup.json()['updated_session_state']
+    shown = set(state['shown_products'])
+    rejected = set(state['rejected_products'])
+    assert rejected.issubset(shown)
+
+
 
 def test_session_stores_raw_conversation_turns() -> None:
     analyze = client.post('/v1/photo/analyze', json={
