@@ -284,3 +284,65 @@ def test_conversation_memory_recall_previous_selection() -> None:
     assert data['intent']['intent'] == 'conversation_memory'
     assert 'Напоминаю прошлую подборку' in data['answer_text']
     assert len(data['updated_session_state']['conversation_history']) >= 5
+
+
+def test_allergen_and_halal_filters_affect_recommendations() -> None:
+    analyze = client.post('/v1/photo/analyze', json={
+        'image_url': 'https://example.com/filter.jpg',
+        'user_context': {
+            'goal': 'need skincare and complexion set',
+        }
+    })
+    assert analyze.status_code == 200
+    session_id = analyze.json()['session_id']
+
+    filtered = client.post(f'/v1/session/{session_id}/message', json={'message': 'без niacinamide и халяль'})
+    assert filtered.status_code == 200
+    data = filtered.json()
+    prefs = data['updated_session_state']['user_preferences']
+    assert prefs['halal_only'] is True
+    assert 'niacinamide' in prefs['excluded_ingredients'] or 'niacinamide' in prefs['excluded_sensitivity_triggers']
+    assert all(item['halal_status'] in {'friendly', 'certified'} for item in data['recommendations'])
+    assert all('niacinamide' not in (item.get('why','').lower()) for item in data['recommendations'])
+
+
+
+def test_analysis_history_and_beauty_scan_are_returned() -> None:
+    analyze = client.post('/v1/photo/analyze', json={
+        'image_url': 'https://example.com/history.jpg',
+        'user_context': {'goal': 'pick skin tint and serum'}
+    })
+    assert analyze.status_code == 200
+    body = analyze.json()
+    assert body['beauty_scan']['metrics']
+    assert body['beauty_scan']['zones']
+    cabinet = client.get('/v1/profile/demo')
+    assert cabinet.status_code == 200
+    cabinet_data = cabinet.json()
+    assert cabinet_data['analysis_history']
+    assert cabinet_data['profile']['beauty_summary']
+
+
+
+def test_checkout_saves_order_history_and_clears_cart() -> None:
+    analyze = client.post('/v1/photo/analyze', json={
+        'image_url': 'https://example.com/checkout.jpg',
+        'user_context': {'goal': 'pick foundation'}
+    })
+    session_id = analyze.json()['session_id']
+    sku = analyze.json()['recommendations'][0]['sku']
+    add = client.post(f'/v1/session/{session_id}/cart/items', json={'sku': sku})
+    assert add.status_code == 200
+
+    checkout = client.post(f'/v1/session/{session_id}/checkout', json={})
+    assert checkout.status_code == 200
+    checkout_data = checkout.json()
+    assert checkout_data['cart_cleared'] is True
+    assert checkout_data['order']['total_items'] == 1
+
+    cart = client.get(f'/v1/session/{session_id}/cart')
+    assert cart.status_code == 200
+    assert cart.json()['total_items'] == 0
+
+    cabinet = client.get('/v1/profile/demo').json()
+    assert cabinet['order_history']

@@ -209,6 +209,13 @@ def retrieve_products(
                     vector_score=0.0,
                     rule_score=0.0,
                     final_score=1.0,
+                    image_url=keep_product.image_url,
+                    goldapple_url=keep_product.goldapple_url,
+                    goldapple_search_query=keep_product.goldapple_search_query,
+                    hero_badge=keep_product.hero_badge,
+                    card_note=keep_product.card_note,
+                    halal_status=keep_product.halal_status,
+                    halal_note=keep_product.halal_note,
                 ))
                 continue
 
@@ -242,6 +249,13 @@ def retrieve_products(
             vector_score=top.vector_score,
             rule_score=top.rule_score,
             final_score=top.rerank_score,
+            image_url=top.product.image_url,
+            goldapple_url=top.product.goldapple_url,
+            goldapple_search_query=top.product.goldapple_search_query,
+            hero_badge=top.product.hero_badge,
+            card_note=top.product.card_note,
+            halal_status=top.product.halal_status,
+            halal_note=top.product.halal_note,
         ))
 
     return results

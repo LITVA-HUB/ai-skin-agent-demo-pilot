@@ -3,1531 +3,3673 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Golden Apple beauty advisor</title>
+  <title>Golden Apple Beauty ID</title>
+  <link rel="icon" href='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="20" fill="%23f6ede2"/%3E%3Cpath d="M19 20h26v8H27v8h15v8H27v8h-8z" fill="%23191410"/%3E%3C/svg%3E' />
   <style>
     :root {
-      --bg:#f7f2ea;
-      --bg-soft:#fbf7f2;
-      --surface:#fffdfa;
-      --surface-2:#f4ede4;
-      --ink:#171411;
-      --ink-soft:#544a42;
-      --ink-muted:#84786d;
-      --line:rgba(23,20,17,.1);
-      --line-strong:rgba(23,20,17,.18);
-      --gold:#d5a24b;
-      --gold-soft:#f7e4be;
-      --berry:#6f355e;
-      --shadow:0 18px 50px rgba(31,20,12,.08);
-      --shadow-strong:0 22px 70px rgba(26,16,10,.14);
-      --radius-xl:30px;
-      --radius-lg:24px;
-      --radius-md:18px;
-      --radius-sm:14px;
+      --bg: #f7f1ea;
+      --surface: rgba(255, 250, 244, 0.92);
+      --surface-strong: #fffaf4;
+      --surface-soft: #f1e4d4;
+      --ink: #191410;
+      --muted: #675c51;
+      --line: rgba(25, 20, 16, 0.1);
+      --gold: #c7963e;
+      --berry: #7c415c;
+      --success: #edf5e7;
+      --success-ink: #35522b;
+      --shadow: 0 16px 44px rgba(31, 20, 12, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --radius-sm: 14px;
+      --page-width: 980px;
+      --frame-left: 22%;
+      --frame-top: 12%;
+      --frame-width: 56%;
+      --frame-height: 72%;
     }
 
-    * { box-sizing:border-box; }
-
-    html {
-      scroll-behavior:smooth;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      margin:0;
-      color:var(--ink);
-      font-family:Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(255,255,255,.85) 0%, transparent 26%),
-        radial-gradient(circle at 90% 0%, rgba(213,162,75,.12) 0%, transparent 20%),
-        linear-gradient(180deg, #fbf7f2 0%, #f6efe6 48%, #f3ece3 100%);
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.86) 0%, transparent 24%),
+        radial-gradient(circle at 92% 0%, rgba(199, 150, 62, 0.12) 0%, transparent 18%),
+        linear-gradient(180deg, #fbf7f2 0%, #f6ede2 48%, #f3e8dc 100%);
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
-    .page {
-      max-width:1320px;
-      margin:0 auto;
-      padding:22px 18px 48px;
-      display:grid;
-      gap:18px;
-    }
+    h1, h2, h3, p { margin: 0; }
 
-    .topbar {
-      position:sticky;
-      top:14px;
-      z-index:20;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding:14px 18px;
-      border:1px solid rgba(255,255,255,.55);
-      border-radius:999px;
-      backdrop-filter:blur(14px) saturate(140%);
-      background:rgba(255,252,247,.72);
-      box-shadow:0 10px 30px rgba(36,24,14,.07);
-    }
-
-    .brand {
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
-
-    .brand-mark {
-      width:38px;
-      height:38px;
-      border-radius:50%;
-      background:
-        radial-gradient(circle at 35% 30%, #ffe9bf 0%, #f5c970 38%, #ce8b28 72%, #8c5717 100%);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.5),
-        0 8px 20px rgba(160,103,28,.22);
-      position:relative;
-      flex:0 0 auto;
-    }
-
-    .brand-mark::after {
-      content:'';
-      position:absolute;
-      width:13px;
-      height:7px;
-      top:-2px;
-      right:7px;
-      border-radius:99px 99px 0 99px;
-      background:linear-gradient(135deg, #7d9a43, #4f6f29);
-      transform:rotate(-22deg);
-      box-shadow:0 2px 8px rgba(79,111,41,.18);
-    }
-
-    .brand-copy {
-      min-width:0;
-    }
-
-    .eyebrow {
-      text-transform:uppercase;
-      letter-spacing:.16em;
-      font-size:11px;
-      color:var(--ink-muted);
-      margin-bottom:4px;
-    }
-
-    .brand-title {
-      font-size:15px;
-      font-weight:700;
-      letter-spacing:-.02em;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .topbar-meta {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .pill {
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 13px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.6);
-      color:var(--ink-soft);
-      font-size:13px;
-      white-space:nowrap;
-    }
-
-    .pill-dot {
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:linear-gradient(180deg, #f3c96d, #bf8130);
-      box-shadow:0 0 0 4px rgba(213,162,75,.16);
-      flex:0 0 auto;
-    }
-
-    .hero-shell {
-      position:relative;
-      overflow:hidden;
-      border-radius:34px;
-      border:1px solid rgba(255,255,255,.65);
-      background:
-        linear-gradient(135deg, rgba(255,253,250,.96), rgba(247,239,229,.96)),
-        linear-gradient(180deg, rgba(213,162,75,.06), rgba(111,53,94,.04));
-      box-shadow:var(--shadow-strong);
-      padding:18px;
-    }
-
-    .hero-shell::before,
-    .hero-shell::after {
-      content:'';
-      position:absolute;
-      border-radius:50%;
-      pointer-events:none;
-      filter:blur(2px);
-    }
-
-    .hero-shell::before {
-      width:280px;
-      height:280px;
-      top:-120px;
-      right:-60px;
-      background:radial-gradient(circle, rgba(213,162,75,.2) 0%, rgba(213,162,75,0) 72%);
-    }
-
-    .hero-shell::after {
-      width:220px;
-      height:220px;
-      bottom:-100px;
-      left:-50px;
-      background:radial-gradient(circle, rgba(111,53,94,.12) 0%, rgba(111,53,94,0) 72%);
-    }
-
-    .hero {
-      display:grid;
-      grid-template-columns:1.08fr .92fr;
-      gap:18px;
-      position:relative;
-      z-index:1;
-    }
-
-    .hero-copy,
-    .upload-card,
-    .panel,
-    .editorial-strip {
-      border-radius:var(--radius-xl);
-      border:1px solid rgba(23,20,17,.08);
-      background:rgba(255,255,255,.62);
-      backdrop-filter:blur(6px);
-      box-shadow:var(--shadow);
-    }
-
-    .hero-copy {
-      padding:28px;
-      display:grid;
-      gap:18px;
-      align-content:start;
-      background:
-        linear-gradient(180deg, rgba(255,255,255,.84), rgba(255,248,238,.68)),
-        radial-gradient(circle at top right, rgba(213,162,75,.16), rgba(213,162,75,0) 30%);
-    }
-
-    .hero-headline {
-      display:grid;
-      gap:12px;
-    }
-
-    .hero-headline h1 {
-      margin:0;
-      font-size:58px;
-      line-height:.96;
-      letter-spacing:-.055em;
-      max-width:760px;
-    }
-
-    .hero-lead {
-      margin:0;
-      font-size:17px;
-      line-height:1.72;
-      color:var(--ink-soft);
-      max-width:710px;
-    }
-
-    .hero-grid {
-      display:grid;
-      grid-template-columns:repeat(3, minmax(0,1fr));
-      gap:12px;
-    }
-
-    .hero-card {
-      padding:14px 14px 15px;
-      border-radius:22px;
-      background:rgba(255,255,255,.7);
-      border:1px solid rgba(23,20,17,.08);
-      min-height:118px;
-    }
-
-    .hero-card strong {
-      display:block;
-      margin-bottom:8px;
-      font-size:14px;
-      line-height:1.35;
-    }
-
-    .hero-card span {
-      display:block;
-      color:var(--ink-muted);
-      font-size:13px;
-      line-height:1.55;
-    }
-
-    .story-row {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .story-chip {
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding:10px 14px 10px 10px;
-      border-radius:999px;
-      border:1px solid rgba(23,20,17,.08);
-      background:rgba(255,255,255,.78);
-      box-shadow:0 6px 18px rgba(34,20,12,.04);
-      font-size:13px;
-      color:var(--ink-soft);
-    }
-
-    .story-thumb {
-      width:28px;
-      height:28px;
-      border-radius:50%;
-      flex:0 0 auto;
-      background:linear-gradient(135deg, #f3c26b, #f8ead0 42%, #7d385e 100%);
-      border:2px solid rgba(255,255,255,.85);
-      box-shadow:0 4px 10px rgba(98,53,42,.16);
-    }
-
-    .upload-card {
-      padding:18px;
-      display:grid;
-      gap:14px;
-      align-content:start;
-      background:
-        linear-gradient(180deg, rgba(21,17,14,.98), rgba(30,24,19,.94)),
-        linear-gradient(135deg, rgba(213,162,75,.06), rgba(111,53,94,.08));
-      color:#fff6ed;
-      border-color:rgba(255,255,255,.08);
-      box-shadow:0 24px 70px rgba(22,15,11,.3);
-    }
-
-    .upload-top {
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-    }
-
-    .upload-top h2 {
-      margin:0 0 6px;
-      font-size:24px;
-      letter-spacing:-.03em;
-      color:#fff9f3;
-    }
-
-    .upload-top p {
-      margin:0;
-      color:rgba(255,243,230,.72);
-      font-size:14px;
-      line-height:1.6;
-      max-width:420px;
-    }
-
-    .upload-badge {
-      padding:9px 11px;
-      border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.09);
-      color:#f7d69a;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      white-space:nowrap;
-    }
-
-    .preview-wrap {
-      position:relative;
-      overflow:hidden;
-      min-height:380px;
-      border-radius:26px;
-      border:1px solid rgba(255,255,255,.08);
-      background:
-        radial-gradient(circle at top, rgba(255,255,255,.08), transparent 32%),
-        linear-gradient(160deg, #2a2019 0%, #17110d 100%);
-    }
-
-    .preview-wrap::after {
-      content:'';
-      position:absolute;
-      inset:auto 12px 12px auto;
-      width:86px;
-      height:86px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(213,162,75,.18), rgba(213,162,75,0) 70%);
-      pointer-events:none;
-    }
-
-    .preview {
-      width:100%;
-      height:380px;
-      object-fit:cover;
-      display:block;
-    }
-
-    .preview-placeholder {
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
-      padding:28px;
-      text-align:center;
-      color:rgba(255,243,230,.72);
-      font-size:15px;
-      line-height:1.6;
-    }
-
-    .upload-line {
-      display:grid;
-      gap:10px;
-    }
-
-    input[type="file"], textarea, button {
-      font:inherit;
-    }
-
-    input[type="file"] {
-      width:100%;
-      padding:14px 16px;
-      border-radius:18px;
-      border:1px dashed rgba(255,255,255,.18);
-      background:rgba(255,255,255,.05);
-      color:#fff8ef;
-    }
-
-    textarea {
-      width:100%;
-      min-height:96px;
-      resize:vertical;
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:#fffdfa;
-      color:var(--ink);
-      padding:15px 16px;
-      outline:none;
-      transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-    }
-
-    textarea:focus,
-    input[type="file"]:focus {
-      border-color:rgba(213,162,75,.56);
-      box-shadow:0 0 0 4px rgba(213,162,75,.12);
+    button, input, textarea {
+      font: inherit;
     }
 
     button {
-      border:0;
-      cursor:pointer;
-      transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease, background .18s ease;
+      border: 0;
+      cursor: pointer;
     }
 
-    button:hover {
-      transform:translateY(-1px);
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(199, 150, 62, 0.28);
+      outline-offset: 2px;
     }
 
-    button:disabled {
-      opacity:.6;
-      cursor:default;
-      transform:none;
+    .page {
+      max-width: var(--page-width);
+      margin: 0 auto;
+      padding: 14px 14px 40px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .shell,
+    .header,
+    .card,
+    .details-card {
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+
+    .header {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 8px;
+      z-index: 10;
+    }
+
+    .brand small {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .brand strong {
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .status-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .status-pill.warn {
+      background: rgba(124, 65, 92, 0.08);
+      color: var(--berry);
+      border-color: rgba(124, 65, 92, 0.18);
+    }
+
+    .runtime-notice {
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(124, 65, 92, 0.16);
+      background: rgba(124, 65, 92, 0.06);
+      color: var(--berry);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(25, 20, 16, 0.06);
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .scan-card {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .scan-screen {
+      min-height: calc(100dvh - 118px);
+      align-content: start;
+    }
+
+    .scan-launch-copy {
+      display: grid;
+      gap: 6px;
+    }
+
+    .scan-launch-copy h1 {
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      max-width: 11ch;
+    }
+
+    .scan-launch-copy p {
+      max-width: 54ch;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .scan-top {
+      display: grid;
+      gap: 6px;
+    }
+
+    .scan-top h2 {
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .scan-top p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .mode-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .mode-toggle button {
+      padding: 12px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .mode-toggle button.active {
+      background: var(--ink);
+      color: white;
+    }
+
+    .scan-layout {
+      display: grid;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .scan-stage {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      aspect-ratio: 4 / 5;
+      min-height: 340px;
+      max-height: 500px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.14) 0%, transparent 28%),
+        linear-gradient(180deg, #d8ccb8 0%, #cfc3b0 100%);
+      border: 1px solid rgba(255, 255, 255, 0.74);
+    }
+
+    video,
+    .preview-image,
+    .overlay-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    video,
+    .preview-image {
+      object-fit: cover;
+      background: linear-gradient(180deg, #d8c0a1 0%, #efdfcb 100%);
+    }
+
+    .overlay-canvas {
+      pointer-events: none;
+    }
+
+    video.hidden,
+    .preview-image.hidden,
+    .mode-pane.hidden,
+    .results.hidden {
+      display: none;
+    }
+
+    .zone-overlay,
+    .hotspot-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .face-frame {
+      position: absolute;
+      left: var(--frame-left);
+      top: var(--frame-top);
+      width: var(--frame-width);
+      height: var(--frame-height);
+      border-radius: 46% 46% 36% 36% / 34% 34% 48% 48%;
+      border: 1px solid rgba(255, 255, 255, 0.82);
+      box-shadow:
+        0 0 0 1px rgba(199, 150, 62, 0.12) inset,
+        0 0 0 10px rgba(255, 255, 255, 0.03) inset;
+      pointer-events: none;
+      transition: opacity 160ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .face-frame::before {
+      content: "";
+      position: absolute;
+      inset: 9%;
+      border-radius: inherit;
+      border: 1px dashed rgba(255, 255, 255, 0.34);
+    }
+
+    .scan-beam {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.04) 18%,
+          rgba(199, 150, 62, 0.36) 50%,
+          rgba(255, 255, 255, 0.04) 56%,
+          transparent 100%
+        );
+      transform: translateY(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .scan-stage.live .scan-beam,
+    .scan-stage.scanning .scan-beam {
+      animation: scan-pass 2.3s linear infinite;
+      opacity: 0.85;
+    }
+
+    .scan-stage.aligned .face-frame {
+      border-color: rgba(199, 150, 62, 0.92);
+      box-shadow:
+        0 0 0 1px rgba(199, 150, 62, 0.24) inset,
+        0 0 0 10px rgba(199, 150, 62, 0.08) inset;
+    }
+
+    .zone-box {
+      position: absolute;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      background: rgba(199, 150, 62, 0.14);
+      box-shadow: 0 0 0 1px rgba(199, 150, 62, 0.16) inset;
+    }
+
+    .zone-box.live-guide {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.24);
+      box-shadow: none;
+    }
+
+    .hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      pointer-events: auto;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 10px 20px rgba(25, 18, 13, 0.14);
+    }
+
+    .stage-note {
+      padding: 14px 15px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .stage-note strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .stage-note span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .mode-pane {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+    }
+
+    .scan-control-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .scan-status-panel {
+      display: grid;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    .scan-status-head {
+      display: grid;
+      gap: 4px;
+    }
+
+    .scan-status-head h3 {
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .scan-status-head p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .scan-state-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .scan-state-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .scan-state-pill.active {
+      border-color: rgba(199, 150, 62, 0.32);
+      background: rgba(199, 150, 62, 0.12);
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .scan-state-pill.done {
+      color: var(--ink);
+      background: rgba(25, 20, 16, 0.05);
+    }
+
+    .scan-hint,
+    .support-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .cta-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .secondary-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mode-pane h3 {
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .mode-pane p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .step {
+      padding: 11px 13px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .optional-box {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .optional-box summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+      list-style: none;
+    }
+
+    .optional-box summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .optional-box p {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 96px;
+      padding: 14px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    input[type="file"] {
+      padding: 12px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .primary-action-bar {
+      display: none;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .link-btn {
+      min-height: 48px;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight: 700;
+      text-align: center;
     }
 
     .primary-btn {
-      background:linear-gradient(180deg, #f2ca7b 0%, #d49d49 100%);
-      color:#23180f;
-      font-weight:800;
-      padding:15px 18px;
-      border-radius:18px;
-      box-shadow:0 10px 25px rgba(193,128,36,.22);
+      background: var(--ink);
+      color: white;
     }
 
-    .ghost-btn {
-      background:rgba(255,255,255,.08);
-      color:#fff3e5;
-      font-weight:600;
-      padding:14px 18px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.1);
+    .secondary-btn,
+    .link-btn {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      border: 1px solid var(--line);
     }
 
-    .status {
-      padding:14px 16px;
-      border-radius:18px;
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.08);
-      color:rgba(255,245,236,.86);
-      font-size:14px;
-      line-height:1.5;
+    .link-btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      text-decoration: none;
     }
 
-    .status.error {
-      background:rgba(143,45,57,.16);
-      border-color:rgba(239,195,200,.22);
-      color:#ffd8dd;
+    .results {
+      display: grid;
+      gap: 12px;
     }
 
-    .tiny {
-      font-size:12px;
-      color:rgba(255,243,230,.58);
-      line-height:1.55;
+    .screen.hidden,
+    .hidden {
+      display: none !important;
     }
 
-    .editorial-strip {
-      display:grid;
-      grid-template-columns:1.05fr .95fr;
-      gap:14px;
-      padding:16px;
-      align-items:stretch;
+    .app-page {
+      min-height: 100dvh;
+      padding-bottom: 120px;
     }
 
-    .editorial-card {
-      padding:18px;
-      border-radius:22px;
-      border:1px solid rgba(23,20,17,.08);
-      background:rgba(255,255,255,.7);
+    .app-header {
+      gap: 10px;
     }
 
-    .editorial-card.dark {
-      background:linear-gradient(180deg, #1a1411, #2a201a);
-      color:#fff7ee;
-      border-color:rgba(255,255,255,.08);
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
-    .editorial-card h3 {
-      margin:0 0 8px;
-      font-size:19px;
-      letter-spacing:-.03em;
+    .nav-link {
+      min-height: 40px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--muted);
+      font-weight: 700;
     }
 
-    .editorial-card p {
-      margin:0;
-      color:inherit;
-      opacity:.78;
-      line-height:1.6;
-      font-size:14px;
+    .nav-link.active {
+      background: var(--ink);
+      color: white;
+      border-color: var(--ink);
     }
 
-    .editorial-list {
-      margin-top:12px;
-      display:grid;
-      gap:10px;
-    }
+    .advisor-flow,
+    .profile-screen {
+      display: grid;
+      gap: 12px;
+    }
+
+    .advisor-hero-card {
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .advisor-stage-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .analysis-visual {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .analysis-stage {
+      width: min(100%, 320px);
+      min-height: 0;
+      max-height: none;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.18) 0%, transparent 20%),
+        linear-gradient(180deg, #dfd4c7 0%, #cdbfae 100%);
+    }
+
+    .analysis-placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 10px;
+      padding: 24px;
+      color: rgba(255, 250, 244, 0.92);
+      text-align: center;
+      background:
+        linear-gradient(180deg, rgba(25, 20, 16, 0.08), rgba(25, 20, 16, 0.38)),
+        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.14), transparent 32%);
+    }
+
+    .analysis-placeholder strong {
+      font-size: 18px;
+      letter-spacing: -0.03em;
+    }
+
+    .analysis-placeholder span {
+      max-width: 22ch;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .summary-tile {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .summary-tile strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .summary-tile span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .advisor-insight-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bundle-summary-tile {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .bundle-summary-tile strong {
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .bundle-summary-tile span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    #chatMessages {
+      min-height: 240px;
+      max-height: 46vh;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .chat-bubble {
+      max-width: 92%;
+      padding: 14px;
+      border-radius: 18px;
+      line-height: 1.55;
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 8px;
+    }
+
+    .chat-bubble.agent {
+      background: rgba(255, 255, 255, 0.88);
+      justify-self: start;
+    }
+
+    .chat-bubble.user {
+      background: rgba(25, 20, 16, 0.92);
+      color: white;
+      border-color: rgba(25, 20, 16, 0.92);
+      justify-self: end;
+    }
+
+    .chat-bubble p {
+      margin: 0;
+    }
+
+    #chatComposer {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    #chatInput {
+      min-height: 52px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      padding: 0 14px;
+      color: var(--ink);
+    }
+
+    #cartDrawerBackdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 15, 11, 0.32);
+      z-index: 20;
+    }
 
-    .editorial-item {
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      color:inherit;
-      font-size:14px;
-      line-height:1.5;
-      opacity:.9;
+    #cartDrawer {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 21;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+      max-height: 70vh;
+      overflow: auto;
     }
 
-    .editorial-item i {
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:linear-gradient(180deg, #f3ca7b, #cb8930);
-      margin-top:6px;
-      flex:0 0 auto;
-      display:block;
+    #transitionOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(247, 241, 234, 0.78);
+      backdrop-filter: blur(12px);
     }
 
-    .main {
-      display:grid;
-      grid-template-columns:1.08fr .92fr;
-      gap:18px;
-      align-items:start;
+    .results-head {
+      padding: 16px 18px;
+      display: grid;
+      gap: 12px;
     }
 
-    .panel {
-      padding:20px;
-      background:rgba(255,253,249,.74);
+    .advisor-head {
+      background:
+        radial-gradient(circle at top right, rgba(199, 150, 62, 0.12) 0%, transparent 26%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 249, 243, 0.88));
     }
 
-    .section-head {
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      margin-bottom:14px;
+    .results-head h2 {
+      font-size: 22px;
+      letter-spacing: -0.03em;
     }
 
-    .section-head h2 {
-      margin:0 0 6px;
-      font-size:28px;
-      letter-spacing:-.035em;
+    .results-head p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
     }
 
-    .sub {
-      color:var(--ink-soft);
-      font-size:14px;
-      line-height:1.62;
+    .results-nav,
+    .quick-actions,
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
-    .mini-badge {
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:9px 12px;
-      border-radius:999px;
-      background:linear-gradient(180deg, #fff6e4, #fae8c7);
-      border:1px solid rgba(213,162,75,.22);
-      color:#805822;
-      font-size:12px;
-      font-weight:700;
-      white-space:nowrap;
+    .results-nav::-webkit-scrollbar,
+    .quick-actions::-webkit-scrollbar,
+    .filter-row::-webkit-scrollbar {
+      display: none;
     }
 
-    .chat-shell {
-      border-radius:26px;
-      padding:14px;
-      background:linear-gradient(180deg, rgba(255,251,245,.92), rgba(246,238,229,.86));
-      border:1px solid rgba(23,20,17,.06);
+    .results-tab,
+    .quick-action,
+    .filter-chip {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
     }
 
-    .chat {
-      display:grid;
-      gap:10px;
-      max-height:540px;
-      overflow:auto;
-      padding-right:4px;
-      margin:0 0 14px;
+    .results-tab {
+      min-height: 44px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--muted);
+      font-weight: 700;
+      white-space: nowrap;
     }
 
-    .msg {
-      max-width:86%;
-      padding:14px 16px;
-      border-radius:20px;
-      white-space:pre-wrap;
-      line-height:1.58;
-      font-size:15px;
-      box-shadow:0 10px 22px rgba(38,24,12,.04);
+    .results-tab.active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: white;
     }
 
-    .msg.user {
-      margin-left:auto;
-      background:linear-gradient(180deg, #201814, #14110f);
-      color:#fff9f2;
-      border-bottom-right-radius:8px;
-      border:1px solid rgba(255,255,255,.04);
+    .results-panel {
+      padding: 16px 18px 18px;
+      display: grid;
+      gap: 12px;
     }
 
-    .msg.agent {
-      background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(255,250,244,.92));
-      border:1px solid rgba(23,20,17,.08);
-      color:#2c241e;
-      border-bottom-left-radius:8px;
+    .results-panel.hidden {
+      display: none;
     }
 
-    .composer {
-      display:grid;
-      gap:10px;
+    .panel-head {
+      display: grid;
+      gap: 4px;
     }
 
-    .send-row {
-      display:flex;
-      gap:10px;
+    .panel-head h3 {
+      font-size: 18px;
+      letter-spacing: -0.02em;
     }
 
-    .send-row button {
-      flex:1;
+    .panel-head p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
     }
 
-    .cta-row {
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:14px;
+    .scan-summary {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--muted);
+      line-height: 1.6;
     }
 
-    .quick-btn {
-      background:rgba(255,255,255,.82);
-      border:1px solid rgba(23,20,17,.08);
-      color:#46372c;
-      padding:11px 14px;
-      border-radius:999px;
-      font-size:14px;
-      font-weight:600;
-      box-shadow:0 8px 16px rgba(31,18,9,.04);
-    }
-
-    .sidebar-grid {
-      display:grid;
-      gap:14px;
+    .metric-list,
+    .product-list,
+    .cart-list,
+    .profile-list,
+    .history-list {
+      display: grid;
+      gap: 10px;
     }
 
-    .helper {
-      padding:18px;
-      border-radius:22px;
-      background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(248,240,230,.8));
-      border:1px solid rgba(23,20,17,.08);
+    .profile-list {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
 
-    .helper strong {
-      display:block;
-      margin-bottom:8px;
-      font-size:16px;
-      letter-spacing:-.02em;
+    .metric-list.compact {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .helper-grid {
-      display:grid;
-      gap:10px;
-      margin-top:12px;
+    .metric-item,
+    .product-card,
+    .cart-item,
+    .profile-card,
+    .history-card {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.8);
     }
 
-    .helper-item {
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      font-size:14px;
-      line-height:1.52;
-      color:var(--ink-soft);
+    .metric-item strong,
+    .product-card strong,
+    .cart-item strong,
+    .profile-card strong,
+    .history-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
 
-    .helper-item i {
-      display:block;
-      width:9px;
-      height:9px;
-      border-radius:50%;
-      background:linear-gradient(180deg, #d8ad56, #9a6726);
-      margin-top:6px;
-      flex:0 0 auto;
+    .profile-card h4,
+    .history-card h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      letter-spacing: -0.01em;
     }
 
-    .cards {
-      display:grid;
-      gap:12px;
+    .fact-stack {
+      display: grid;
+      gap: 8px;
     }
 
-    .card {
-      position:relative;
-      overflow:hidden;
-      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(251,245,237,.94));
-      border:1px solid rgba(23,20,17,.08);
-      border-radius:22px;
-      padding:16px;
-      box-shadow:0 12px 30px rgba(36,22,14,.05);
+    .fact-row {
+      display: grid;
+      gap: 2px;
     }
 
-    .card::after {
-      content:'';
-      position:absolute;
-      inset:auto -18px -18px auto;
-      width:98px;
-      height:98px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(213,162,75,.15) 0%, rgba(213,162,75,0) 72%);
-      pointer-events:none;
+    .fact-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
     }
 
-    .badge {
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      font-weight:700;
-      padding:8px 11px;
-      border-radius:999px;
-      background:linear-gradient(180deg, #fff7e8, #f7e2b9);
-      color:#805923;
-      margin-bottom:12px;
-      border:1px solid rgba(213,162,75,.22);
+    .fact-value {
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    .card h3 {
-      margin:0 0 6px;
-      font-size:18px;
-      line-height:1.35;
-      letter-spacing:-.025em;
-      max-width:92%;
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .brand-row {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-      color:var(--ink-soft);
-      font-size:14px;
+    .profile-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(25, 20, 16, 0.06);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      line-height: 1.2;
     }
 
-    .brand-dot {
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:linear-gradient(180deg, #6f355e, #d5a24b);
-      box-shadow:0 0 0 5px rgba(111,53,95,.08);
+    .history-card {
+      display: grid;
+      gap: 8px;
     }
 
-    .price {
-      font-size:24px;
-      font-weight:800;
-      margin:8px 0 10px;
-      letter-spacing:-.04em;
-      color:#1f1812;
+    .history-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
-    .card-actions {
-      display:flex;
-      gap:10px;
-      margin-top:14px;
+    .metric-bar {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #ecdfcf;
+      margin-top: 10px;
     }
 
-    .card-btn {
-      flex:1;
-      border-radius:14px;
-      padding:11px 13px;
-      font-size:14px;
-      font-weight:700;
+    .metric-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--berry), var(--gold));
     }
 
-    .card-btn.add {
-      background:linear-gradient(180deg, #f2ca7b 0%, #d49d49 100%);
-      color:#23180f;
-      box-shadow:0 10px 20px rgba(193,128,36,.16);
+    .quick-action,
+    .filter-chip {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 13px;
+      transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
     }
 
-    .card-btn.added {
-      background:#231a16;
-      color:#fff7ef;
+    .quick-action.active,
+    .filter-chip.active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: white;
     }
 
-    .cart-panel {
-      padding:18px;
-      border-radius:22px;
-      background:linear-gradient(180deg, rgba(36,26,21,.98), rgba(25,18,15,.95));
-      border:1px solid rgba(255,255,255,.06);
-      color:#fff7ef;
-      box-shadow:0 18px 40px rgba(19,13,10,.16);
+    .quick-action:hover,
+    .filter-chip:hover,
+    .nav-link:hover,
+    .secondary-btn:hover,
+    .link-btn:hover {
+      transform: translateY(-1px);
     }
 
-    .cart-top {
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      margin-bottom:14px;
+    .product-card {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
     }
 
-    .cart-title {
-      margin:0 0 6px;
-      font-size:20px;
-      letter-spacing:-.03em;
-      color:#fff7ef;
+    .product-card.hero {
+      padding: 16px;
+      border-color: rgba(199, 150, 62, 0.22);
+      background:
+        radial-gradient(circle at top right, rgba(199, 150, 62, 0.14) 0%, transparent 24%),
+        rgba(255, 255, 255, 0.88);
     }
 
-    .cart-sub {
-      color:rgba(255,240,228,.7);
-      font-size:13px;
-      line-height:1.55;
+    .product-card.hero img {
+      width: 112px;
+      height: 112px;
     }
 
-    .cart-badge {
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:34px;
-      height:34px;
-      padding:0 10px;
-      border-radius:999px;
-      background:linear-gradient(180deg, #fff6e4, #fae8c7);
-      color:#7a521f;
-      font-size:13px;
-      font-weight:800;
+    .product-card.supporting {
+      background: rgba(255, 255, 255, 0.74);
     }
 
-    .cart-list {
-      display:grid;
-      gap:10px;
-      margin-bottom:14px;
+    .product-card.added {
+      border-color: rgba(53, 82, 43, 0.22);
+      background: linear-gradient(180deg, rgba(237, 245, 231, 0.9), rgba(255, 255, 255, 0.82));
     }
 
-    .cart-item {
-      display:grid;
-      gap:10px;
-      padding:13px;
-      border-radius:18px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
+    .product-card img {
+      width: 92px;
+      height: 92px;
+      object-fit: cover;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ecdfcf 0%, #f4eadf 100%);
     }
 
-    .cart-item-top {
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
+    .product-meta {
+      display: grid;
+      gap: 8px;
     }
 
-    .cart-item h4 {
-      margin:0 0 4px;
-      font-size:14px;
-      line-height:1.4;
-      color:#fff8f1;
+    .product-title-row {
+      display: grid;
+      gap: 4px;
     }
 
-    .cart-meta,
-    .cart-empty {
-      color:rgba(255,240,228,.66);
-      font-size:13px;
-      line-height:1.5;
+    .product-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      align-items: stretch;
     }
 
-    .cart-price {
-      white-space:nowrap;
-      font-size:16px;
-      font-weight:800;
-      color:#f3cd7f;
+    .add-btn.added {
+      background: var(--success);
+      color: var(--success-ink);
+      border: 1px solid rgba(53, 82, 43, 0.18);
     }
 
-    .cart-controls {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+    .mini-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
     }
 
-    .qty-controls {
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+    .why-text {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
-    .qty-btn,
-    .cart-clear-btn,
-    .cart-remove-btn {
-      border-radius:12px;
-      padding:8px 10px;
-      font-size:13px;
-      font-weight:700;
+    .support-section {
+      display: grid;
+      gap: 10px;
     }
 
-    .qty-btn {
-      min-width:34px;
-      background:rgba(255,255,255,.08);
-      color:#fff7ef;
-      border:1px solid rgba(255,255,255,.08);
+    .support-head {
+      display: grid;
+      gap: 4px;
+      padding-top: 4px;
     }
 
-    .qty-value {
-      min-width:18px;
-      text-align:center;
-      color:#fff9f3;
-      font-weight:700;
-      font-size:14px;
+    .support-head strong {
+      font-size: 14px;
+      letter-spacing: -0.01em;
     }
 
-    .cart-remove-btn,
-    .cart-clear-btn {
-      background:transparent;
-      color:rgba(255,240,228,.8);
-      border:1px solid rgba(255,255,255,.1);
+    .support-head span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
     }
 
-    .cart-summary {
-      display:grid;
-      gap:10px;
-      padding-top:14px;
-      border-top:1px solid rgba(255,255,255,.08);
+    .signal-highlight-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .cart-summary-row {
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:center;
-      color:rgba(255,244,234,.84);
-      font-size:14px;
+    .signal-highlight {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid var(--line);
+      font-size: 13px;
+      line-height: 1.2;
+      color: var(--ink);
     }
 
-    .cart-summary-row strong {
-      font-size:20px;
-      letter-spacing:-.03em;
-      color:#fff9f3;
+    .cabinet-summary {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     }
 
-    .cart-cta {
-      display:grid;
-      gap:10px;
-      margin-top:2px;
+    .cabinet-stat {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
     }
 
-    .cart-primary {
-      width:100%;
-      border-radius:16px;
-      padding:13px 14px;
-      background:linear-gradient(180deg, #f2ca7b 0%, #d49d49 100%);
-      color:#23180f;
-      font-weight:800;
+    .cabinet-stat strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 22px;
+      letter-spacing: -0.03em;
     }
 
-    .empty-state {
-      padding:18px;
-      border-radius:22px;
-      background:linear-gradient(180deg, rgba(255,255,255,.82), rgba(247,239,229,.8));
-      border:1px solid rgba(23,20,17,.08);
+    .cabinet-stat span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
     }
 
-    .footer-note {
-      text-align:center;
-      color:var(--ink-muted);
-      font-size:12px;
-      line-height:1.6;
-      padding:6px 0 0;
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
-    @media (max-width:1120px) {
-      .hero,
-      .main,
-      .editorial-strip {
-        grid-template-columns:1fr;
-      }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(199, 150, 62, 0.14);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .small-text {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .cart-total {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .cart-total strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+    }
+
+    #chatComposer {
+      position: sticky;
+      bottom: 0;
+      padding-top: 10px;
+      background: linear-gradient(180deg, rgba(255, 250, 244, 0), rgba(255, 250, 244, 0.98) 28%);
+    }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: calc(18px + env(safe-area-inset-bottom));
+      z-index: 26;
+      min-width: 260px;
+      max-width: min(92vw, 360px);
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(53, 82, 43, 0.18);
+      background: rgba(237, 245, 231, 0.96);
+      color: var(--success-ink);
+      box-shadow: 0 18px 36px rgba(31, 20, 12, 0.14);
+    }
+
+    .success {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(53, 82, 43, 0.16);
+      background: var(--success);
+      color: var(--success-ink);
+      line-height: 1.5;
+    }
+
+    .empty {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--muted);
+    }
 
-      .hero-headline h1 {
-        font-size:46px;
-      }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
-      .hero-grid {
-        grid-template-columns:1fr;
-      }
+    @keyframes scan-pass {
+      from { transform: translateY(-100%); }
+      to { transform: translateY(100%); }
     }
 
-    @media (max-width:740px) {
+    @media (min-width: 860px) {
       .page {
-        padding:16px 14px 34px;
+        padding-top: 18px;
       }
 
-      .topbar {
-        border-radius:24px;
-        align-items:flex-start;
-        flex-direction:column;
+      .scan-layout {
+        grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.8fr);
       }
 
-      .topbar-meta {
-        justify-content:flex-start;
+      .button-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .hero-copy,
-      .upload-card,
-      .panel,
-      .editorial-card,
-      .editorial-strip {
-        padding:16px;
+      .mode-pane .button-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .hero-headline h1 {
-        font-size:38px;
+      .product-card {
+        grid-template-columns: 110px 1fr;
       }
 
-      .preview-wrap,
-      .preview {
-        min-height:300px;
-        height:300px;
+      .product-card img {
+        width: 110px;
+        height: 110px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        padding: 10px 10px 28px;
       }
 
-      .send-row {
-        flex-direction:column;
+      .header,
+      .scan-card,
+      .results-head,
+      .results-panel {
+        border-radius: 22px;
       }
 
-      .msg {
-        max-width:100%;
+      .header {
+        top: 6px;
+        padding: 14px 14px;
+      }
+
+      .brand strong {
+        font-size: 18px;
+      }
+
+      .status-pill {
+        font-size: 12px;
+        padding: 7px 10px;
+      }
+
+      .scan-screen {
+        min-height: calc(100svh - 90px);
+        padding-bottom: 100px;
+      }
+
+      .scan-launch-copy h1 {
+        max-width: 12ch;
+        font-size: 34px;
+      }
+
+      .scan-launch-copy p,
+      .scan-top p {
+        font-size: 13px;
+      }
+
+      .scan-stage {
+        border-radius: 20px;
+        min-height: 244px;
+        max-height: 43svh;
+      }
+
+      .mode-pane {
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .step-list {
+        display: none;
+      }
+
+      textarea {
+        min-height: 76px;
+      }
+
+      #chatComposer {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-pane .button-row {
+        display: none;
+      }
+
+      .primary-action-bar {
+        position: sticky;
+        bottom: calc(10px + env(safe-area-inset-bottom));
+        z-index: 20;
+        display: grid;
+        gap: 8px;
+        margin-top: -2px;
+        padding: 10px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        background: rgba(255, 250, 244, 0.96);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 14px 32px rgba(31, 20, 12, 0.14);
+      }
+
+      .primary-action-bar .button-row {
+        display: grid;
+      }
+
+      .primary-action-bar .secondary-btn {
+        min-height: 44px;
+      }
+
+      .product-card {
+        grid-template-columns: 1fr;
+      }
+
+      .product-card img {
+        width: 100%;
+        height: 168px;
+      }
+
+      .product-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-list.compact {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (orientation: landscape) and (max-width: 960px) {
+      .scan-layout {
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.92fr);
+      }
+
+      .primary-action-bar {
+        display: none;
       }
     }
   </style>
 </head>
 <body>
-  <div class="page">
-    <header class="topbar">
+  <div class="page app-page">
+    <header class="header app-header">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true"></div>
-        <div class="brand-copy">
-          <div class="eyebrow">golden apple inspired</div>
-          <div class="brand-title">Golden Apple beauty advisor</div>
-        </div>
+        <small>Golden Apple</small>
+        <strong>Beauty ID</strong>
       </div>
-      <div class="topbar-meta">
-        <div class="pill"><span class="pill-dot"></span> photo-driven beauty-консультант</div>
+      <div class="header-actions">
+        <button id="navScanBtn" class="nav-link active" type="button">Скан</button>
+        <button id="navAdvisorBtn" class="nav-link" type="button">Диалог</button>
+        <button id="navProfileBtn" class="nav-link" type="button">Кабинет</button>
+        <span id="aiStatusPill" class="status-pill">AI · проверка…</span>
+        <button id="cartFabBtn" class="status-pill hidden" type="button">Корзина · <span id="cartFabCount">0</span></button>
       </div>
     </header>
 
-    <section class="hero-shell">
-      <div class="hero">
-        <section class="hero-copy">
-          <div class="hero-headline">
-            <div class="eyebrow">beauty advisor • premium edit</div>
-            <h1>Твой beauty-консультант для выбора макияжа и ухода</h1>
-            <p class="hero-lead">Загрузи фото, задай настроение или задачу — и агент соберёт первую подборку, которую потом можно спокойно уточнять в диалоге.</p>
-          </div>
-        </section>
+    <section id="scanScreen" class="screen">
+      <section class="card scan-card scan-screen">
+        <div class="scan-launch-copy">
+          <span class="hero-kicker">Beauty ID Scan</span>
+          <h1>Скан лица и быстрый переход к beauty advisor.</h1>
+          <p>Один стартовый экран: камера или фото, понятная кнопка и красивый переход к анализу, диалогу и корзине.</p>
+        </div>
+        <div id="runtimeNotice" class="runtime-notice hidden"></div>
 
-        <aside class="upload-card">
-          <div class="upload-top">
-            <div>
-              <h2>Собрать персональный beauty edit</h2>
-              <p>Загрузи фото и напиши, какой эффект хочешь получить — от естественного fresh look до более вечернего образа.</p>
+        <div class="scan-top">
+          <h2>Начните со скана</h2>
+          <p>Без поиска по экрану: камера, фото и управление всегда рядом.</p>
+        </div>
+
+        <div class="mode-toggle" aria-label="Режим сканирования">
+          <button id="cameraModeBtn" class="active" type="button">С камеры</button>
+          <button id="uploadModeBtn" type="button">Загрузить фото</button>
+        </div>
+
+        <div class="scan-layout">
+          <div>
+            <div class="scan-stage" id="scanStage">
+              <video id="cameraVideo" autoplay muted playsinline></video>
+              <img id="previewImage" class="preview-image hidden" alt="Фото для сканирования" />
+              <canvas id="overlayCanvas" class="overlay-canvas"></canvas>
+              <div class="face-frame"></div>
+              <div class="scan-beam"></div>
+              <div id="zoneOverlay" class="zone-overlay"></div>
+              <div id="hotspotLayer" class="hotspot-layer"></div>
             </div>
-            <div class="upload-badge">gold edit</div>
-          </div>
-
-          <div class="preview-wrap">
-            <img id="preview" class="preview" alt="preview" style="display:none" />
-            <div id="previewPlaceholder" class="preview-placeholder">
-              Загрузи фото лица — агент посмотрит на общий образ и подскажет, что лучше подойдёт именно тебе.
+            <div class="stage-note">
+              <strong id="stageTitle">Поднесите лицо к камере</strong>
+              <span id="stageMessage">Держите лицо внутри рамки и запустите сканирование.</span>
             </div>
           </div>
 
-          <div class="upload-line">
-            <input id="photoFile" type="file" accept="image/*" />
-            <textarea id="goal" placeholder="Например: хочу сияющий дневной макияж, выровнять тон, сделать губы чуть выразительнее"></textarea>
+          <div id="cameraPane" class="mode-pane">
+            <div class="scan-control-stack">
+              <div class="scan-status-panel">
+                <div class="scan-status-head">
+                  <h3>Скан с камеры</h3>
+                  <p>Один следующий шаг за раз: открыть камеру, выровнять лицо и запустить Beauty Scan.</p>
+                </div>
+                <div id="scanStateList" class="scan-state-list" aria-label="Шаги сканирования">
+                  <div class="scan-state-pill active" data-state-item="idle">1. Открыть камеру</div>
+                  <div class="scan-state-pill" data-state-item="camera_open">2. Найти лицо</div>
+                  <div class="scan-state-pill" data-state-item="ready">3. Начать скан</div>
+                  <div class="scan-state-pill" data-state-item="scanning">4. Идёт скан</div>
+                  <div class="scan-state-pill" data-state-item="complete">5. Смотреть результат</div>
+                </div>
+                <div id="scanHint" class="scan-hint">Сначала откройте фронтальную камеру. После этого интерфейс сам подскажет следующий шаг.</div>
+              </div>
+
+              <details class="optional-box">
+                <summary>Уточнить пожелание</summary>
+                <p>Можно оставить пустым. Или написать коротко: «натуральнее», «подешевле», «без niacinamide».</p>
+                <label class="sr-only" for="goalInput">Что хотите подобрать</label>
+                <textarea id="goalInput" placeholder="Например: натуральнее, подешевле, без niacinamide"></textarea>
+              </details>
+
+              <div class="cta-stack">
+                <button id="startCameraBtn" class="primary-btn" type="button">Открыть камеру</button>
+                <div class="secondary-row">
+                  <button id="stopCameraBtn" class="secondary-btn hidden" type="button">Остановить камеру</button>
+                </div>
+                <div class="support-note">Если с камерой неудобно, можно сразу перейти в режим загрузки фото.</div>
+              </div>
+            </div>
           </div>
 
-          <div class="send-row">
-            <button id="analyzeBtn" class="primary-btn">Получить подборку</button>
-            <button id="resetBtn" class="ghost-btn" type="button">Сбросить</button>
-          </div>
+          <div id="uploadPane" class="mode-pane hidden">
+            <div class="scan-control-stack">
+              <div class="scan-status-panel">
+                <div class="scan-status-head">
+                  <h3>Скан по фотографии</h3>
+                  <p>Загрузите фронтальное фото, и мы сразу соберём Beauty ID без лишних промежуточных экранов.</p>
+                </div>
+                <div class="scan-state-list" aria-label="Шаги сканирования по фото">
+                  <div class="scan-state-pill active">1. Выберите фото</div>
+                  <div class="scan-state-pill">2. Запустите скан</div>
+                  <div class="scan-state-pill">3. Откроется результат</div>
+                </div>
+                <div class="scan-hint">Лучше всего работает фронтальное фото при дневном или мягком ровном свете.</div>
+              </div>
 
-          <div id="status" class="status">Загрузи фото и нажми «Получить подборку» — дальше можно просто общаться с агентом.</div>
-          <div class="tiny">Лучше всего работают фото с мягким светом, без сильных фильтров и со спокойным ракурсом лица.</div>
-        </aside>
-      </div>
+              <input id="photoInput" type="file" accept="image/*" capture="user" />
+
+              <details class="optional-box">
+                <summary>Уточнить пожелание</summary>
+                <p>Можно оставить пустым. Или написать: «на каждый день», «сделай сияющий», «исключить раздражители».</p>
+                <label class="sr-only" for="goalInputUpload">Что хотите подобрать</label>
+                <textarea id="goalInputUpload" placeholder="Например: нужен skin tint на каждый день"></textarea>
+              </details>
+
+              <div class="cta-stack">
+                <button id="analyzeUploadBtn" class="primary-btn" type="button">Сканировать фото</button>
+                <div class="secondary-row">
+                  <button id="backToCameraBtn" class="secondary-btn" type="button">Перейти к камере</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="mobileActionBar" class="primary-action-bar">
+          <div id="mobileCameraActions" class="button-row">
+            <button id="mobileStartCameraBtn" class="primary-btn" type="button">Открыть камеру</button>
+            <button id="mobileStopCameraBtn" class="secondary-btn hidden" type="button">Остановить</button>
+          </div>
+          <div id="mobileUploadActions" class="button-row hidden">
+            <button id="mobileAnalyzeUploadBtn" class="primary-btn" type="button">Сканировать фото</button>
+            <button id="mobileBackToCameraBtn" class="secondary-btn" type="button">К камере</button>
+          </div>
+        </div>
+      </section>
     </section>
 
-
-    <section class="main">
-      <section class="panel">
-        <div class="section-head">
-          <div>
-            <h2>Диалог с beauty-консультантом</h2>
-            <div class="sub">Пиши как обычному консультанту: «сделай образ более вечерним», «хочу акцент на губы», «подбери что-то подешевле».</div>
-          </div>
+    <section id="advisorScreen" class="screen hidden">
+      <section class="card results-head advisor-head">
+        <div>
+          <span class="hero-kicker">Beauty ID готов</span>
+          <h2>Beauty advisor</h2>
+          <p id="resultsLead">Фото, короткий разбор и дальше один понятный диалог без перегруза.</p>
         </div>
-
-        <div class="chat-shell">
-          <div id="chat" class="chat"></div>
-
-          <div class="composer">
-            <textarea id="chatInput" placeholder="Например: собери более вечерний образ с акцентом на глаза"></textarea>
-            <div class="send-row">
-              <button id="sendBtn" class="primary-btn">Отправить</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="cta-row">
-          <button id="suggestCheap" class="quick-btn" type="button">Сделать дешевле</button>
-          <button id="suggestRadiant" class="quick-btn" type="button">Более сияющий</button>
-          <button id="suggestEvening" class="quick-btn" type="button">На вечер</button>
-          <button id="suggestNatural" class="quick-btn" type="button">Натуральнее</button>
-          <button id="addAllToCart" class="quick-btn" type="button">Добавить всё в корзину</button>
+        <div class="quick-actions" id="quickActions">
+          <button class="quick-action" type="button" data-message="Сделать дешевле">Сделать дешевле</button>
+          <button class="quick-action" type="button" data-message="Сделай более сияющий">Более сияющий</button>
+          <button class="quick-action" type="button" data-message="Сделай на вечер">На вечер</button>
+          <button class="quick-action" type="button" data-message="Сделай натуральнее">Натуральнее</button>
+          <button class="quick-action" type="button" data-message="Халяль">Халяль</button>
         </div>
       </section>
 
-      <aside class="panel">
-        <div class="section-head">
-          <div>
-            <h2>Что можно попробовать</h2>
-            <div class="sub">Ниже будут рекомендации. Если хочешь, можешь просить новый вариант по настроению, фокусу или бюджету.</div>
+      <div class="advisor-flow">
+        <section class="card advisor-hero-card">
+          <div class="panel-head">
+            <h3>Ваш результат</h3>
+            <p>Сначала фото и короткий разбор. Всё остальное уже ниже по потоку.</p>
           </div>
-        </div>
-
-        <div class="sidebar-grid">
-          <div class="cart-panel" id="cartPanel">
-            <div class="cart-top">
-              <div>
-                <h3 class="cart-title">Корзина</h3>
-                <div class="cart-sub">Добавляй товары из рекомендаций прямо во время диалога.</div>
-              </div>
-              <div class="cart-badge" id="cartCount">0</div>
-            </div>
-            <div class="cart-list" id="cartList">
-              <div class="cart-empty">Корзина пока пустая. Когда агент предложит товары, на карточках появится кнопка добавления.</div>
-            </div>
-            <div class="cart-summary" id="cartSummary">
-              <div class="cart-summary-row"><span>Товаров</span><span id="cartItemsCount">0</span></div>
-              <div class="cart-summary-row"><span>Итого</span><strong id="cartTotal">0 ₽</strong></div>
-              <div class="cart-cta">
-                <button id="cartCheckoutBtn" class="cart-primary" type="button">Перейти к оформлению</button>
-                <button id="cartClearBtn" class="cart-clear-btn" type="button">Очистить корзину</button>
+          <div class="advisor-stage-stack">
+            <div class="analysis-visual">
+              <div id="advisorStage" class="scan-stage analysis-stage">
+                <img id="advisorSnapshot" class="preview-image hidden" alt="Beauty ID результат" />
+                <div id="advisorHotspotLayer" class="hotspot-layer"></div>
+                <div id="advisorPlaceholder" class="analysis-placeholder">
+                  <strong>После скана здесь появится ваш Beauty ID</strong>
+                  <span>Фото и подсказки по зонам будут собраны в один спокойный экран.</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="helper">
-            <strong>Примеры запросов</strong>
-            <div class="helper-grid">
-              <div class="helper-item"><i></i><span>собери дневной макияж</span></div>
-              <div class="helper-item"><i></i><span>сделай вариант на вечер</span></div>
-              <div class="helper-item"><i></i><span>добавь что-то для губ</span></div>
-              <div class="helper-item"><i></i><span>покажи вариант подешевле</span></div>
+            <div class="advisor-insight-stack">
+              <div id="signalHighlights" class="signal-highlight-row"></div>
+              <div id="scanSummary" class="scan-summary">После сканирования здесь появится короткое и понятное объяснение результата.</div>
+              <div id="activePreferencePanel" class="summary-tile">
+                <strong>Что мы учитываем сейчас</strong>
+                <div id="activePreferenceList" class="pill-row"></div>
+              </div>
+              <div id="metricList" class="metric-list compact"></div>
             </div>
           </div>
+        </section>
 
-          <div class="cards" id="cards"></div>
-        </div>
-      </aside>
+        <section class="card results-panel">
+          <div class="panel-head">
+            <h3>Чат с advisor</h3>
+            <p>Один короткий диалог, чтобы уточнить сценарий без длинной переписки.</p>
+          </div>
+          <div id="chatMessages" class="history-list"></div>
+          <div id="dialogSuggestions" class="filter-row">
+            <button class="filter-chip" type="button" data-suggestion="Сделай набор легче на каждый день">На каждый день</button>
+            <button class="filter-chip" type="button" data-suggestion="Исключи fragrance и сильные раздражители">Без fragrance</button>
+            <button class="filter-chip" type="button" data-suggestion="Подбери более дорогой hero продукт">Сделай премиальнее</button>
+          </div>
+          <form id="chatComposer" class="button-row">
+            <input id="chatInput" type="text" placeholder="Например: натуральнее, без fragrance, дешевле" />
+            <button id="sendMessageBtn" class="primary-btn" type="submit">Отправить</button>
+          </form>
+        </section>
+
+        <section class="card results-panel">
+          <div class="panel-head">
+            <h3>Что советует advisor</h3>
+            <p>Сначала главный набор, потом продукты, которые его поддерживают.</p>
+          </div>
+          <div class="bundle-summary-tile">
+            <strong>Почему именно этот набор</strong>
+            <span id="answerText">После сканирования здесь появится короткая и понятная подборка.</span>
+          </div>
+          <div id="bundleActions" class="secondary-row">
+            <button id="addBundleBtn" class="primary-btn" type="button">Добавить весь набор</button>
+            <button id="openCartInlineBtn" class="secondary-btn" type="button">Открыть корзину</button>
+          </div>
+          <div class="summary-tile">
+            <strong>Быстро изменить набор</strong>
+            <div id="filterRow" class="filter-row"></div>
+          </div>
+          <div id="recommendations" class="product-list"></div>
+        </section>
+      </div>
     </section>
 
-    <div class="footer-note">Golden Apple beauty advisor</div>
+    <section id="profileScreen" class="screen hidden">
+      <section class="card results-head">
+        <div>
+          <h2>Личный кабинет</h2>
+          <p>Ваш beauty profile, история анализов и демо-заказы в отдельной странице.</p>
+        </div>
+      </section>
+
+      <section class="card results-panel">
+        <div class="panel-head">
+          <h3>Что система запомнила о вас</h3>
+          <p>Только главное: какой тип кожи, что учитывать в подборе и какие фильтры сейчас активны.</p>
+        </div>
+        <div id="profileActions" class="secondary-row">
+          <button id="profileNewScanBtn" class="primary-btn" type="button">Новый скан</button>
+          <button id="profileOpenAdvisorBtn" class="secondary-btn" type="button">Открыть диалог</button>
+        </div>
+        <div id="cabinetSummary" class="cabinet-summary"></div>
+        <div id="profileList" class="profile-list"></div>
+      </section>
+
+      <section class="card results-panel">
+        <div class="panel-head">
+          <h3>История анализов</h3>
+          <p>Последние Beauty ID сканы: когда делали анализ и какой набор был главным.</p>
+        </div>
+        <div id="analysisHistory" class="history-list"></div>
+      </section>
+
+      <section class="card results-panel">
+        <div class="panel-head">
+          <h3>История заказов</h3>
+          <p>Здесь сохраняются оформления из демо-корзины, чтобы было понятно, что вы уже собирали.</p>
+        </div>
+        <div id="orderHistory" class="history-list"></div>
+      </section>
+    </section>
+
+    <div id="cartDrawerBackdrop" class="hidden"></div>
+    <aside id="cartDrawer" class="card hidden">
+      <div class="panel-head">
+        <h3>Корзина</h3>
+        <p>Собранный набор и быстрый переход к демо-оформлению.</p>
+      </div>
+      <div class="button-row">
+        <button id="addAllBtn" class="secondary-btn" type="button">Добавить все</button>
+        <button id="checkoutBtn" class="primary-btn" type="button">Оформить демо-заказ</button>
+      </div>
+      <div id="checkoutResult"></div>
+      <div id="cartList" class="cart-list"></div>
+      <div id="cartTotal" class="cart-total">Корзина пока пустая.</div>
+      <button id="closeCartBtn" class="secondary-btn" type="button">Закрыть</button>
+    </aside>
+
+    <div id="cartToast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <div id="transitionOverlay" class="hidden">
+      <div class="card" style="padding:24px; display:grid; gap:12px; text-align:center;">
+        <div class="hero-kicker" style="margin:0 auto;">Beauty ID</div>
+        <h2 style="font-size:28px;">Собираем ваш анализ</h2>
+        <p style="color:var(--muted); line-height:1.6;">Сейчас подготовим scan summary, стартовую подборку и откроем диалог с advisor.</p>
+        <div style="height:6px; border-radius:999px; background:#ecdfcf; overflow:hidden;">
+          <div class="scan-beam" style="position:relative; transform:none; opacity:1; animation:scan-pass 1.1s linear infinite;"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const state = { photoB64: null, sessionId: null, cart: { items: [], total_items: 0, total_price: 0 }, lastRecommendations: [] };
-    const $ = (id) => document.getElementById(id);
-    const categoryLabels = {
-      cleanser:'Очищение', serum:'Сыворотка', moisturizer:'Крем', spf:'SPF', toner:'Тонер', spot_treatment:'Точечный уход',
-      foundation:'Тональный', skin_tint:'Скин тинт', concealer:'Консилер', powder:'Пудра', lipstick:'Помада', lip_tint:'Тинт для губ',
-      lip_gloss:'Блеск для губ', lip_liner:'Карандаш для губ', lip_balm:'Бальзам для губ', mascara:'Тушь', eyeliner:'Подводка',
-      eyeshadow_palette:'Палетка теней', brow_pencil:'Карандаш для бровей', brow_gel:'Гель для бровей', blush:'Румяна', bronzer:'Бронзер',
-      highlighter:'Хайлайтер', contour:'Контур', primer:'Праймер', setting_spray:'Фиксирующий спрей', makeup_remover:'Снятие макияжа'
+    const state = {
+      mode: "camera",
+      scanState: "idle",
+      stream: null,
+      photoB64: null,
+      sessionId: null,
+      recommendations: [],
+      allergens: null,
+      isAnalyzing: false,
+      faceDetector: null,
+      faceLandmarkerLoading: null,
+      faceFastDetector: null,
+      faceTrackTimer: null,
+      faceDetectAt: 0,
+      faceDetectInterval: 72,
+      liveLandmarks: null,
+      targetLandmarks: null,
+      previewLandmarks: null,
+      liveBox: null,
+      lastFaceBox: null,
+      scanAnchor: null,
+      lastBeautyScan: null,
+      currentSession: null,
+      cartSkuCounts: {},
+      activeQuickAction: null,
+      cartToastTimer: null,
+      latestAnalysisSessionId: null,
     };
 
-    function setStatus(text, isError = false) {
-      const el = $('status');
-      el.textContent = text;
-      el.className = isError ? 'status error' : 'status';
+    const byId = (id) => document.getElementById(id);
+
+    const cameraModeBtn = byId("cameraModeBtn");
+    const uploadModeBtn = byId("uploadModeBtn");
+    const cameraPane = byId("cameraPane");
+    const uploadPane = byId("uploadPane");
+    const mobileCameraActions = byId("mobileCameraActions");
+    const mobileUploadActions = byId("mobileUploadActions");
+    const scanStateList = byId("scanStateList");
+    const scanHint = byId("scanHint");
+    const scanStage = byId("scanStage");
+    const faceFrame = document.querySelector(".face-frame");
+    const overlayCanvas = byId("overlayCanvas");
+    const cameraVideo = byId("cameraVideo");
+    const previewImage = byId("previewImage");
+    const advisorStage = byId("advisorStage");
+    const advisorSnapshot = byId("advisorSnapshot");
+    const advisorHotspotLayer = byId("advisorHotspotLayer");
+    const advisorPlaceholder = byId("advisorPlaceholder");
+    const stageTitle = byId("stageTitle");
+    const stageMessage = byId("stageMessage");
+    const zoneOverlay = byId("zoneOverlay");
+    const hotspotLayer = byId("hotspotLayer");
+    const scanScreen = byId("scanScreen");
+    const advisorScreen = byId("advisorScreen");
+    const profileScreen = byId("profileScreen");
+    const navScanBtn = byId("navScanBtn");
+    const navAdvisorBtn = byId("navAdvisorBtn");
+    const navProfileBtn = byId("navProfileBtn");
+    const aiStatusPill = byId("aiStatusPill");
+    const cartFabBtn = byId("cartFabBtn");
+    const cartFabCount = byId("cartFabCount");
+    const runtimeNotice = byId("runtimeNotice");
+    const chatMessages = byId("chatMessages");
+    const chatComposer = byId("chatComposer");
+    const chatInput = byId("chatInput");
+    const sendMessageBtn = byId("sendMessageBtn");
+    const cartDrawer = byId("cartDrawer");
+    const cartDrawerBackdrop = byId("cartDrawerBackdrop");
+    const closeCartBtn = byId("closeCartBtn");
+    const transitionOverlay = byId("transitionOverlay");
+    const resultsLead = byId("resultsLead");
+    const scanSummary = byId("scanSummary");
+    const signalHighlights = byId("signalHighlights");
+    const metricList = byId("metricList");
+    const answerText = byId("answerText");
+    const recommendations = byId("recommendations");
+    const activePreferenceList = byId("activePreferenceList");
+    const cartList = byId("cartList");
+    const cartTotal = byId("cartTotal");
+    const checkoutResult = byId("checkoutResult");
+    const cabinetSummary = byId("cabinetSummary");
+    const profileList = byId("profileList");
+    const analysisHistory = byId("analysisHistory");
+    const orderHistory = byId("orderHistory");
+    const filterRow = byId("filterRow");
+    const dialogSuggestions = byId("dialogSuggestions");
+    const cartToast = byId("cartToast");
+    const quickActionButtons = Array.from(document.querySelectorAll("#quickActions button"));
+
+    const CATEGORY_LABELS = {
+      serum: "Сыворотка",
+      moisturizer: "Крем",
+      spf: "SPF",
+      toner: "Тонер",
+      mask: "Маска",
+      spot_treatment: "Точечный уход",
+      foundation: "Тон",
+      skin_tint: "Skin tint",
+      concealer: "Консилер",
+      powder: "Пудра",
+      lipstick: "Помада",
+      lip_tint: "Тинт для губ",
+      lip_gloss: "Блеск для губ",
+      lip_balm: "Бальзам для губ",
+      mascara: "Тушь",
+      eyeliner: "Подводка",
+      eyeshadow_palette: "Палетка",
+      primer: "Праймер",
+      setting_spray: "Фиксатор",
+      cleanser: "Очищение",
+    };
+
+    const FINISH_LABELS = {
+      natural: "натуральный",
+      radiant: "сияющий",
+      matte: "матовый",
+      satin: "сатиновый",
+    };
+
+    const COVERAGE_LABELS = {
+      sheer: "лёгкое",
+      light: "лёгкое",
+      medium: "среднее",
+      full: "плотное",
+    };
+
+    const HALAL_LABELS = {
+      certified: "Подтверждён halal",
+      friendly: "Halal-friendly",
+      unknown: "Нет явного подтверждения",
+    };
+
+    const SIGNAL_COPY = {
+      oiliness: "есть блеск",
+      dryness: "нужна мягкость",
+      redness: "есть реактивность",
+      breakouts: "есть высыпания",
+      tone_evenness: "нужно выровнять тон",
+      sensitivity_signs: "важна деликатность",
+      under_eye_darkness: "есть зона под глазами",
+      visible_shine: "виден shine",
+      texture_visibility: "видна текстура",
+    };
+
+    const HISTORY_METRIC_LABELS = {
+      oiliness: "жирность",
+      dryness: "сухость",
+      redness: "покраснение",
+      under_eye_darkness: "тёмные круги",
+    };
+
+    const FACE_OVAL = [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109];
+    const LEFT_EYE = [33, 160, 158, 133, 153, 144];
+    const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
+    const LEFT_UNDER_EYE = [33, 7, 163, 144, 145, 153, 154, 155, 133];
+    const RIGHT_UNDER_EYE = [362, 382, 381, 380, 374, 373, 390, 249, 263];
+    const LEFT_BROW = [70, 63, 105, 66, 107];
+    const RIGHT_BROW = [336, 296, 334, 293, 300];
+    const NOSE_BRIDGE = [168, 6, 197, 195, 5, 4];
+    const LEFT_CHEEK_ZONE = [50, 101, 205, 187, 147, 123, 116];
+    const RIGHT_CHEEK_ZONE = [280, 330, 425, 411, 376, 352, 345];
+    const NOSE_ZONE = [6, 197, 195, 5, 4, 1, 2, 98, 97];
+    const CHIN_ZONE = [17, 18, 200, 199, 175, 152, 148, 176];
+    const FOREHEAD_ZONE = [54, 103, 67, 109, 10, 338, 297, 332, 284];
+
+    function formatPrice(value) {
+      const amount = Number(value || 0);
+      return `${new Intl.NumberFormat("ru-RU").format(amount)} ₽`;
     }
 
-    function addMessage(text, role='agent') {
-      const div = document.createElement('div');
-      div.className = `msg ${role}`;
-      div.textContent = text;
-      $('chat').appendChild(div);
-      $('chat').scrollTop = $('chat').scrollHeight;
+    function localizeCategory(value) {
+      return CATEGORY_LABELS[value] || String(value || "").replaceAll("_", " ");
     }
 
-    function humanizeShadeToken(value) {
-      const mapping = {
-        fair: 'очень светлый', light: 'светлый', medium: 'средний', tan: 'загорелый', deep: 'глубокий',
-        neutral: 'нейтральный', warm: 'тёплый', cool: 'холодный', olive: 'оливковый', rose:'розовый', nude:'нюдовый',
-        coral:'коралловый', plum:'сливовый', bronze:'бронзовый', pink:'розовый', champagne:'шампань', taupe:'тауповый'
+    function localizeList(values, map, fallback = "авто") {
+      const items = (values || []).filter(Boolean);
+      return items.length ? items.map((item) => map[item] || item).join(", ") : fallback;
+    }
+
+    function severityLabel(metric) {
+      if (metric.severity === "high") return "выражено";
+      if (metric.severity === "medium") return "умеренно";
+      return "спокойно";
+    }
+
+    function shortSentence(text = "") {
+      const cleaned = String(text || "").replace(/\s+/g, " ").trim();
+      if (!cleaned) return "";
+      const parts = cleaned.match(/[^.!?]+[.!?]?/g) || [cleaned];
+      return parts.slice(0, 2).join(" ").trim();
+    }
+
+    function escapeHtml(value = "") {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatChatMessage(message = "") {
+      const chunks = String(message || "")
+        .split(/\n+/)
+        .flatMap((part) => part.match(/[^.!?]+[.!?]?/g) || [])
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+      const visible = chunks.slice(0, 4);
+      return visible.length
+        ? visible.map((part) => `<p>${escapeHtml(part)}</p>`).join("")
+        : `<p>${escapeHtml(message)}</p>`;
+    }
+
+    function setQuickActionActive(message = null) {
+      state.activeQuickAction = message;
+      quickActionButtons.forEach((button) => {
+        const active = Boolean(message) && button.dataset.message === message;
+        button.classList.toggle("active", active);
+      });
+    }
+
+    function showCartToast(message) {
+      if (!message) return;
+      cartToast.textContent = message;
+      cartToast.classList.remove("hidden");
+      if (state.cartToastTimer) {
+        window.clearTimeout(state.cartToastTimer);
+      }
+      state.cartToastTimer = window.setTimeout(() => {
+        cartToast.classList.add("hidden");
+      }, 1800);
+    }
+
+    function setScanState(nextState) {
+      state.scanState = nextState;
+      if (scanStateList) {
+        const order = ["idle", "camera_open", "ready", "scanning", "complete"];
+        const currentIndex = order.indexOf(nextState);
+        scanStateList.querySelectorAll("[data-state-item]").forEach((item) => {
+          const index = order.indexOf(item.dataset.stateItem);
+          item.classList.toggle("active", index === currentIndex);
+          item.classList.toggle("done", currentIndex > index && currentIndex !== -1);
+        });
+      }
+
+      const cameraPrimary = byId("startCameraBtn");
+      const mobilePrimary = byId("mobileStartCameraBtn");
+      const desktopStop = byId("stopCameraBtn");
+      const mobileStop = byId("mobileStopCameraBtn");
+
+      const labelByState = {
+        idle: "Открыть камеру",
+        camera_open: "Держите лицо в рамке",
+        ready: "Начать скан",
+        scanning: "Идёт сканирование…",
+        complete: "Смотреть результат",
       };
-      return value.split('_').map(part => mapping[part.toLowerCase()] || part.toLowerCase()).join(' ');
-    }
 
-    function prettyTitle(title) {
-      return title.replace(/\b([A-Z]+(?:_[A-Z]+)+)\b/g, (_, shade) => humanizeShadeToken(shade));
-    }
-
-    function getCartItemQuantity(sku) {
-      const item = state.cart.items.find((entry) => entry.sku === sku);
-      return item ? item.quantity : 0;
-    }
-
-    function updateCartState(data) {
-      state.cart = {
-        items: data.cart?.items || [],
-        total_items: data.total_items || 0,
-        total_price: data.total_price || 0,
+      const hintByState = {
+        idle: "Сначала откройте фронтальную камеру. После этого интерфейс сам подскажет следующий шаг.",
+        camera_open: "Камера включена. Держите лицо ровно и дождитесь, пока рамка соберётся по центру.",
+        ready: "Лицо выровнено. Теперь можно запускать Beauty Scan.",
+        scanning: "Собираем Beauty ID и стартовый набор. Это займёт несколько секунд.",
+        complete: "Скан завершён. Можно открыть результат, диалог и корзину.",
       };
-      renderCart();
-      renderRecommendations(state.lastRecommendations);
+
+      const isReadyToScan = nextState === "ready";
+      const isBusy = nextState === "scanning";
+      const hasStream = Boolean(state.stream);
+
+      [cameraPrimary, mobilePrimary].forEach((button) => {
+        if (!button) return;
+        button.textContent = labelByState[nextState] || "Открыть камеру";
+        button.disabled = (nextState === "camera_open") || isBusy;
+      });
+
+      [desktopStop, mobileStop].forEach((button) => {
+        if (!button) return;
+        button.classList.toggle("hidden", !hasStream || isBusy);
+      });
+
+      scanStage.classList.toggle("aligned", isReadyToScan);
+      if (scanHint) {
+        scanHint.textContent = hintByState[nextState] || hintByState.idle;
+      }
     }
 
-    function renderCart() {
-      const count = state.cart.total_items || 0;
-      const total = state.cart.total_price || 0;
-      $('cartCount').textContent = count;
-      $('cartItemsCount').textContent = count;
-      $('cartTotal').textContent = `${total} ₽`;
-      $('cartCheckoutBtn').disabled = count === 0;
-      $('cartClearBtn').disabled = count === 0;
+    function explainRuntimeError(message = "") {
+      if (message.includes("User location is not supported")) {
+        return "На этой сети Gemini 3.1 Flash-Lite Preview сейчас блокируется региональным ограничением, поэтому advisor работает на встроенной demo-логике. Как только смените сеть, регион или ключ проекта, живой LLM снова подключится.";
+      }
+      if (message.includes("Quota exceeded")) {
+        return "Ключ Gemini подключён, но сейчас упёрся в лимит запросов. Пока лимит не обновится или вы не подставите другой ключ, advisor будет работать на встроенной demo-логике.";
+      }
+      if (message.includes("not found for API version")) {
+        return "Точный runtime-id модели пока не принимается текущим Gemini API endpoint, поэтому мы уходим на совместимый preview/fallback вариант.";
+      }
+      return "Сейчас живой Gemini временно недоступен, поэтому advisor работает на встроенной demo-логике.";
+    }
 
-      const list = $('cartList');
-      list.innerHTML = '';
-      if (!state.cart.items?.length) {
-        list.innerHTML = '<div class="cart-empty">Корзина пока пустая. Когда агент предложит товары, на карточках появится кнопка добавления.</div>';
+    function renderRuntimeStatus(runtime) {
+      const hasLiveAi = Boolean(runtime?.gemini_configured) && !runtime?.gemini_last_error;
+      aiStatusPill.textContent = hasLiveAi ? `AI · ${runtime?.gemini_model || "online"}` : "AI · demo-режим";
+      aiStatusPill.classList.toggle("warn", !hasLiveAi);
+
+      if (hasLiveAi) {
+        runtimeNotice.classList.add("hidden");
+        runtimeNotice.textContent = "";
         return;
       }
 
-      state.cart.items.forEach((item) => {
-        const node = document.createElement('div');
-        node.className = 'cart-item';
-        node.innerHTML = `
-          <div class="cart-item-top">
-            <div>
-              <h4>${prettyTitle(item.title)}</h4>
-              <div class="cart-meta">${item.brand} • ${categoryLabels[item.category] || item.category}</div>
-            </div>
-            <div class="cart-price">${item.price_value * item.quantity} ₽</div>
-          </div>
-          <div class="cart-controls">
-            <div class="qty-controls">
-              <button class="qty-btn" type="button" data-cart-action="decrease" data-sku="${item.sku}">−</button>
-              <span class="qty-value">${item.quantity}</span>
-              <button class="qty-btn" type="button" data-cart-action="increase" data-sku="${item.sku}">+</button>
-            </div>
-            <button class="cart-remove-btn" type="button" data-cart-action="remove" data-sku="${item.sku}">Удалить</button>
-          </div>
-        `;
-        list.appendChild(node);
+      runtimeNotice.classList.remove("hidden");
+      runtimeNotice.textContent = explainRuntimeError(runtime?.gemini_last_error || "");
+    }
+
+    function sessionPhotoKey(sessionId) {
+      return `beauty-id-photo-${sessionId}`;
+    }
+
+    function currentPathMode() {
+      if (location.pathname === "/profile") return "profile";
+      if (location.pathname === "/advisor") return "advisor";
+      return "scan";
+    }
+
+    function syncNav(route) {
+      navScanBtn.classList.toggle("active", route === "scan");
+      navAdvisorBtn.classList.toggle("active", route === "advisor");
+      navProfileBtn.classList.toggle("active", route === "profile");
+      navAdvisorBtn.disabled = !state.sessionId;
+      cartFabBtn.classList.toggle("hidden", route !== "advisor" || !state.sessionId);
+    }
+
+    function goToRoute(route, options = {}) {
+      const path = route === "profile" ? "/profile" : route === "advisor" ? "/advisor" : "/";
+      const routeChanged = currentPathMode() !== route;
+      if (options.push !== false && location.pathname !== path) {
+        history.pushState({ route }, "", path);
+      }
+      scanScreen.classList.toggle("hidden", route !== "scan");
+      advisorScreen.classList.toggle("hidden", route !== "advisor");
+      profileScreen.classList.toggle("hidden", route !== "profile");
+      syncNav(route);
+      if (route !== "advisor") {
+        closeCartDrawer();
+      }
+      if (!options.preserveScroll && (routeChanged || options.forceScrollTop)) {
+        window.scrollTo({ top: 0, behavior: route === "scan" ? "auto" : "smooth" });
+      }
+    }
+
+    function setStage(title, message) {
+      stageTitle.textContent = title;
+      stageMessage.textContent = message;
+    }
+
+    function setFaceFrameVisible(isVisible) {
+      faceFrame.style.opacity = isVisible ? "1" : "0";
+    }
+
+    function setFaceFrame(box) {
+      if (!box) {
+        scanStage.style.setProperty("--frame-left", "22%");
+        scanStage.style.setProperty("--frame-top", "12%");
+        scanStage.style.setProperty("--frame-width", "56%");
+        scanStage.style.setProperty("--frame-height", "72%");
+        return;
+      }
+
+      scanStage.style.setProperty("--frame-left", `${box.x}%`);
+      scanStage.style.setProperty("--frame-top", `${box.y}%`);
+      scanStage.style.setProperty("--frame-width", `${box.width}%`);
+      scanStage.style.setProperty("--frame-height", `${box.height}%`);
+    }
+
+    function syncOverlayCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const width = scanStage.clientWidth;
+      const height = scanStage.clientHeight;
+      if (!width || !height) return null;
+      if (overlayCanvas.width !== Math.round(width * dpr) || overlayCanvas.height !== Math.round(height * dpr)) {
+        overlayCanvas.width = Math.round(width * dpr);
+        overlayCanvas.height = Math.round(height * dpr);
+      }
+      const ctx = overlayCanvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      return { ctx, width, height };
+    }
+
+    function clearScanOverlay() {
+      zoneOverlay.innerHTML = "";
+      hotspotLayer.innerHTML = "";
+      state.scanAnchor = null;
+      setFaceFrameVisible(true);
+      const canvasState = syncOverlayCanvas();
+      if (canvasState) {
+        canvasState.ctx.clearRect(0, 0, canvasState.width, canvasState.height);
+      }
+    }
+
+    function stopFaceTracking() {
+      if (state.faceTrackTimer) {
+        cancelAnimationFrame(state.faceTrackTimer);
+      }
+      state.faceTrackTimer = null;
+      state.faceDetectAt = 0;
+      state.liveLandmarks = null;
+      state.targetLandmarks = null;
+      state.liveBox = null;
+      setFaceFrame(null);
+      setFaceFrameVisible(true);
+    }
+
+    async function ensureFastFaceDetector() {
+      if (state.faceFastDetector !== null) {
+        return state.faceFastDetector;
+      }
+
+      if (!("FaceDetector" in window)) {
+        state.faceFastDetector = false;
+        return false;
+      }
+
+      try {
+        state.faceFastDetector = new window.FaceDetector({
+          fastMode: true,
+          maxDetectedFaces: 1,
+        });
+        return state.faceFastDetector;
+      } catch (error) {
+        state.faceFastDetector = false;
+        return false;
+      }
+    }
+
+    async function ensureFaceLandmarker(runningMode = "VIDEO") {
+      if (state.faceDetector && state.faceDetector !== false) {
+        if (typeof state.faceDetector.setOptions === "function") {
+          await state.faceDetector.setOptions({ runningMode });
+        }
+        return state.faceDetector;
+      }
+
+      if (state.faceDetector === false) {
+        return false;
+      }
+
+      if (state.faceLandmarkerLoading) {
+        return state.faceLandmarkerLoading;
+      }
+
+      state.faceLandmarkerLoading = (async () => {
+        try {
+          const vision = await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.mjs");
+          const filesetResolver = await vision.FilesetResolver.forVisionTasks(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm",
+          );
+          const detector = await vision.FaceLandmarker.createFromOptions(filesetResolver, {
+            baseOptions: {
+              modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+              delegate: "GPU",
+            },
+            runningMode,
+            numFaces: 1,
+            outputFaceBlendshapes: false,
+            outputFacialTransformationMatrixes: false,
+            minFaceDetectionConfidence: 0.45,
+            minFacePresenceConfidence: 0.45,
+            minTrackingConfidence: 0.45,
+          });
+          state.faceDetector = detector;
+          return detector;
+        } catch (error) {
+          state.faceDetector = false;
+          return false;
+        } finally {
+          state.faceLandmarkerLoading = null;
+        }
+      })();
+
+      return state.faceLandmarkerLoading;
+    }
+
+    function sourceTransform(sourceWidth, sourceHeight) {
+      const stageWidth = scanStage.clientWidth;
+      const stageHeight = scanStage.clientHeight;
+      const scale = Math.max(stageWidth / sourceWidth, stageHeight / sourceHeight);
+      return {
+        stageWidth,
+        stageHeight,
+        scale,
+        offsetX: (stageWidth - sourceWidth * scale) / 2,
+        offsetY: (stageHeight - sourceHeight * scale) / 2,
+      };
+    }
+
+    function sourcePointToStage(point, sourceWidth, sourceHeight) {
+      const transform = sourceTransform(sourceWidth, sourceHeight);
+      return {
+        x: point.x * sourceWidth * transform.scale + transform.offsetX,
+        y: point.y * sourceHeight * transform.scale + transform.offsetY,
+      };
+    }
+
+    function sourceBoxToStageBox(sourceBounds, detectorBox) {
+      const transform = sourceTransform(sourceBounds.width, sourceBounds.height);
+      return {
+        x: Math.max(8, Math.min(72, (((detectorBox.x * transform.scale) + transform.offsetX) / transform.stageWidth) * 100)),
+        y: Math.max(6, Math.min(66, (((detectorBox.y * transform.scale) + transform.offsetY) / transform.stageHeight) * 100)),
+        width: Math.max(24, Math.min(62, ((detectorBox.width * transform.scale) / transform.stageWidth) * 100)),
+        height: Math.max(36, Math.min(78, ((detectorBox.height * transform.scale) / transform.stageHeight) * 100)),
+      };
+    }
+
+    function faceBoxFromLandmarks(landmarks, width, height) {
+      if (!landmarks?.length) {
+        return null;
+      }
+
+      const xs = landmarks.map((point) => point.x * width);
+      const ys = landmarks.map((point) => point.y * height);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const paddingX = (maxX - minX) * 0.12;
+      const paddingY = (maxY - minY) * 0.16;
+
+      return sourceBoxToStageBox(
+        { width, height },
+        {
+          x: Math.max(0, minX - paddingX),
+          y: Math.max(0, minY - paddingY),
+          width: Math.min(width, (maxX - minX) + paddingX * 2),
+          height: Math.min(height, (maxY - minY) + paddingY * 2),
+        },
+      );
+    }
+
+    function cloneLandmarks(landmarks) {
+      return landmarks?.map((point) => ({ x: point.x, y: point.y, z: point.z || 0 })) || null;
+    }
+
+    function smoothLandmarks(current, target, alpha = 0.32) {
+      if (!target?.length) return null;
+      if (!current?.length) return cloneLandmarks(target);
+      return target.map((point, index) => ({
+        x: current[index].x + (point.x - current[index].x) * alpha,
+        y: current[index].y + (point.y - current[index].y) * alpha,
+        z: current[index].z + ((point.z || 0) - current[index].z) * alpha,
+      }));
+    }
+
+    function smoothBox(current, target, alpha = 0.28) {
+      if (!target) return null;
+      if (!current) return { ...target };
+      return {
+        x: current.x + (target.x - current.x) * alpha,
+        y: current.y + (target.y - current.y) * alpha,
+        width: current.width + (target.width - current.width) * alpha,
+        height: current.height + (target.height - current.height) * alpha,
+      };
+    }
+
+    function projectLandmarks(landmarks, sourceWidth, sourceHeight) {
+      const transform = sourceTransform(sourceWidth, sourceHeight);
+      return landmarks.map((point) => ({
+        x: point.x * sourceWidth * transform.scale + transform.offsetX,
+        y: point.y * sourceHeight * transform.scale + transform.offsetY,
+      }));
+    }
+
+    function pickProjectedPoints(indices, projected) {
+      return indices
+        .map((index) => projected[index])
+        .filter(Boolean);
+    }
+
+    function averageProjectedPoint(indices, projected) {
+      const points = pickProjectedPoints(indices, projected);
+      if (!points.length) return null;
+      return {
+        x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
+        y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
+      };
+    }
+
+    function pointDistance(a, b) {
+      if (!a || !b) return 0;
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function pointAngle(a, b) {
+      if (!a || !b) return 0;
+      return Math.atan2(b.y - a.y, b.x - a.x);
+    }
+
+    function pointFromIndex(index, landmarks, sourceWidth, sourceHeight) {
+      const point = landmarks[index];
+      if (!point) return null;
+      return sourcePointToStage(point, sourceWidth, sourceHeight);
+    }
+
+    function pointsFromIndices(indices, landmarks, sourceWidth, sourceHeight) {
+      return indices
+        .map((index) => pointFromIndex(index, landmarks, sourceWidth, sourceHeight))
+        .filter(Boolean);
+    }
+
+    function averagePoint(indices, landmarks, sourceWidth, sourceHeight) {
+      const points = pointsFromIndices(indices, landmarks, sourceWidth, sourceHeight);
+      if (!points.length) return null;
+      return {
+        x: points.reduce((sum, point) => sum + point.x, 0) / points.length,
+        y: points.reduce((sum, point) => sum + point.y, 0) / points.length,
+      };
+    }
+
+    function drawPath(ctx, points, options = {}) {
+      if (!points?.length) return;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i += 1) {
+        const current = points[i];
+        const next = points[i + 1];
+        if (next) {
+          const midX = (current.x + next.x) / 2;
+          const midY = (current.y + next.y) / 2;
+          ctx.quadraticCurveTo(current.x, current.y, midX, midY);
+        } else {
+          ctx.lineTo(current.x, current.y);
+        }
+      }
+      if (options.closed) ctx.closePath();
+      if (options.fill) {
+        ctx.fillStyle = options.fill;
+        ctx.fill();
+      }
+      if (options.stroke !== false) {
+        ctx.lineWidth = options.lineWidth || 1.5;
+        ctx.strokeStyle = options.stroke || "rgba(255,255,255,0.85)";
+        if (options.dash) ctx.setLineDash(options.dash);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawGlowSpot(ctx, point, radiusX, radiusY, color, alpha = 0.22) {
+      if (!point) return;
+      ctx.save();
+      ctx.translate(point.x, point.y);
+      ctx.scale(radiusX, radiusY);
+      const gradient = ctx.createRadialGradient(0, 0, 0.1, 0, 0, 1);
+      gradient.addColorStop(0, `${color}${Math.round(alpha * 255).toString(16).padStart(2, "0")}`);
+      gradient.addColorStop(1, `${color}00`);
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(0, 0, 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawLiveGuide() {
+      const canvasState = syncOverlayCanvas();
+      if (!canvasState) {
+        return;
+      }
+      canvasState.ctx.clearRect(0, 0, canvasState.width, canvasState.height);
+      setFaceFrameVisible(true);
+    }
+
+    function zoneShapes(zone, projected) {
+      const leftEyeOuter = projected[33];
+      const leftEyeInner = projected[133];
+      const rightEyeInner = projected[362];
+      const rightEyeOuter = projected[263];
+      const browLeft = averageProjectedPoint([70, 63, 105, 66, 107], projected);
+      const browRight = averageProjectedPoint([336, 296, 334, 293, 300], projected);
+      const foreheadCenter = averageProjectedPoint([10, 151, 9], projected);
+      const leftCheekCenter = averageProjectedPoint([50, 205, 123], projected);
+      const rightCheekCenter = averageProjectedPoint([280, 425, 352], projected);
+      const noseCenter = averageProjectedPoint([6, 4, 1], projected);
+      const chinCenter = averageProjectedPoint([18, 175, 152], projected);
+      const leftUnderEye = averageProjectedPoint([33, 159, 145, 133], projected);
+      const rightUnderEye = averageProjectedPoint([362, 386, 374, 263], projected);
+
+      const foreheadWidth = pointDistance(projected[54], projected[284]) * 0.42;
+      const eyeBandAngle = pointAngle(leftEyeOuter, rightEyeOuter);
+      const cheekAngle = eyeBandAngle;
+
+      const shapes = {
+        forehead: [{
+          center: foreheadCenter,
+          rx: Math.max(36, foreheadWidth),
+          ry: Math.max(20, foreheadWidth * 0.42),
+          rotation: eyeBandAngle,
+        }],
+        left_cheek: [{
+          center: leftCheekCenter,
+          rx: Math.max(24, pointDistance(projected[50], projected[123]) * 0.52),
+          ry: Math.max(22, pointDistance(projected[205], projected[116]) * 0.48),
+          rotation: cheekAngle,
+        }],
+        right_cheek: [{
+          center: rightCheekCenter,
+          rx: Math.max(24, pointDistance(projected[280], projected[352]) * 0.52),
+          ry: Math.max(22, pointDistance(projected[425], projected[345]) * 0.48),
+          rotation: cheekAngle,
+        }],
+        nose: [{
+          center: noseCenter,
+          rx: Math.max(12, pointDistance(projected[98], projected[327]) * 0.18),
+          ry: Math.max(18, pointDistance(projected[168], projected[2]) * 0.48),
+          rotation: pointAngle(projected[168], projected[2]),
+        }],
+        chin: [{
+          center: chinCenter,
+          rx: Math.max(20, pointDistance(projected[172], projected[397]) * 0.22),
+          ry: Math.max(18, pointDistance(projected[18], projected[152]) * 0.35),
+          rotation: eyeBandAngle,
+        }],
+        under_eyes: [
+          {
+            center: leftUnderEye,
+            rx: Math.max(18, pointDistance(leftEyeOuter, leftEyeInner) * 0.34),
+            ry: Math.max(10, pointDistance(projected[159], projected[145]) * 1.3),
+            rotation: pointAngle(leftEyeOuter, leftEyeInner),
+          },
+          {
+            center: rightUnderEye,
+            rx: Math.max(18, pointDistance(rightEyeInner, rightEyeOuter) * 0.34),
+            ry: Math.max(10, pointDistance(projected[386], projected[374]) * 1.3),
+            rotation: pointAngle(rightEyeInner, rightEyeOuter),
+          },
+        ],
+      };
+
+      return shapes[zone] || [];
+    }
+
+    function drawScanShape(ctx, shape, intensity, color = "#c7963e") {
+      if (!shape?.center) return;
+      ctx.save();
+      ctx.translate(shape.center.x, shape.center.y);
+      ctx.rotate(shape.rotation || 0);
+      const gradient = ctx.createRadialGradient(0, 0, Math.min(shape.rx, shape.ry) * 0.08, 0, 0, Math.max(shape.rx, shape.ry));
+      gradient.addColorStop(0, `rgba(199, 150, 62, ${0.12 + intensity * 0.12})`);
+      gradient.addColorStop(0.62, `rgba(199, 150, 62, ${0.08 + intensity * 0.08})`);
+      gradient.addColorStop(1, "rgba(199, 150, 62, 0)");
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, shape.rx, shape.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = `rgba(255,255,255,${0.18 + intensity * 0.16})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function hotspotPointForZone(zone, projected) {
+      const shape = zoneShapes(zone, projected)[0];
+      return shape?.center || null;
+    }
+
+    function drawAnalysisOverlay(scan, landmarks, sourceWidth, sourceHeight) {
+      const canvasState = syncOverlayCanvas();
+      if (!canvasState || !scan?.zones?.length || !landmarks?.length) {
+        return false;
+      }
+
+      const { ctx } = canvasState;
+      const projected = projectLandmarks(landmarks, sourceWidth, sourceHeight);
+      drawPath(ctx, pickProjectedPoints(FACE_OVAL, projected), {
+        stroke: "rgba(255,255,255,0.48)",
+        lineWidth: 1.1,
+        closed: true,
       });
+      drawGlowSpot(ctx, averageProjectedPoint([10, 151, 9], projected), 56, 36, "#ffffff", 0.08);
+      scan.zones.forEach((zone) => {
+        const shapes = zoneShapes(zone.zone, projected);
+        shapes.forEach((shape) => {
+          drawScanShape(ctx, shape, zone.intensity);
+        });
+      });
+
+      setFaceFrameVisible(false);
+      return projected;
+    }
+
+    function drawFallbackZones(scan, anchor) {
+      zoneOverlay.innerHTML = (scan?.zones || []).map((zone) => {
+        const rect = anchoredRect(zone, anchor);
+        return `
+        <div
+          class="zone-box"
+          style="
+            left:${rect.x}%;
+            top:${rect.y}%;
+            width:${rect.width}%;
+            height:${rect.height}%;
+            opacity:${0.2 + zone.intensity * 0.55};
+          "
+        ></div>
+      `;
+      }).join("");
+      setFaceFrameVisible(true);
+    }
+
+    function hotspotStagePoint(hotspot, anchor, projectedAnalysis) {
+      const landmarkPoint = projectedAnalysis?.length
+        ? hotspotPointForZone(hotspot.zone, projectedAnalysis)
+        : null;
+
+      if (landmarkPoint) {
+        return landmarkPoint;
+      }
+
+      const point = anchoredPoint(hotspot, anchor);
+      return {
+        x: (point.x / 100) * scanStage.clientWidth,
+        y: (point.y / 100) * scanStage.clientHeight,
+      };
+    }
+
+    function buildHotspotMarkup(scan, anchor, projectedAnalysis, options = {}) {
+      const crop = options.crop || null;
+      return (scan?.product_hotspots || []).map((hotspot) => {
+        const stagePoint = hotspotStagePoint(hotspot, anchor, projectedAnalysis);
+        const point = crop
+          ? {
+              x: ((stagePoint.x - crop.x) / crop.width) * 100,
+              y: ((stagePoint.y - crop.y) / crop.height) * 100,
+            }
+          : {
+              x: (stagePoint.x / scanStage.clientWidth) * 100,
+              y: (stagePoint.y / scanStage.clientHeight) * 100,
+            };
+
+        if (point.x < 0 || point.x > 100 || point.y < 0 || point.y > 100) {
+          return "";
+        }
+
+        return `
+        <button
+          class="hotspot"
+          type="button"
+          style="left:${point.x}%; top:${point.y}%"
+          title="${hotspot.title || hotspot.label}"
+          aria-label="${hotspot.title || hotspot.label}"
+          onclick="window.openProduct('${hotspot.sku}')"
+        >
+          +
+        </button>
+      `;
+      }).join("");
+    }
+
+    function buildAdvisorCrop(anchor) {
+      const stageWidth = scanStage.clientWidth;
+      const stageHeight = scanStage.clientHeight;
+      const portraitAspect = 4 / 5;
+
+      if (!anchor || !stageWidth || !stageHeight) {
+        return {
+          x: 0,
+          y: 0,
+          width: stageWidth,
+          height: stageHeight,
+        };
+      }
+
+      const faceBox = {
+        x: (anchor.x / 100) * stageWidth,
+        y: (anchor.y / 100) * stageHeight,
+        width: (anchor.width / 100) * stageWidth,
+        height: (anchor.height / 100) * stageHeight,
+      };
+
+      let cropWidth = Math.max(faceBox.width * 1.72, stageWidth * 0.58);
+      let cropHeight = cropWidth / portraitAspect;
+      const minimumHeight = faceBox.height * 1.56;
+
+      if (cropHeight < minimumHeight) {
+        cropHeight = minimumHeight;
+        cropWidth = cropHeight * portraitAspect;
+      }
+
+      cropWidth = Math.min(stageWidth, cropWidth);
+      cropHeight = Math.min(stageHeight, cropHeight);
+
+      let cropX = faceBox.x + (faceBox.width / 2) - (cropWidth / 2);
+      let cropY = faceBox.y - faceBox.height * 0.34;
+
+      cropX = Math.max(0, Math.min(stageWidth - cropWidth, cropX));
+      cropY = Math.max(0, Math.min(stageHeight - cropHeight, cropY));
+
+      return {
+        x: cropX,
+        y: cropY,
+        width: cropWidth,
+        height: cropHeight,
+      };
+    }
+
+    function captureAnalysisSnapshot(anchor) {
+      const source = previewImage.getAttribute("src");
+      if (!source || !scanStage.clientWidth || !scanStage.clientHeight) {
+        return null;
+      }
+
+      const width = scanStage.clientWidth;
+      const height = scanStage.clientHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const sourceWidth = previewImage.naturalWidth || previewImage.width || width;
+      const sourceHeight = previewImage.naturalHeight || previewImage.height || height;
+      const transform = sourceTransform(sourceWidth, sourceHeight);
+      ctx.drawImage(
+        previewImage,
+        0,
+        0,
+        sourceWidth,
+        sourceHeight,
+        transform.offsetX,
+        transform.offsetY,
+        sourceWidth * transform.scale,
+        sourceHeight * transform.scale,
+      );
+      ctx.drawImage(overlayCanvas, 0, 0, width, height);
+      const crop = buildAdvisorCrop(anchor || state.scanAnchor || state.lastFaceBox);
+      const outputWidth = 640;
+      const outputHeight = 800;
+      const output = document.createElement("canvas");
+      output.width = Math.round(outputWidth * dpr);
+      output.height = Math.round(outputHeight * dpr);
+      const outputCtx = output.getContext("2d");
+      outputCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      outputCtx.drawImage(
+        canvas,
+        crop.x * dpr,
+        crop.y * dpr,
+        crop.width * dpr,
+        crop.height * dpr,
+        0,
+        0,
+        outputWidth,
+        outputHeight,
+      );
+      return {
+        dataUrl: output.toDataURL("image/webp", 0.92),
+        crop,
+      };
+    }
+
+    function renderAdvisorVisual(scan, anchor, projectedAnalysis) {
+      const snapshot = captureAnalysisSnapshot(anchor);
+      const previewSource = snapshot?.dataUrl || previewImage.getAttribute("src");
+      if (previewSource) {
+        advisorSnapshot.src = previewSource;
+        advisorSnapshot.classList.remove("hidden");
+        advisorPlaceholder.classList.add("hidden");
+      } else {
+        advisorSnapshot.classList.add("hidden");
+        advisorSnapshot.removeAttribute("src");
+        advisorPlaceholder.classList.remove("hidden");
+      }
+
+      advisorHotspotLayer.innerHTML = previewSource
+        ? buildHotspotMarkup(scan, anchor, projectedAnalysis, { crop: snapshot?.crop })
+        : "";
+    }
+
+    function updateLiveGuidance(box) {
+      if (!box) {
+        setStage("Поднесите лицо к камере", "Держите лицо внутри рамки и смотрите прямо.");
+        setScanState(state.stream ? "camera_open" : "idle");
+        return;
+      }
+
+      const centerX = box.x + box.width / 2;
+      const centerY = box.y + box.height / 2;
+      const offsetX = Math.abs(centerX - 50);
+      const offsetY = Math.abs(centerY - 46);
+
+      if (box.width < 26 || box.height < 40) {
+        setStage("Подойдите чуть ближе", "Лицо найдено, но его нужно сделать крупнее.");
+        setScanState("camera_open");
+        return;
+      }
+
+      if (box.width > 66 || box.height > 84) {
+        setStage("Отодвиньтесь немного", "Сейчас лицо слишком близко к камере.");
+        setScanState("camera_open");
+        return;
+      }
+
+      if (offsetX > 8 || offsetY > 9) {
+        setStage("Сместитесь в центр", "Поставьте лицо ровнее по центру рамки.");
+        setScanState("camera_open");
+        return;
+      }
+
+      setStage("Хорошо, можно сканировать", "Держите голову ровно и нажмите «Сканировать».");
+      setScanState("ready");
+    }
+
+    async function updateLiveTracking(timestamp) {
+      if (!state.stream || state.mode !== "camera" || state.isAnalyzing || !cameraVideo.videoWidth || !cameraVideo.videoHeight) {
+        return;
+      }
+
+      const fastDetector = await ensureFastFaceDetector();
+      const landmarker = fastDetector ? null : await ensureFaceLandmarker("VIDEO");
+      if (!fastDetector && !landmarker) {
+        return;
+      }
+
+      try {
+        if (timestamp - state.faceDetectAt >= state.faceDetectInterval) {
+          state.faceDetectAt = timestamp;
+          if (fastDetector) {
+            const faces = await fastDetector.detect(cameraVideo);
+            const face = faces?.[0];
+            const nextBox = face
+              ? sourceBoxToStageBox(
+                  { width: cameraVideo.videoWidth, height: cameraVideo.videoHeight },
+                  face.boundingBox,
+                )
+              : null;
+            state.liveBox = nextBox ? smoothBox(state.liveBox, nextBox, 0.34) : null;
+          } else {
+            const result = landmarker.detectForVideo(cameraVideo, timestamp);
+            const landmarks = result?.faceLandmarks?.[0];
+            state.targetLandmarks = landmarks?.length ? cloneLandmarks(landmarks) : null;
+            state.liveLandmarks = smoothLandmarks(state.liveLandmarks, state.targetLandmarks, 0.32);
+            state.liveBox = state.liveLandmarks?.length
+              ? smoothBox(
+                  state.liveBox,
+                  faceBoxFromLandmarks(state.liveLandmarks, cameraVideo.videoWidth, cameraVideo.videoHeight),
+                  0.3,
+                )
+              : null;
+          }
+        }
+
+        drawLiveGuide();
+
+        if (!state.liveBox) {
+          setFaceFrame(null);
+          setFaceFrameVisible(true);
+          updateLiveGuidance(null);
+        } else {
+          state.lastFaceBox = state.liveBox;
+          setFaceFrame(state.liveBox);
+          setFaceFrameVisible(true);
+          updateLiveGuidance(state.liveBox);
+        }
+      } catch (error) {
+        stopFaceTracking();
+        return;
+      }
+
+      state.faceTrackTimer = window.requestAnimationFrame(updateLiveTracking);
+    }
+
+    async function startFaceTracking() {
+      stopFaceTracking();
+      const fastDetector = await ensureFastFaceDetector();
+      const landmarker = fastDetector ? true : await ensureFaceLandmarker("VIDEO");
+      if (!fastDetector && !landmarker) {
+        return;
+      }
+
+      state.faceTrackTimer = window.requestAnimationFrame(updateLiveTracking);
+    }
+
+    async function detectAnchorForPreview() {
+      if (!previewImage.getAttribute("src")) {
+        state.scanAnchor = state.lastFaceBox;
+        state.previewLandmarks = null;
+        return state.scanAnchor;
+      }
+
+      const detector = await ensureFaceLandmarker("IMAGE");
+      if (!detector) {
+        state.scanAnchor = state.lastFaceBox;
+        state.previewLandmarks = null;
+        return state.scanAnchor;
+      }
+
+      try {
+        if (typeof previewImage.decode === "function") {
+          await previewImage.decode();
+        }
+        const result = detector.detect(previewImage);
+        const landmarks = result?.faceLandmarks?.[0];
+        state.previewLandmarks = landmarks?.length ? cloneLandmarks(landmarks) : null;
+        state.scanAnchor = faceBoxFromLandmarks(
+          landmarks,
+          previewImage.naturalWidth || previewImage.width,
+          previewImage.naturalHeight || previewImage.height,
+        ) || state.lastFaceBox;
+      } catch (error) {
+        state.previewLandmarks = null;
+        state.scanAnchor = state.lastFaceBox;
+      }
+
+      return state.scanAnchor;
+    }
+
+    const DEFAULT_FRAME = {
+      x: 22,
+      y: 12,
+      width: 56,
+      height: 72,
+    };
+
+    function anchoredRect(zone, anchor = state.scanAnchor) {
+      if (!anchor) {
+        return {
+          x: zone.x * 100,
+          y: zone.y * 100,
+          width: zone.width * 100,
+          height: zone.height * 100,
+        };
+      }
+
+      return {
+        x: anchor.x + (((zone.x * 100) - DEFAULT_FRAME.x) / DEFAULT_FRAME.width) * anchor.width,
+        y: anchor.y + (((zone.y * 100) - DEFAULT_FRAME.y) / DEFAULT_FRAME.height) * anchor.height,
+        width: ((zone.width * 100) / DEFAULT_FRAME.width) * anchor.width,
+        height: ((zone.height * 100) / DEFAULT_FRAME.height) * anchor.height,
+      };
+    }
+
+    function anchoredPoint(point, anchor = state.scanAnchor) {
+      if (!anchor) {
+        return {
+          x: point.x * 100,
+          y: point.y * 100,
+        };
+      }
+
+      return {
+        x: anchor.x + (((point.x * 100) - DEFAULT_FRAME.x) / DEFAULT_FRAME.width) * anchor.width,
+        y: anchor.y + (((point.y * 100) - DEFAULT_FRAME.y) / DEFAULT_FRAME.height) * anchor.height,
+      };
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      const isCamera = mode === "camera";
+      cameraModeBtn.classList.toggle("active", isCamera);
+      uploadModeBtn.classList.toggle("active", !isCamera);
+      cameraPane.classList.toggle("hidden", !isCamera);
+      uploadPane.classList.toggle("hidden", isCamera);
+      mobileCameraActions.classList.toggle("hidden", !isCamera);
+      mobileUploadActions.classList.toggle("hidden", isCamera);
+      clearScanOverlay();
+
+      if (isCamera) {
+        setStage("Поднесите лицо к камере", "Держите лицо внутри рамки и запустите сканирование.");
+        setScanState(state.stream ? "camera_open" : "idle");
+      } else {
+        stopCamera();
+        setStage("Загрузите фото", "Выберите фронтальную фотографию и нажмите сканирование.");
+        setScanState(state.photoB64 ? "ready" : "idle");
+      }
+    }
+
+    function goalValue() {
+      return state.mode === "camera" ? byId("goalInput").value : byId("goalInputUpload").value;
+    }
+
+    function showPreview(source) {
+      if (!source) {
+        previewImage.classList.add("hidden");
+        previewImage.removeAttribute("src");
+        return;
+      }
+      previewImage.src = source;
+      previewImage.classList.remove("hidden");
+    }
+
+    function rememberCurrentPhoto() {
+      if (!state.sessionId) return;
+      const source = previewImage.getAttribute("src");
+      if (!source) return;
+      try {
+        sessionStorage.setItem(sessionPhotoKey(state.sessionId), source);
+      } catch (error) {
+        // Ignore quota errors for demo persistence.
+      }
+    }
+
+    function stopCamera() {
+      stopFaceTracking();
+      if (state.stream) {
+        state.stream.getTracks().forEach((track) => track.stop());
+      }
+      state.stream = null;
+      cameraVideo.srcObject = null;
+      scanStage.classList.remove("live", "scanning", "aligned");
+      if (state.mode === "camera") {
+        setScanState("idle");
+      }
+    }
+
+    async function startCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setMode("upload");
+        setStage("Камера недоступна", "На этом устройстве откроем режим загрузки фото.");
+        return;
+      }
+
+      stopCamera();
+      showPreview(null);
+      state.photoB64 = null;
+      state.lastFaceBox = null;
+      state.previewLandmarks = null;
+      setFaceFrameVisible(true);
+      clearScanOverlay();
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: 640 },
+            height: { ideal: 960 },
+            frameRate: { ideal: 30, max: 30 },
+          },
+          audio: false,
+        });
+        state.stream = stream;
+        cameraVideo.srcObject = stream;
+        await cameraVideo.play();
+        scanStage.classList.add("live");
+        await startFaceTracking();
+        setStage("Камера готова", "Лицо должно быть внутри рамки. Теперь можно запускать сканирование.");
+        setScanState("camera_open");
+      } catch (error) {
+        setMode("upload");
+        setStage("Не удалось открыть камеру", "Перешли в режим загрузки фото.");
+      }
+    }
+
+    async function handleCameraPrimary() {
+      if (state.mode !== "camera" || state.isAnalyzing) return;
+
+      if (!state.stream) {
+        await startCamera();
+        return;
+      }
+
+      if (state.scanState === "ready" || state.lastFaceBox) {
+        await scanNow(true);
+      }
+    }
+
+    function captureFrameFromVideo() {
+      if (!cameraVideo.videoWidth || !cameraVideo.videoHeight) {
+        throw new Error("camera not ready");
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = cameraVideo.videoWidth;
+      canvas.height = cameraVideo.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+      state.photoB64 = String(dataUrl).split(",")[1];
+      state.previewLandmarks = cloneLandmarks(state.liveLandmarks);
+      state.scanAnchor = state.lastFaceBox;
+      showPreview(dataUrl);
+      stopCamera();
+      setScanState("ready");
+    }
+
+    async function analyzeCurrentPhoto() {
+      if (!state.photoB64 || state.isAnalyzing) return;
+
+      state.isAnalyzing = true;
+      scanStage.classList.add("scanning");
+      clearScanOverlay();
+      setStage("Идёт сканирование", "Анализируем видимые сигналы и собираем короткую подборку.");
+      setScanState("scanning");
+      showTransition("Собираем ваш Beauty ID");
+
+      try {
+        const data = await jsonFetch("/v1/photo/analyze", {
+          method: "POST",
+          body: JSON.stringify({
+            photo_b64: state.photoB64,
+            user_context: {
+              goal: goalValue(),
+            },
+          }),
+        });
+        state.sessionId = data.session_id;
+        localStorage.setItem("beauty-id-session", state.sessionId);
+        rememberCurrentPhoto();
+        const sessionState = await fetchSessionState();
+        if (sessionState) {
+          await hydrateAdvisor(sessionState, data);
+        }
+        setStage("Сканирование завершено", "Beauty ID готов. Открываем диалог и стартовую подборку.");
+        setScanState("complete");
+        quickActionButtons.forEach((button) => { button.disabled = false; });
+        setQuickActionActive(null);
+        goToRoute("advisor", { push: true });
+      } catch (error) {
+        setStage("Сканирование не удалось", "Попробуйте ещё раз с более чётким кадром.");
+        setScanState(state.mode === "camera" ? "camera_open" : (state.photoB64 ? "ready" : "idle"));
+      } finally {
+        state.isAnalyzing = false;
+        scanStage.classList.remove("scanning");
+        hideTransition();
+      }
+    }
+
+    async function scanNow(fromCamera) {
+      if (fromCamera) {
+        try {
+          captureFrameFromVideo();
+        } catch (error) {
+          setStage("Камера ещё не готова", "Подождите секунду и попробуйте снова.");
+          return;
+        }
+      } else if (!state.photoB64) {
+        setStage("Нужно фото", "Сначала выберите фотографию.");
+        return;
+      }
+      await analyzeCurrentPhoto();
+    }
+
+    async function jsonFetch(url, options = {}) {
+      const response = await fetch(url, {
+        headers: { "Content-Type": "application/json" },
+        ...options,
+      });
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+      return response.json();
+    }
+
+    async function renderScan(scan) {
+      const summaryLines = scan?.summary_lines || [];
+      resultsLead.textContent = scan?.subtitle || "Фото и сигналы готовы. Дальше можно быстро уточнить набор в диалоге.";
+      scanSummary.innerHTML = summaryLines.length
+        ? summaryLines.map((line) => `<div>${line}</div>`).join("")
+        : "После сканирования здесь появится короткое объяснение результата.";
+
+      const highlightMetrics = (scan?.metrics || [])
+        .slice()
+        .sort((a, b) => Number(b.score || 0) - Number(a.score || 0))
+        .filter((metric) => Number(metric.score || 0) >= 0.34)
+        .slice(0, 4);
+
+      signalHighlights.innerHTML = highlightMetrics.length
+        ? highlightMetrics.map((metric) => `<span class="signal-highlight">${SIGNAL_COPY[metric.key] || metric.label.toLowerCase()}</span>`).join("")
+        : `<span class="signal-highlight">профиль выглядит ровным</span>`;
+
+      metricList.innerHTML = (scan?.metrics || []).slice(0, 4).map((metric) => `
+        <div class="metric-item">
+          <strong>${metric.label}</strong>
+          <div class="small-text">${severityLabel(metric)}</div>
+          <div class="metric-bar">
+            <div class="metric-fill" style="width:${Math.round(metric.score * 100)}%"></div>
+          </div>
+        </div>
+      `).join("");
+
+      const anchor = await detectAnchorForPreview();
+      setFaceFrame(anchor || state.lastFaceBox);
+
+      clearScanOverlay();
+      const sourceWidth = previewImage.naturalWidth || previewImage.width || cameraVideo.videoWidth;
+      const sourceHeight = previewImage.naturalHeight || previewImage.height || cameraVideo.videoHeight;
+      const landmarks = state.previewLandmarks;
+      const projectedAnalysis = landmarks?.length
+        ? drawAnalysisOverlay(scan, landmarks, sourceWidth, sourceHeight)
+        : null;
+
+      if (!projectedAnalysis) {
+        drawFallbackZones(scan, anchor || state.lastFaceBox);
+      }
+
+      hotspotLayer.innerHTML = buildHotspotMarkup(scan, anchor || state.lastFaceBox, projectedAnalysis);
+      renderAdvisorVisual(scan, anchor || state.lastFaceBox, projectedAnalysis);
+    }
+
+    function productLink(item) {
+      if (item.goldapple_url) return item.goldapple_url;
+      if (item.goldapple_search_query) return `https://goldapple.ru/search?text=${encodeURIComponent(item.goldapple_search_query)}`;
+      return null;
     }
 
     function renderRecommendations(items) {
-      state.lastRecommendations = items || [];
-      const root = $('cards');
-      root.innerHTML = '';
-      if (!items?.length) {
-        root.innerHTML = `
-          <div class="empty-state">
-            <strong style="display:block;margin-bottom:8px;font-size:16px;letter-spacing:-.02em;">Подборка появится здесь</strong>
-            <div class="sub">После анализа фото агент предложит продукты, которые можно сразу обсудить, пересобрать и добавить в корзину.</div>
-          </div>`;
-        return;
-      }
-      items.forEach(item => {
-        const quantity = getCartItemQuantity(item.sku);
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-          <div class="badge">${categoryLabels[item.category] || item.category}</div>
-          <h3>${prettyTitle(item.title)}</h3>
-          <div class="brand-row"><span class="brand-dot"></span><span>${item.brand}</span></div>
-          <div class="price">${item.price_value} ₽</div>
-          <div class="sub">${item.why}</div>
-          <div class="card-actions">
-            <button class="card-btn ${quantity > 0 ? 'added' : 'add'}" type="button" data-add-sku="${item.sku}">${quantity > 0 ? `В корзине: ${quantity}` : 'Добавить в корзину'}</button>
-          </div>
+      state.recommendations = items || [];
+      const hero = state.recommendations[0];
+      const supporting = state.recommendations.slice(1);
+
+      const renderProductCard = (item, index) => {
+        const external = productLink(item);
+        const isHero = index === 0;
+        const quantityInCart = state.cartSkuCounts[item.sku] || 0;
+        const heroClass = isHero ? "product-card hero" : "product-card supporting";
+        const halalLabel = item.halal_status ? HALAL_LABELS[item.halal_status] : "";
+        const addLabel = quantityInCart ? `Добавлено · ${quantityInCart}` : "Добавить";
+        const addClass = quantityInCart ? "primary-btn add-btn added" : "primary-btn add-btn";
+        const supportiveBadge = isHero ? "Главный выбор" : "Поддерживает набор";
+
+        return `
+          <article class="${heroClass}" id="product-${item.sku}">
+            <img src="${item.image_url || `/v1/product-media/${item.sku}`}" alt="${item.title}" />
+            <div class="product-meta">
+              <div class="tag-row">
+                <span class="tag">${index === 0 ? "Главный выбор" : (item.hero_badge || supportiveBadge)}</span>
+                ${halalLabel ? `<span class="tag">${halalLabel}</span>` : ""}
+              </div>
+              <div class="product-title-row">
+                <strong>${item.brand}</strong>
+                <div>${item.title}</div>
+                <div class="small-text">${localizeCategory(item.category)} · ${formatPrice(item.price_value)}</div>
+              </div>
+              <div class="small-text why-text">${shortSentence(item.why)}</div>
+              <div class="mini-note">${isHero ? "Это главный акцент набора. От него строится остальная подборка." : "Дополняет hero-product и закрывает соседний сценарий ухода или макияжа."}</div>
+              <div class="product-actions">
+                <button class="${addClass}" type="button" onclick="window.addToCart('${item.sku}')">${addLabel}</button>
+                ${external
+                  ? `<a class="link-btn" href="${external}" target="_blank" rel="noreferrer">Открыть в Golden Apple</a>`
+                  : `<button class="secondary-btn" type="button" disabled>Ссылка появится позже</button>`}
+              </div>
+            </div>
+          </article>
         `;
-        root.appendChild(card);
+      };
+
+      recommendations.innerHTML = hero ? `
+        ${renderProductCard(hero, 0)}
+        ${supporting.length ? `
+          <section class="support-section">
+            <div class="support-head">
+              <strong>Что дополняет набор</strong>
+              <span>Эти продукты поддерживают главный выбор и закрывают соседние задачи ухода или complexion.</span>
+            </div>
+            ${supporting.map((item) => renderProductCard(item, 1)).join("")}
+          </section>
+        ` : ""}
+      ` : `<div class="empty">После скана здесь появится curated beauty set.</div>`;
+    }
+
+    function renderCart(cart) {
+      const items = cart?.cart?.items || [];
+      state.cartSkuCounts = Object.fromEntries(items.map((item) => [item.sku, item.quantity]));
+      cartFabCount.textContent = String(cart?.total_items || 0);
+
+      cartList.innerHTML = items.length
+        ? items.map((item) => `
+          <div class="cart-item">
+            <strong>${item.title}</strong>
+            <div class="small-text">${item.brand} · ${item.quantity} шт. · ${formatPrice(item.price_value)}</div>
+          </div>
+        `).join("")
+        : `<div class="empty">Корзина пока пустая.</div>`;
+
+      cartTotal.innerHTML = items.length
+        ? `<strong>${cart.total_items} товаров</strong><br><span class="small-text">Итого: ${formatPrice(cart.total_price)}</span>`
+        : "Корзина пока пустая.";
+    }
+
+    function renderActivePreferences(sessionState) {
+      const prefs = sessionState?.user_preferences || {};
+      const chips = [];
+
+      if (prefs.halal_only) chips.push("halal-friendly");
+      if (prefs.budget_direction === "cheaper") chips.push("бюджетнее");
+      if (prefs.budget_direction === "premium") chips.push("премиальнее");
+      (prefs.preferred_finish || []).forEach((item) => chips.push(FINISH_LABELS[item] || item));
+      (prefs.preferred_coverage || []).forEach((item) => chips.push(COVERAGE_LABELS[item] || item));
+      (prefs.excluded_common_allergens || []).slice(0, 2).forEach((item) => chips.push(`без ${item}`));
+      (prefs.excluded_sensitivity_triggers || []).slice(0, 2).forEach((item) => chips.push(`исключить ${item}`));
+      if (prefs.goal) chips.push(prefs.goal);
+
+      activePreferenceList.innerHTML = chips.length
+        ? chips.map((item) => `<span class="profile-pill">${item}</span>`).join("")
+        : `<span class="fact-value">Пока без дополнительных ограничений — собрали базовый premium-набор.</span>`;
+    }
+
+    function deriveQuickAction(sessionState) {
+      const prefs = sessionState?.user_preferences || {};
+      if (prefs.halal_only) return "Халяль";
+      if (prefs.budget_direction === "cheaper") return "Сделать дешевле";
+      if ((prefs.preferred_finish || []).includes("radiant")) return "Сделай более сияющий";
+      if ((prefs.preferred_finish || []).includes("natural")) return "Сделай натуральнее";
+      return null;
+    }
+
+    function renderConversation(conversation = []) {
+      const visibleConversation = conversation.slice(-4);
+      chatMessages.innerHTML = visibleConversation.length
+        ? visibleConversation.map((turn) => `
+          <div class="chat-bubble ${turn.role === "user" ? "user" : "agent"}">${turn.role === "user" ? `<p>${escapeHtml(turn.message)}</p>` : formatChatMessage(turn.message)}</div>
+        `).join("")
+        : `<div class="empty">После первого скана здесь появится диалог с advisor.</div>`;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function joinPlain(values, fallback = "не задано") {
+      const items = (values || []).filter(Boolean);
+      return items.length ? items.join(", ") : fallback;
+    }
+
+    function compactDate(value) {
+      if (!value) return "дата недоступна";
+      return new Date(value).toLocaleString("ru-RU", {
+        day: "2-digit",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     }
 
-    async function addToCart(item) {
-      if (!state.sessionId) {
-        setStatus('Сначала получи первую подборку.', true);
+    function summarizeHistoryMetrics(metrics = {}) {
+      const topMetrics = Object.entries(metrics)
+        .sort((a, b) => Number(b[1]) - Number(a[1]))
+        .filter(([, score]) => Number(score) >= 0.35)
+        .slice(0, 2)
+        .map(([key]) => HISTORY_METRIC_LABELS[key] || key.replaceAll("_", " "));
+
+      return topMetrics.length ? topMetrics.join(", ") : "ровный ежедневный профиль";
+    }
+
+    function renderCabinet(cabinet) {
+      const profile = cabinet?.profile;
+      const analyses = cabinet?.analysis_history || [];
+      const orders = cabinet?.order_history || [];
+      const latestAnalysis = analyses[0] || null;
+      state.latestAnalysisSessionId = latestAnalysis?.session_id || null;
+
+      cabinetSummary.innerHTML = `
+        <div class="cabinet-stat">
+          <strong>${analyses.length}</strong>
+          <span>сохранённых Beauty ID анализов</span>
+        </div>
+        <div class="cabinet-stat">
+          <strong>${orders.length}</strong>
+          <span>демо-заказов в истории</span>
+        </div>
+        <div class="cabinet-stat">
+          <strong>${profile?.sensitivity_exclusions?.length || 0}</strong>
+          <span>активных исключений и чувствительностей</span>
+        </div>
+      `;
+
+      profileList.innerHTML = profile ? `
+        <div class="profile-card">
+          <strong>${profile.name}</strong>
+          <div class="fact-stack">
+            <div class="fact-row">
+              <span class="fact-label">Кратко</span>
+              <span class="fact-value">${profile.beauty_summary}</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Последний скан</span>
+              <span class="fact-value">${latestAnalysis ? compactDate(latestAnalysis.created_at) : "ещё не было сканов"}</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-card">
+          <strong>Тип кожи и тон</strong>
+          <div class="pill-row">
+            ${(profile.skin_snapshot || []).map((item) => `<span class="profile-pill">${item}</span>`).join("")}
+          </div>
+        </div>
+        <div class="profile-card">
+          <strong>Что учитывать в подборе</strong>
+          <div class="fact-stack">
+            <div class="fact-row">
+              <span class="fact-label">Финиш</span>
+              <span class="fact-value">${joinPlain(profile.preferred_finish, "не зафиксирован")}</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Покрытие</span>
+              <span class="fact-value">${joinPlain(profile.preferred_coverage, "не зафиксировано")}</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Бюджет</span>
+              <span class="fact-value">${profile.budget_direction || "без акцента"}</span>
+            </div>
+            <div class="fact-row">
+              <span class="fact-label">Halal</span>
+              <span class="fact-value">${profile.halal_preference || "не зафиксировано"}</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-card">
+          <strong>Исключения и чувствительность</strong>
+          <div class="pill-row">
+            ${(profile.sensitivity_exclusions || []).length
+              ? profile.sensitivity_exclusions.map((item) => `<span class="profile-pill">${item}</span>`).join("")
+              : `<span class="fact-value">Пока ничего не исключено</span>`}
+          </div>
+        </div>
+      ` : `<div class="empty">Профиль появится после первого сканирования.</div>`;
+
+      analysisHistory.innerHTML = analyses.length
+        ? analyses.map((item, index) => `
+          <div class="history-card">
+            <strong>${index === 0 ? "Последний Beauty ID" : "Сохранённый скан"}</strong>
+            <h4>${item.headline}</h4>
+            <div class="history-meta">
+              <span>${compactDate(item.created_at)}</span>
+              <span>Сигналы: ${summarizeHistoryMetrics(item.metrics)}</span>
+            </div>
+            <div class="small-text">Главный товар: ${item.hero_title || "ещё не определён"}</div>
+            <div class="secondary-row">
+              <button class="secondary-btn" type="button" onclick="window.openSavedSession('${item.session_id}')">Открыть в диалоге</button>
+            </div>
+          </div>
+        `).join("")
+        : `<div class="empty">История анализов пока пустая.</div>`;
+
+      orderHistory.innerHTML = orders.length
+        ? orders.map((item) => `
+          <div class="history-card">
+            <strong>Демо-заказ</strong>
+            <div class="history-meta">
+              <span>${compactDate(item.created_at)}</span>
+              <span>${item.total_items} товаров</span>
+              <span>${formatPrice(item.total_price)}</span>
+            </div>
+            <div class="small-text">
+              ${item.items?.length
+                ? `В заказе: ${item.items.slice(0, 2).map((product) => product.title).join(", ")}${item.items.length > 2 ? " и ещё товары" : ""}`
+                : "Состав заказа появится после оформления из корзины."}
+            </div>
+            <div class="secondary-row">
+              <button class="secondary-btn" type="button" onclick="window.openSavedSession('${item.session_id}')">Повторить набор</button>
+            </div>
+          </div>
+        `).join("")
+        : `<div class="empty">История заказов пока пустая.</div>`;
+    }
+
+    async function hydrateAdvisor(sessionState, responseLike = null) {
+      state.currentSession = sessionState;
+      state.lastBeautyScan = responseLike?.beauty_scan || sessionState.latest_scan || null;
+      state.recommendations = responseLike?.recommendations || sessionState.latest_recommendations || [];
+      answerText.textContent = shortSentence(responseLike?.answer_text || sessionState.latest_answer_text || "") || "Подборка появится после первого ответа advisor.";
+      if (state.lastBeautyScan) {
+        await renderScan(state.lastBeautyScan);
+      } else {
+        renderAdvisorVisual(null, null, null);
+      }
+      renderConversation(sessionState.conversation_history || []);
+      renderActivePreferences(sessionState);
+      renderRecommendations(state.recommendations);
+      quickActionButtons.forEach((button) => { button.disabled = false; });
+      if (!state.activeQuickAction) {
+        state.activeQuickAction = deriveQuickAction(sessionState);
+      }
+      setQuickActionActive(state.activeQuickAction);
+      if (responseLike?.cabinet) {
+        renderCabinet(responseLike.cabinet);
+      } else {
+        await refreshCabinet();
+      }
+      await refreshCart();
+      syncNav("advisor");
+    }
+
+    async function fetchSessionState() {
+      if (!state.sessionId) return null;
+      try {
+        return await jsonFetch(`/v1/session/${state.sessionId}`);
+      } catch (error) {
+        localStorage.removeItem("beauty-id-session");
+        state.sessionId = null;
+        return null;
+      }
+    }
+
+    function openCartDrawer() {
+      cartDrawer.classList.remove("hidden");
+      cartDrawerBackdrop.classList.remove("hidden");
+    }
+
+    function closeCartDrawer() {
+      cartDrawer.classList.add("hidden");
+      cartDrawerBackdrop.classList.add("hidden");
+    }
+
+    function showTransition(message = "Собираем ваш Beauty ID") {
+      transitionOverlay.classList.remove("hidden");
+      transitionOverlay.querySelector("h2").textContent = message;
+    }
+
+    function hideTransition() {
+      transitionOverlay.classList.add("hidden");
+    }
+
+    async function preserveViewportAnchor(element, task) {
+      const anchorTop = element ? element.getBoundingClientRect().top : null;
+      await task();
+      if (element && typeof anchorTop === "number") {
+        const nextTop = element.getBoundingClientRect().top;
+        const delta = nextTop - anchorTop;
+        if (Math.abs(delta) > 1) {
+          window.scrollBy({ top: delta, behavior: "auto" });
+        }
+      }
+    }
+
+    async function goToAdvisor(responseLike = null, options = {}) {
+      const sessionState = await fetchSessionState();
+      if (!sessionState) {
+        goToRoute("scan");
         return;
       }
-      try {
-        const response = await fetch(`/v1/session/${state.sessionId}/cart/items`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            sku:item.sku
-          })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'cart add failed');
-        updateCartState(data);
-      } catch (error) {
-        console.error(error);
-        setStatus(`Не удалось добавить в корзину: ${error.message}`, true);
-      }
+      await hydrateAdvisor(sessionState, responseLike);
+      goToRoute("advisor", options);
     }
 
-    async function changeCartQuantity(sku, quantity) {
-      if (!state.sessionId) return;
-      try {
-        const response = await fetch(`/v1/session/${state.sessionId}/cart/items/${encodeURIComponent(sku)}`, {
-          method:'PATCH',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({quantity})
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'cart update failed');
-        updateCartState(data);
-      } catch (error) {
-        console.error(error);
-        setStatus(`Не удалось обновить корзину: ${error.message}`, true);
-      }
-    }
-
-    async function removeFromCart(sku) {
-      if (!state.sessionId) return;
-      try {
-        const response = await fetch(`/v1/session/${state.sessionId}/cart/items/${encodeURIComponent(sku)}`, {
-          method:'DELETE'
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'cart remove failed');
-        updateCartState(data);
-      } catch (error) {
-        console.error(error);
-        setStatus(`Не удалось удалить товар: ${error.message}`, true);
-      }
-    }
-
-    async function clearCart() {
-      if (!state.sessionId) return;
-      try {
-        const response = await fetch(`/v1/session/${state.sessionId}/cart`, { method:'DELETE' });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'cart clear failed');
-        updateCartState(data);
-      } catch (error) {
-        console.error(error);
-        setStatus(`Не удалось очистить корзину: ${error.message}`, true);
-      }
-    }
-    async function addAllVisibleToCart() {
-      if (!state.sessionId) {
-        setStatus('Сначала получи первую подборку.', true);
+    function openBestAdvisorSource() {
+      const targetSession = state.latestAnalysisSessionId || state.sessionId;
+      if (!targetSession) {
+        goToRoute("scan", { push: true });
         return;
       }
-      const items = state.lastRecommendations || [];
-      if (!items.length) {
-        setStatus('Пока нет товаров для добавления.', true);
-        return;
-      }
-      setStatus('Добавляю всю текущую подборку в корзину...');
-      for (const item of items) {
-        await addToCart(item);
-      }
-      setStatus('Готово: вся подборка добавлена в корзину.');
+      window.openSavedSession(targetSession);
     }
 
-    async function toBase64(file) {
-      return await new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(String(r.result));
-        r.onerror = reject;
-        r.readAsDataURL(file);
+    async function refreshCart() {
+      if (!state.sessionId) return;
+      const cart = await jsonFetch(`/v1/session/${state.sessionId}/cart`);
+      renderCart(cart);
+      if (state.recommendations.length) {
+        renderRecommendations(state.recommendations);
+      }
+    }
+
+    async function refreshCabinet() {
+      const cabinet = await jsonFetch("/v1/profile/demo");
+      renderCabinet(cabinet);
+    }
+
+    async function sendQuick(message) {
+      if (!state.sessionId || state.isAnalyzing) return;
+      setQuickActionActive(message);
+      setStage("Обновляем подборку", "Пересобираем рекомендации под новый запрос.");
+      await preserveViewportAnchor(quickActions, async () => {
+        const data = await jsonFetch(`/v1/session/${state.sessionId}/message`, {
+          method: "POST",
+          body: JSON.stringify({ message }),
+        });
+        await hydrateAdvisor(data.updated_session_state, data);
+        setStage("Подборка обновлена", "Ниже уже показан новый вариант.");
+        goToRoute("advisor", { preserveScroll: true, push: false });
+      });
+      quickActions.scrollIntoView({ block: "nearest", behavior: "auto" });
+    }
+
+    function buildFilterChips(library) {
+      const chips = [
+        ...library.common_allergens.slice(0, 3).map((item) => ({ label: item.label, message: `исключить ${item.key}` })),
+        ...library.sensitivity_exclusions.slice(0, 3).map((item) => ({ label: item.label, message: `без ${item.key}` })),
+      ];
+
+      filterRow.innerHTML = chips.map((chip) => `
+        <button class="filter-chip" type="button" data-message="${chip.message}">${chip.label}</button>
+      `).join("");
+
+      filterRow.querySelectorAll(".filter-chip").forEach((button) => {
+        button.addEventListener("click", async () => {
+          filterRow.querySelectorAll(".filter-chip").forEach((item) => item.classList.remove("active"));
+          button.classList.add("active");
+          await sendQuick(button.dataset.message);
+        });
       });
     }
 
-    async function analyze() {
-      const file = $('photoFile').files[0];
-      if (!file) {
-        setStatus('Сначала загрузи фото.', true);
-        return;
-      }
-      $('analyzeBtn').disabled = true;
-      setStatus('Смотрю на фото и собираю первую подборку...');
-      try {
-        state.photoB64 = await toBase64(file);
-        const payload = {
-          photo_b64: state.photoB64,
-          image_url: null,
-          user_context: {
-            goal: $('goal').value.trim() || 'подбери мне удачный beauty-образ'
-          }
-        };
-        const response = await fetch('/v1/photo/analyze', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify(payload)
+    window.addToCart = async function addToCart(sku) {
+      if (!state.sessionId) return;
+      const cart = await jsonFetch(`/v1/session/${state.sessionId}/cart/items`, {
+        method: "POST",
+        body: JSON.stringify({ sku }),
+      });
+      renderCart(cart);
+      renderRecommendations(state.recommendations);
+      const product = state.recommendations.find((item) => item.sku === sku);
+      showCartToast(product ? `Добавили ${product.title} в корзину` : "Товар добавлен в корзину");
+    };
+
+    window.openProduct = function openProduct(sku) {
+      goToRoute("advisor");
+      const card = byId(`product-${sku}`);
+      if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+
+    window.openSavedSession = async function openSavedSession(sessionId) {
+      if (!sessionId) return;
+      state.sessionId = sessionId;
+      localStorage.setItem("beauty-id-session", sessionId);
+      await goToAdvisor(null, { push: true });
+    };
+
+    async function addAllToCart() {
+      for (const item of state.recommendations) {
+        const cart = await jsonFetch(`/v1/session/${state.sessionId}/cart/items`, {
+          method: "POST",
+          body: JSON.stringify({ sku: item.sku }),
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'analyze failed');
-        state.sessionId = data.session_id;
-        state.cart = { items: [], total_items: 0, total_price: 0 };
-        $('chat').innerHTML = '';
-        addMessage(data.answer_text, 'agent');
-        renderCart();
-        renderRecommendations(data.recommendations);
-        setStatus('Готово. Теперь можно попросить более вечерний, более спокойный или более бюджетный вариант — и сразу добавлять товары в корзину.');
+        renderCart(cart);
+      }
+      renderRecommendations(state.recommendations);
+      showCartToast("Весь набор добавлен в корзину");
+    }
+
+    async function checkout() {
+      if (!state.sessionId) return;
+      try {
+        const data = await jsonFetch(`/v1/session/${state.sessionId}/checkout`, {
+          method: "POST",
+          body: JSON.stringify({}),
+        });
+        checkoutResult.innerHTML = `<div class="success">${data.message}</div>`;
+        await refreshCart();
+        await refreshCabinet();
+        closeCartDrawer();
+        goToRoute("profile");
       } catch (error) {
-        console.error(error);
-        setStatus(`Не удалось собрать подборку: ${error.message}`, true);
-      } finally {
-        $('analyzeBtn').disabled = false;
+        checkoutResult.innerHTML = `<div class="empty">${String(error.message || error)}</div>`;
       }
     }
 
-    async function sendMessage(prefill = null) {
-      const text = (prefill ?? $('chatInput').value).trim();
-      if (!state.sessionId) {
-        setStatus('Сначала загрузи фото и получи первую подборку.', true);
-        return;
-      }
-      if (!text) return;
-      $('sendBtn').disabled = true;
-      addMessage(text, 'user');
-      if (!prefill) $('chatInput').value = '';
-      setStatus('Готовлю новый вариант...');
-      try {
-        const response = await fetch(`/v1/session/${state.sessionId}/message`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({message:text})
+    async function sendChatMessage(message) {
+      const text = String(message || "").trim();
+      if (!text || !state.sessionId || state.isAnalyzing) return;
+      setQuickActionActive(null);
+      chatInput.value = "";
+      await preserveViewportAnchor(chatComposer, async () => {
+        const data = await jsonFetch(`/v1/session/${state.sessionId}/message`, {
+          method: "POST",
+          body: JSON.stringify({ message: text }),
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.detail || 'message failed');
-        addMessage(data.answer_text, 'agent');
-        renderRecommendations(data.recommendations);
-        setStatus('Готово. Можно продолжать уточнять образ и добавлять понравившиеся товары в корзину.');
-      } catch (error) {
-        console.error(error);
-        setStatus(`Не удалось получить ответ: ${error.message}`, true);
-      } finally {
-        $('sendBtn').disabled = false;
-      }
+        await hydrateAdvisor(data.updated_session_state, data);
+        goToRoute("advisor", { preserveScroll: true, push: false });
+      });
+      chatComposer.scrollIntoView({ block: "nearest", behavior: "auto" });
+      chatInput.focus();
     }
 
-    $('photoFile').addEventListener('change', (e) => {
-      const file = e.target.files[0];
+    async function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    cameraModeBtn.addEventListener("click", () => setMode("camera"));
+    uploadModeBtn.addEventListener("click", () => setMode("upload"));
+    byId("backToCameraBtn").addEventListener("click", () => setMode("camera"));
+    byId("startCameraBtn").addEventListener("click", handleCameraPrimary);
+    byId("stopCameraBtn").addEventListener("click", stopCamera);
+    byId("analyzeUploadBtn").addEventListener("click", () => scanNow(false));
+    byId("mobileBackToCameraBtn").addEventListener("click", () => setMode("camera"));
+    byId("mobileStartCameraBtn").addEventListener("click", handleCameraPrimary);
+    byId("mobileStopCameraBtn").addEventListener("click", stopCamera);
+    byId("mobileAnalyzeUploadBtn").addEventListener("click", () => scanNow(false));
+    byId("addAllBtn").addEventListener("click", addAllToCart);
+    byId("addBundleBtn").addEventListener("click", addAllToCart);
+    byId("openCartInlineBtn").addEventListener("click", openCartDrawer);
+    byId("checkoutBtn").addEventListener("click", checkout);
+    byId("profileNewScanBtn").addEventListener("click", () => goToRoute("scan", { push: true }));
+    byId("profileOpenAdvisorBtn").addEventListener("click", openBestAdvisorSource);
+    navScanBtn.addEventListener("click", () => goToRoute("scan"));
+    navAdvisorBtn.addEventListener("click", async () => {
+      if (!state.sessionId) return;
+      await goToAdvisor(null, { push: true });
+    });
+    navProfileBtn.addEventListener("click", async () => {
+      await refreshCabinet();
+      goToRoute("profile");
+    });
+    cartFabBtn.addEventListener("click", openCartDrawer);
+    closeCartBtn.addEventListener("click", closeCartDrawer);
+    cartDrawerBackdrop.addEventListener("click", closeCartDrawer);
+    chatComposer.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await sendChatMessage(chatInput.value);
+    });
+
+    quickActionButtons.forEach((button) => {
+      button.disabled = true;
+      button.addEventListener("click", () => sendQuick(button.dataset.message));
+    });
+
+    dialogSuggestions.querySelectorAll("[data-suggestion]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        await sendChatMessage(button.dataset.suggestion);
+      });
+    });
+
+    byId("photoInput").addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
       if (!file) return;
-      $('preview').src = URL.createObjectURL(file);
-      $('preview').style.display = 'block';
-      $('previewPlaceholder').style.display = 'none';
+      state.photoB64 = await fileToBase64(file);
+      state.previewLandmarks = null;
+      state.scanAnchor = null;
+      stopFaceTracking();
+      showPreview(URL.createObjectURL(file));
+      setStage("Фото загружено", "Теперь можно запускать сканирование.");
+      setScanState("ready");
     });
 
-    $('cards').addEventListener('click', (event) => {
-      const button = event.target.closest('[data-add-sku]');
-      if (!button) return;
-      const item = state.lastRecommendations.find((entry) => entry.sku === button.dataset.addSku);
-      if (!item) return;
-      addToCart(item);
-    });
-
-    $('cartList').addEventListener('click', (event) => {
-      const button = event.target.closest('[data-cart-action][data-sku]');
-      if (!button) return;
-      const { cartAction, sku } = button.dataset;
-      const item = state.cart.items.find((entry) => entry.sku === sku);
-      if (!item) return;
-      if (cartAction === 'increase') changeCartQuantity(sku, item.quantity + 1);
-      if (cartAction === 'decrease') changeCartQuantity(sku, item.quantity - 1);
-      if (cartAction === 'remove') removeFromCart(sku);
-    });
-
-    $('cartClearBtn').addEventListener('click', clearCart);
-    $('cartCheckoutBtn').addEventListener('click', () => {
-      if (!state.cart.total_items) {
-        setStatus('Корзина пока пустая.', true);
-        return;
-      }
-      setStatus(`В корзине ${state.cart.total_items} товар(а) на ${state.cart.total_price} ₽. Следующим шагом можно сделать отдельный экран оформления.`);
-    });
-
-    $('analyzeBtn').addEventListener('click', analyze);
-    $('sendBtn').addEventListener('click', () => sendMessage());
-    $('chatInput').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
+    window.addEventListener("beforeunload", stopCamera);
+    window.addEventListener("resize", () => {
+      if (state.stream) {
+        drawLiveGuide();
+        if (state.liveBox) {
+          setFaceFrame(state.liveBox);
+        }
+      } else if (state.lastBeautyScan && previewImage.getAttribute("src")) {
+        void renderScan(state.lastBeautyScan);
+      } else {
+        syncOverlayCanvas();
       }
     });
 
-    $('suggestCheap').addEventListener('click', () => sendMessage('сделай дешевле'));
-    $('suggestRadiant').addEventListener('click', () => sendMessage('сделай более сияющий'));
-    $('suggestEvening').addEventListener('click', () => sendMessage('сделай вариант на вечер'));
-    $('suggestNatural').addEventListener('click', () => sendMessage('сделай натуральнее'));
-    $('addAllToCart').addEventListener('click', addAllVisibleToCart);
-
-    $('resetBtn').addEventListener('click', () => {
-      state.photoB64 = null;
-      state.sessionId = null;
-      $('photoFile').value = '';
-      $('goal').value = '';
-      $('chatInput').value = '';
-      $('preview').removeAttribute('src');
-      $('preview').style.display = 'none';
-      $('previewPlaceholder').style.display = 'grid';
-      $('chat').innerHTML = '';
-      $('cards').innerHTML = '';
-      state.cart = { items: [], total_items: 0, total_price: 0 };
-      setStatus('Интерфейс очищен. Загрузи новое фото, чтобы начать заново.');
-      renderCart();
-      renderRecommendations([]);
+    window.addEventListener("popstate", async () => {
+      const route = currentPathMode();
+      if (route === "advisor" && state.sessionId) {
+        await goToAdvisor(null, { push: false });
+      } else if (route === "profile") {
+        await refreshCabinet();
+        goToRoute("profile", { push: false });
+      } else {
+        goToRoute("scan", { push: false });
+      }
     });
 
-    renderCart();
-    renderRecommendations([]);
+    (async function init() {
+      const runtime = await jsonFetch("/health");
+      renderRuntimeStatus(runtime);
+      const library = await jsonFetch("/v1/preferences/allergens");
+      state.allergens = library;
+      buildFilterChips(library);
+      await refreshCabinet();
+      setMode("camera");
+      const savedSession = localStorage.getItem("beauty-id-session");
+      if (savedSession) {
+        state.sessionId = savedSession;
+        const savedPhoto = sessionStorage.getItem(sessionPhotoKey(savedSession));
+        if (savedPhoto) {
+          showPreview(savedPhoto);
+        }
+      }
+      const route = currentPathMode();
+      if (route === "advisor" && state.sessionId) {
+        await goToAdvisor(null, { push: false });
+      } else if (route === "profile") {
+        goToRoute("profile", { push: false });
+      } else {
+        goToRoute("scan", { push: false });
+      }
+    })();
   </script>
 </body>
 </html>

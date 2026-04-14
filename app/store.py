@@ -6,7 +6,7 @@ from pathlib import Path
 from threading import RLock
 
 from .config import settings
-from .models import SessionState
+from .models import AnalysisHistoryEntry, DemoProfileSummary, OrderHistoryEntry, SessionState
 
 UTC = timezone.utc
 
@@ -15,6 +15,9 @@ class SessionStore:
     def __init__(self, sqlite_path: str | None = None) -> None:
         self._lock = RLock()
         self._items: dict[str, tuple[datetime, SessionState]] = {}
+        self._profiles: dict[str, DemoProfileSummary] = {}
+        self._analysis_history: dict[str, list[AnalysisHistoryEntry]] = {}
+        self._order_history: dict[str, list[OrderHistoryEntry]] = {}
         self.sqlite_path = Path(sqlite_path or settings.sqlite_path)
         self.backend = 'in-memory'
         self._cleaned_expired = 0
@@ -35,6 +38,37 @@ class SessionStore:
                         payload TEXT NOT NULL,
                         created_at TEXT DEFAULT '',
                         updated_at TEXT DEFAULT ''
+                    )
+                    '''
+                )
+                connection.execute(
+                    '''
+                    CREATE TABLE IF NOT EXISTS demo_profiles (
+                        user_id TEXT PRIMARY KEY,
+                        payload TEXT NOT NULL,
+                        updated_at TEXT NOT NULL
+                    )
+                    '''
+                )
+                connection.execute(
+                    '''
+                    CREATE TABLE IF NOT EXISTS analysis_history (
+                        analysis_id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL,
+                        session_id TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        payload TEXT NOT NULL
+                    )
+                    '''
+                )
+                connection.execute(
+                    '''
+                    CREATE TABLE IF NOT EXISTS order_history (
+                        order_id TEXT PRIMARY KEY,
+                        user_id TEXT NOT NULL,
+                        session_id TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        payload TEXT NOT NULL
                     )
                     '''
                 )
@@ -102,6 +136,87 @@ class SessionStore:
                 connection.commit()
                 return None
             return SessionState.model_validate_json(row['payload'])
+
+    def save_profile(self, profile: DemoProfileSummary) -> None:
+        if not self._sqlite_enabled:
+            with self._lock:
+                self._profiles[profile.user_id] = profile
+            return
+        now_iso = datetime.now(UTC).isoformat()
+        with self._lock, self._connect() as connection:
+            connection.execute(
+                '''
+                INSERT INTO demo_profiles (user_id, payload, updated_at)
+                VALUES (?, ?, ?)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    payload=excluded.payload,
+                    updated_at=excluded.updated_at
+                ''',
+                (profile.user_id, profile.model_dump_json(), now_iso),
+            )
+            connection.commit()
+
+    def get_profile(self, user_id: str = 'demo-user') -> DemoProfileSummary | None:
+        if not self._sqlite_enabled:
+            with self._lock:
+                return self._profiles.get(user_id)
+        with self._lock, self._connect() as connection:
+            row = connection.execute('SELECT payload FROM demo_profiles WHERE user_id = ?', (user_id,)).fetchone()
+            return DemoProfileSummary.model_validate_json(row['payload']) if row else None
+
+    def add_analysis_history(self, user_id: str, entry: AnalysisHistoryEntry) -> None:
+        if not self._sqlite_enabled:
+            with self._lock:
+                self._analysis_history.setdefault(user_id, [])
+                self._analysis_history[user_id] = [entry, *[x for x in self._analysis_history[user_id] if x.analysis_id != entry.analysis_id]][:20]
+            return
+        with self._lock, self._connect() as connection:
+            connection.execute(
+                '''
+                INSERT OR REPLACE INTO analysis_history (analysis_id, user_id, session_id, created_at, payload)
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                (entry.analysis_id, user_id, entry.session_id, entry.created_at, entry.model_dump_json()),
+            )
+            connection.commit()
+
+    def list_analysis_history(self, user_id: str = 'demo-user', limit: int = 20) -> list[AnalysisHistoryEntry]:
+        if not self._sqlite_enabled:
+            with self._lock:
+                return list(self._analysis_history.get(user_id, []))[:limit]
+        with self._lock, self._connect() as connection:
+            rows = connection.execute(
+                'SELECT payload FROM analysis_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
+                (user_id, limit),
+            ).fetchall()
+            return [AnalysisHistoryEntry.model_validate_json(row['payload']) for row in rows]
+
+    def add_order_history(self, user_id: str, entry: OrderHistoryEntry) -> None:
+        if not self._sqlite_enabled:
+            with self._lock:
+                self._order_history.setdefault(user_id, [])
+                self._order_history[user_id] = [entry, *[x for x in self._order_history[user_id] if x.order_id != entry.order_id]][:20]
+            return
+        with self._lock, self._connect() as connection:
+            connection.execute(
+                '''
+                INSERT OR REPLACE INTO order_history (order_id, user_id, session_id, created_at, payload)
+                VALUES (?, ?, ?, ?, ?)
+                ''',
+                (entry.order_id, user_id, entry.session_id, entry.created_at, entry.model_dump_json()),
+            )
+            connection.commit()
+
+    def list_order_history(self, user_id: str = 'demo-user', limit: int = 20) -> list[OrderHistoryEntry]:
+        if not self._sqlite_enabled:
+            with self._lock:
+                return list(self._order_history.get(user_id, []))[:limit]
+        with self._lock, self._connect() as connection:
+            rows = connection.execute(
+                'SELECT payload FROM order_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
+                (user_id, limit),
+            ).fetchall()
+            return [OrderHistoryEntry.model_validate_json(row['payload']) for row in rows]
 
     def clean_expired(self) -> int:
         now_iso = datetime.now(UTC).isoformat()

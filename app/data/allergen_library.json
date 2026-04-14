@@ -1,0 +1,21 @@
+{
+  "common_allergens": [
+    {"key": "fragrance", "label": "Fragrance / Parfum", "kind": "allergen", "note": "Common fragrance mix and parfum components can be irritating for reactive skin."},
+    {"key": "limonene", "label": "Limonene", "kind": "allergen", "note": "Fragrance allergen often listed in perfumed formulas."},
+    {"key": "linalool", "label": "Linalool", "kind": "allergen", "note": "Often appears in fragranced products and essential oil blends."},
+    {"key": "citral", "label": "Citral", "kind": "allergen", "note": "A fragrance component to avoid if you already know it is a trigger."},
+    {"key": "geraniol", "label": "Geraniol", "kind": "allergen", "note": "Common fragrance allergen in scented beauty products."},
+    {"key": "eugenol", "label": "Eugenol", "kind": "allergen", "note": "Clove-like fragrance component that can be irritating."},
+    {"key": "cinnamal", "label": "Cinnamal", "kind": "allergen", "note": "Fragrance allergen sometimes used in scented cosmetics."},
+    {"key": "benzyl alcohol", "label": "Benzyl Alcohol", "kind": "allergen", "note": "Can appear in fragrance systems and preservation blends."},
+    {"key": "essential_oils", "label": "Essential Oils", "kind": "allergen", "note": "Useful shortcut if you prefer to avoid aromatic essential oil blends."}
+  ],
+  "sensitivity_exclusions": [
+    {"key": "niacinamide", "label": "Niacinamide", "kind": "sensitivity", "note": "Some users prefer to avoid niacinamide in daily routines."},
+    {"key": "retinoids", "label": "Retinoids", "kind": "sensitivity", "note": "Helpful if retinoids feel too active for your current routine."},
+    {"key": "aha", "label": "AHA Acids", "kind": "sensitivity", "note": "Includes glycolic and lactic style resurfacing acids."},
+    {"key": "bha", "label": "BHA Acids", "kind": "sensitivity", "note": "Includes salicylic-acid style pore-focused actives."},
+    {"key": "alcohol_denat", "label": "Alcohol Denat.", "kind": "sensitivity", "note": "Useful when you want to avoid drying volatile alcohols."},
+    {"key": "acids", "label": "Mixed Acids", "kind": "sensitivity", "note": "Broad exclusion for acid-led exfoliating formulas."}
+  ]
+}

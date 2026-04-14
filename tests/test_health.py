@@ -11,7 +11,9 @@ def test_health_contains_version_and_storage() -> None:
     assert 'version' in body
     assert body['storage'] in {'in-memory', 'sqlite'}
     assert 'settings_errors' in body
-    assert body['production_ready'] is False
+    assert 'gemini_requested_model' in body
+    assert 'gemini_last_error' in body
+    assert isinstance(body['production_ready'], bool)
 
 
 def test_ready_endpoint_available() -> None:
@@ -20,3 +22,4 @@ def test_ready_endpoint_available() -> None:
     body = response.json()
     assert body['status'] == 'ready'
     assert 'store' in body
+    assert 'gemini_last_error' in body

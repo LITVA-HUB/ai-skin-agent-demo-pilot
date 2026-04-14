@@ -164,6 +164,12 @@ class ColorFamily(str, Enum):
     neutral = "neutral"
 
 
+class HalalStatus(str, Enum):
+    certified = "certified"
+    friendly = "friendly"
+    unknown = "unknown"
+
+
 class ImageCheck(BaseModel):
     face_detected: bool = True
     skin_region_detected: bool = True
@@ -233,6 +239,8 @@ class UserContext(BaseModel):
     budget_segment: PriceSegment = PriceSegment.mid
     preferred_brands: list[str] = Field(default_factory=list)
     excluded_ingredients: list[str] = Field(default_factory=list)
+    excluded_common_allergens: list[str] = Field(default_factory=list)
+    excluded_sensitivity_triggers: list[str] = Field(default_factory=list)
     routine_size: RoutineSize = RoutineSize.standard
     goal: str | None = None
     budget_direction: BudgetDirection = BudgetDirection.same
@@ -243,6 +251,8 @@ class UserContext(BaseModel):
     occasion: OccasionType | None = None
     rejected_products: list[str] = Field(default_factory=list)
     accepted_products: list[str] = Field(default_factory=list)
+    halal_only: bool = False
+    profile_name: str = "Demo user"
 
 
 class RecommendationPlan(BaseModel):
@@ -292,6 +302,17 @@ class CatalogProduct(BaseModel):
     transfer_resistant: bool = False
     texture: str | None = None
     embedding_text: str
+    image_url: str | None = None
+    goldapple_url: str | None = None
+    goldapple_search_query: str | None = None
+    hero_badge: str | None = None
+    card_note: str | None = None
+    halal_status: HalalStatus = HalalStatus.unknown
+    halal_note: str | None = None
+    contains_animal_derived: bool = False
+    alcohol_free: bool | None = None
+    common_irritants: list[str] = Field(default_factory=list)
+    sensitivity_exclusions: list[str] = Field(default_factory=list)
 
 
 class RecommendationItem(BaseModel):
@@ -306,6 +327,13 @@ class RecommendationItem(BaseModel):
     vector_score: float
     rule_score: float
     final_score: float
+    image_url: str | None = None
+    goldapple_url: str | None = None
+    goldapple_search_query: str | None = None
+    hero_badge: str | None = None
+    card_note: str | None = None
+    halal_status: HalalStatus = HalalStatus.unknown
+    halal_note: str | None = None
 
 
 class CartItem(BaseModel):
@@ -316,6 +344,9 @@ class CartItem(BaseModel):
     domain: ProductDomain = ProductDomain.skincare
     price_value: int
     quantity: int = 1
+    image_url: str | None = None
+    goldapple_url: str | None = None
+    goldapple_search_query: str | None = None
 
 
 class CartState(BaseModel):
@@ -333,6 +364,45 @@ class CartState(BaseModel):
 class ConversationTurn(BaseModel):
     role: str
     message: str
+
+
+class BeautyMetricCard(BaseModel):
+    key: str
+    label: str
+    score: float
+    severity: str
+
+
+class FaceScanZone(BaseModel):
+    zone: str
+    label: str
+    x: float
+    y: float
+    width: float
+    height: float
+    intensity: float
+    metric_key: str
+
+
+class ZoneRecommendation(BaseModel):
+    zone: str
+    label: str
+    x: float
+    y: float
+    sku: str
+    category: ProductCategory
+    title: str
+    why: str
+
+
+class BeautyScanPayload(BaseModel):
+    title: str
+    subtitle: str
+    metrics: list[BeautyMetricCard] = Field(default_factory=list)
+    zones: list[FaceScanZone] = Field(default_factory=list)
+    product_hotspots: list[ZoneRecommendation] = Field(default_factory=list)
+    summary_lines: list[str] = Field(default_factory=list)
+    disclaimer: str = "Beauty Scan highlights visible cosmetic cues only. It does not diagnose skin conditions or allergies."
 
 
 class DialogContextState(BaseModel):
@@ -360,12 +430,65 @@ class SessionState(BaseModel):
     cart: CartState = Field(default_factory=CartState)
     dialog_context: DialogContextState = Field(default_factory=DialogContextState)
     conversation_history: list[ConversationTurn] = Field(default_factory=list)
+    latest_recommendations: list[RecommendationItem] = Field(default_factory=list)
+    latest_answer_text: str = ""
+    demo_user_id: str = "demo-user"
+    analysis_created_at: str | None = None
+    latest_scan: BeautyScanPayload | None = None
 
 
 class AnalyzePhotoRequest(BaseModel):
     photo_b64: str | None = None
     image_url: str | None = None
     user_context: UserContext = Field(default_factory=UserContext)
+
+
+class AnalysisHistoryEntry(BaseModel):
+    analysis_id: str
+    session_id: str
+    created_at: str
+    headline: str
+    metrics: dict[str, float] = Field(default_factory=dict)
+    hero_sku: str | None = None
+    hero_title: str | None = None
+
+
+class DemoProfileSummary(BaseModel):
+    user_id: str
+    name: str
+    beauty_summary: str
+    skin_snapshot: list[str] = Field(default_factory=list)
+    sensitivity_exclusions: list[str] = Field(default_factory=list)
+    halal_preference: str
+    preferred_finish: list[str] = Field(default_factory=list)
+    preferred_coverage: list[str] = Field(default_factory=list)
+    budget_direction: str
+    future_features: list[str] = Field(default_factory=list)
+
+
+class DemoOrderItem(BaseModel):
+    sku: str
+    title: str
+    brand: str
+    quantity: int
+    price_value: int
+    image_url: str | None = None
+
+
+class OrderHistoryEntry(BaseModel):
+    order_id: str
+    session_id: str
+    created_at: str
+    total_items: int
+    total_price: int
+    status: str = "demo_saved"
+    items: list[DemoOrderItem] = Field(default_factory=list)
+
+
+class CabinetResponse(BaseModel):
+    profile: DemoProfileSummary
+    analysis_history: list[AnalysisHistoryEntry] = Field(default_factory=list)
+    order_history: list[OrderHistoryEntry] = Field(default_factory=list)
 
 
 class AnalyzePhotoResponse(BaseModel):
@@ -375,6 +498,8 @@ class AnalyzePhotoResponse(BaseModel):
     recommendation_plan: RecommendationPlan
     recommendations: list[RecommendationItem]
     answer_text: str
+    beauty_scan: BeautyScanPayload | None = None
+    cabinet: CabinetResponse | None = None
 
 
 class DialogIntent(BaseModel):
@@ -400,6 +525,8 @@ class SessionMessageResponse(BaseModel):
     updated_session_state: SessionState
     recommendations: list[RecommendationItem]
     answer_text: str
+    beauty_scan: BeautyScanPayload | None = None
+    cabinet: CabinetResponse | None = None
 
 
 class AddCartItemRequest(BaseModel):
@@ -414,3 +541,22 @@ class CartResponse(BaseModel):
     cart: CartState
     total_items: int
     total_price: int
+
+
+class CheckoutResponse(BaseModel):
+    order: OrderHistoryEntry
+    cart_cleared: bool = True
+    message: str
+
+
+class AllergenLibraryItem(BaseModel):
+    key: str
+    label: str
+    kind: str
+    note: str
+
+
+class AllergenLibraryResponse(BaseModel):
+    common_allergens: list[AllergenLibraryItem] = Field(default_factory=list)
+    sensitivity_exclusions: list[AllergenLibraryItem] = Field(default_factory=list)
+    halal_note: str = "Halal filter prioritizes products marked certified or friendly in demo metadata. Unknown items are not labeled halal."

@@ -14,6 +14,11 @@ HERO_PRIORITY = {
     ProductCategory.primer: 70,
     ProductCategory.brow_gel: 60,
     ProductCategory.setting_spray: 58,
+    ProductCategory.lipstick: 54,
+    ProductCategory.mascara: 52,
+    ProductCategory.eyeliner: 50,
+    ProductCategory.blush: 48,
+    ProductCategory.highlighter: 46,
 }
 
 BUNDLE_SUPPORT = {
@@ -23,20 +28,26 @@ BUNDLE_SUPPORT = {
     ProductCategory.foundation: [ProductCategory.concealer, ProductCategory.powder, ProductCategory.spf],
     ProductCategory.skin_tint: [ProductCategory.concealer, ProductCategory.powder, ProductCategory.spf],
     ProductCategory.concealer: [ProductCategory.foundation, ProductCategory.skin_tint, ProductCategory.powder],
+    ProductCategory.lipstick: [ProductCategory.mascara, ProductCategory.eyeliner, ProductCategory.foundation],
+    ProductCategory.mascara: [ProductCategory.eyeliner, ProductCategory.lipstick, ProductCategory.concealer],
 }
 
 
 def hero_score(item: RecommendationItem, plan: RecommendationPlan, context: UserContext) -> float:
     score = HERO_PRIORITY.get(item.category, 40)
     score += item.final_score * 20
+    if item.category in {ProductCategory.foundation, ProductCategory.skin_tint, ProductCategory.concealer, ProductCategory.powder}:
+        score += 6
     if plan.look_strategy == 'sensual' and item.category in {ProductCategory.lipstick, ProductCategory.eyeliner, ProductCategory.mascara}:
-        score += 12
+        score += 54
     if plan.look_strategy == 'soft_luxury' and item.category in {ProductCategory.foundation, ProductCategory.primer, ProductCategory.blush, ProductCategory.highlighter}:
-        score += 10
+        score += 18
     if plan.look_strategy == 'fresh' and item.category in {ProductCategory.skin_tint, ProductCategory.blush, ProductCategory.lip_tint}:
-        score += 10
+        score += 16
     if context.budget_segment.value == 'premium' and item.price_segment.value == 'premium':
         score += 5
+    if context.budget_direction.value == 'cheaper' and item.price_segment.value == 'budget':
+        score += 4
     return score
 
 
@@ -48,7 +59,7 @@ def order_for_conversion(items: list[RecommendationItem], plan: RecommendationPl
     support_order = BUNDLE_SUPPORT.get(hero.category, [])
     support_rank = {category: idx for idx, category in enumerate(support_order)}
     rest = ordered[1:]
-    rest.sort(key=lambda item: (support_rank.get(item.category, 999), -item.final_score))
+    rest.sort(key=lambda item: (support_rank.get(item.category, 999), -hero_score(item, plan, context)))
     return [hero, *rest]
 
 
@@ -60,16 +71,16 @@ def bundle_story(items: list[RecommendationItem]) -> tuple[RecommendationItem | 
 
 def cta_for_conversion(plan: RecommendationPlan, context: UserContext) -> str:
     if context.budget_segment.value == 'premium':
-        return 'Если хочешь, соберу более премиальную версию этого же набора и сразу отмечу, за что именно доплата.'
+        return 'Если хочешь, соберу более premium-версию того же Beauty ID basket и отмечу, где именно видна доплата.'
     if context.budget_direction.value == 'cheaper':
-        return 'Если нужно, могу ещё сильнее удешевить набор и оставить только шаги с максимальной отдачей.'
+        return 'Если нужно, ещё сильнее ужму basket и оставлю только шаги с максимальной retail-отдачей.'
     if plan.look_strategy == 'sensual':
-        return 'Если хочешь, я сразу доберу к этому ещё 1-2 вещи, чтобы образ сильнее цеплял.'
+        return 'Если хочешь, доберу к этому 1-2 акцентных продукта, чтобы образ выглядел более вечерним и цепляющим.'
     if plan.look_strategy == 'soft_luxury':
-        return 'Если хочешь, я дособеру это в более polished и premium-looking комплект.'
+        return 'Если хочешь, превращу это в более polished luxury-set без перегруза по количеству продуктов.'
     if plan.look_strategy == 'fresh':
-        return 'Если хочешь, я доберу к этому ещё пару лёгких штрихов, чтобы образ выглядел ещё свежее.'
-    return 'Если хочешь, я сразу дособеру к этому ещё 1-2 вещи, чтобы образ выглядел полностью готовым.'
+        return 'Если хочешь, добавлю ещё пару лёгких штрихов, чтобы набор выглядел свежее и легче.'
+    return 'Если хочешь, я сразу дособеру это в более цельный guided basket.'
 
 
 def one_best_pick(items: list[RecommendationItem]) -> RecommendationItem | None:
@@ -90,13 +101,13 @@ def selling_frame(items: list[RecommendationItem], plan: RecommendationPlan, con
     alt = vibe_alternative(items)
     bundle = entry_bundle(items)
     if best:
-        lines.append(f"Если брать один продукт для быстрого вау-эффекта, я бы начал с {best.title}.")
+        lines.append(f"Hero pick сейчас — {best.title}: он задаёт весь вектор набора.")
     if alt and alt.category != best.category:
-        lines.append(f"Если хочется похожий вайб, но в другом ключе, можно смотреть ещё на {alt.title}.")
+        lines.append(f"Поддерживающим шагом я бы смотрел на {alt.title}, чтобы basket ощущался собранным, а не случайным.")
     if len(bundle) >= 2:
-        lines.append("Самый лёгкий вход в образ сейчас — взять главный продукт и добрать к нему ещё 1-2 поддерживающих шага.")
+        lines.append("Самый лёгкий вход в образ сейчас — взять hero и добрать 1-2 поддерживающих шага для быстрого вау-эффекта.")
     if context.budget_segment.value == 'budget':
-        lines.append('Если хочешь, я могу сразу оставить только те позиции, которые дают максимум эффекта за минимум денег.')
+        lines.append('Если хочешь, могу оставить только позиции с максимальным wow-per-ruble.')
     if plan.look_strategy == 'soft_luxury':
-        lines.append('Здесь особенно хорошо работает логика polished minimum: меньше продуктов, но каждый делает лицо визуально дороже.')
+        lines.append('Здесь особенно хорошо работает polished minimum: меньше продуктов, но каждый усиливает ощущение дорогого образа.')
     return lines

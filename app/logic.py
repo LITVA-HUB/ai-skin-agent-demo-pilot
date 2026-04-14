@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone
 
+from .beauty_id import build_cabinet, build_profile_summary, build_scan_payload
 from .dialog_service import answer_from_conversation_history, append_conversation_turn, is_memory_question
 from .gemini_client import GeminiClient, is_probably_base64_image
 from .intent_service import heuristic_intent
@@ -9,6 +11,7 @@ from .look_harmony import attach_look_profile
 from .look_transforms import apply_look_transform, transformation_label
 from .merchandising import order_for_conversion
 from .models import (
+    AnalysisHistoryEntry,
     AnalyzePhotoRequest,
     AnalyzePhotoResponse,
     BudgetDirection,
@@ -16,7 +19,9 @@ from .models import (
     DialogIntent,
     IntentAction,
     IntentDomain,
+    OrderHistoryEntry,
     PriceSegment,
+    RecommendationItem,
     SessionMessageResponse,
     SessionState,
 )
@@ -26,6 +31,13 @@ from .response_service import build_reply_prompt, compose_followup_response, com
 from .retrieval import retrieve_products
 from .store import SessionStore
 from .validation import validate_response_grounding
+from .observability import log_warning
+
+UTC = timezone.utc
+
+
+def _now_iso() -> str:
+    return datetime.now(UTC).isoformat()
 
 
 def session_summary(session: SessionState) -> str:
@@ -36,7 +48,8 @@ def session_summary(session: SessionState) -> str:
         f"finish={','.join(item.value for item in session.user_preferences.preferred_finish)}; "
         f"coverage={','.join(item.value for item in session.user_preferences.preferred_coverage)}; "
         f"brands={','.join(session.user_preferences.preferred_brands)}; excluded={','.join(session.user_preferences.excluded_ingredients)}; "
-        f"budget={session.user_preferences.budget_segment.value}; budget_direction={session.user_preferences.budget_direction.value}; "
+        f"allergens={','.join(session.user_preferences.excluded_common_allergens)}; sensitive={','.join(session.user_preferences.excluded_sensitivity_triggers)}; "
+        f"halal_only={session.user_preferences.halal_only}; budget={session.user_preferences.budget_segment.value}; budget_direction={session.user_preferences.budget_direction.value}; "
         f"routine={session.user_preferences.routine_size.value}; accepted={','.join(session.accepted_products)}; rejected={','.join(session.rejected_products)}"
     )
 
@@ -103,7 +116,6 @@ def recommendation_items_from_current(session: SessionState, target_categories=N
         product = catalog.get(sku)
         if not product:
             continue
-        from .models import RecommendationItem
         items.append(RecommendationItem(
             sku=product.sku,
             title=product.title,
@@ -116,6 +128,13 @@ def recommendation_items_from_current(session: SessionState, target_categories=N
             vector_score=0.0,
             rule_score=0.0,
             final_score=0.0,
+            image_url=product.image_url,
+            goldapple_url=product.goldapple_url,
+            goldapple_search_query=product.goldapple_search_query,
+            hero_badge=product.hero_badge,
+            card_note=product.card_note,
+            halal_status=product.halal_status,
+            halal_note=product.halal_note,
         ))
     return items
 
@@ -141,6 +160,12 @@ def apply_intent(session: SessionState, intent: DialogIntent) -> SessionState:
         prefs.preferred_brands = list(dict.fromkeys([*prefs.preferred_brands, *merged["preferred_brands"]]))
     if merged.get("excluded_ingredients"):
         prefs.excluded_ingredients = list(dict.fromkeys([*prefs.excluded_ingredients, *merged["excluded_ingredients"]]))
+    if merged.get("excluded_common_allergens"):
+        prefs.excluded_common_allergens = list(dict.fromkeys([*prefs.excluded_common_allergens, *merged["excluded_common_allergens"]]))
+    if merged.get("excluded_sensitivity_triggers"):
+        prefs.excluded_sensitivity_triggers = list(dict.fromkeys([*prefs.excluded_sensitivity_triggers, *merged["excluded_sensitivity_triggers"]]))
+    if merged.get("halal_only") is not None:
+        prefs.halal_only = bool(merged["halal_only"])
     if constraint_updates.get("goal") and intent.action not in {IntentAction.compare, IntentAction.explain}:
         prefs.goal = str(constraint_updates["goal"])
     if merged.get("preferred_finish"):
@@ -212,6 +237,30 @@ def apply_intent(session: SessionState, intent: DialogIntent) -> SessionState:
     return updated
 
 
+def _build_analysis_history_entry(session: SessionState, recommendations: list[RecommendationItem]) -> AnalysisHistoryEntry:
+    hero = recommendations[0] if recommendations else None
+    return AnalysisHistoryEntry(
+        analysis_id=session.analysis_created_at or _now_iso(),
+        session_id=session.session_id,
+        created_at=session.analysis_created_at or _now_iso(),
+        headline="Beauty ID: новый скан",
+        metrics={
+            'oiliness': session.photo_analysis.signals.oiliness,
+            'dryness': session.photo_analysis.signals.dryness,
+            'redness': session.photo_analysis.signals.redness,
+            'under_eye_darkness': session.photo_analysis.complexion.under_eye_darkness,
+        },
+        hero_sku=hero.sku if hero else None,
+        hero_title=hero.title if hero else None,
+    )
+
+
+def _cabinet_for_session(store: SessionStore, session: SessionState):
+    profile = build_profile_summary(session)
+    store.save_profile(profile)
+    return build_cabinet(profile, store.list_analysis_history(session.demo_user_id), store.list_order_history(session.demo_user_id))
+
+
 async def analyze_photo(request: AnalyzePhotoRequest, store: SessionStore, gemini: GeminiClient) -> AnalyzePhotoResponse:
     analysis = None
     if request.photo_b64 and is_probably_base64_image(request.photo_b64):
@@ -228,6 +277,7 @@ async def analyze_photo(request: AnalyzePhotoRequest, store: SessionStore, gemin
     context.accepted_products = list(dict.fromkeys(accepted_products))
     context.rejected_products = list(dict.fromkeys(context.rejected_products))
     answer_text = compose_initial_response(profile, recommendations, plan)
+    created_at = _now_iso()
     session = SessionState(
         session_id=str(uuid.uuid4()),
         photo_analysis=analysis,
@@ -241,10 +291,16 @@ async def analyze_photo(request: AnalyzePhotoRequest, store: SessionStore, gemin
             active_domains=[IntentDomain(domain.value) for domain in plan.product_domains],
         ),
         conversation_history=[],
+        analysis_created_at=created_at,
     )
     attach_look_profile(session, recommendations)
+    session.latest_scan = build_scan_payload(session, recommendations)
+    session.latest_recommendations = list(recommendations)
+    session.latest_answer_text = answer_text
     append_conversation_turn(session, "assistant", answer_text)
     store.save(session)
+    store.add_analysis_history(session.demo_user_id, _build_analysis_history_entry(session, recommendations))
+    cabinet = _cabinet_for_session(store, session)
     return AnalyzePhotoResponse(
         session_id=session.session_id,
         photo_analysis_result=analysis,
@@ -252,6 +308,8 @@ async def analyze_photo(request: AnalyzePhotoRequest, store: SessionStore, gemin
         recommendation_plan=plan,
         recommendations=recommendations,
         answer_text=answer_text,
+        beauty_scan=session.latest_scan,
+        cabinet=cabinet,
     )
 
 
@@ -265,15 +323,29 @@ async def handle_message(message: str, store: SessionStore, session_id: str, gem
         append_conversation_turn(updated, "user", message)
         answer_text = answer_from_conversation_history(updated, message)
         append_conversation_turn(updated, "assistant", answer_text)
+        updated.latest_scan = build_scan_payload(updated, recommendation_items_from_current(updated))
+        updated.latest_recommendations = recommendation_items_from_current(updated)
+        updated.latest_answer_text = answer_text
         store.save(updated)
+        cabinet = _cabinet_for_session(store, updated)
         return SessionMessageResponse(
             intent=DialogIntent(intent="conversation_memory", action=IntentAction.explain, confidence=1.0),
             updated_session_state=updated,
             recommendations=recommendation_items_from_current(updated),
             answer_text=answer_text,
+            beauty_scan=updated.latest_scan,
+            cabinet=cabinet,
         )
 
     model_intent = await gemini.parse_intent(message, session_summary(session))
+    if model_intent is None and gemini.last_error:
+        log_warning(
+            "gemini_intent_fallback",
+            session_id=session_id,
+            requested_model=gemini.model,
+            active_model=gemini.active_model,
+            detail=gemini.last_error,
+        )
     heuristic = heuristic_intent(message, session=session)
     intent = merge_intents(model_intent, heuristic)
     previous_recommendations = dict(session.dialog_context.current_recommendations or {})
@@ -308,10 +380,29 @@ async def handle_message(message: str, store: SessionStore, session_id: str, gem
         updated.user_preferences.rejected_products = list(updated.rejected_products)
         attach_look_profile(updated, recommendations)
 
+    updated.latest_scan = build_scan_payload(updated, recommendations)
     reply = await gemini.generate_agent_reply(build_reply_prompt(updated, intent, recommendations, message))
+    if reply is None and gemini.last_error:
+        log_warning(
+            "gemini_reply_fallback",
+            session_id=session_id,
+            requested_model=gemini.model,
+            active_model=gemini.active_model,
+            detail=gemini.last_error,
+        )
     cleaned_reply = sanitize_agent_text(reply) if reply else ''
     reply_looks_safe = validate_response_grounding(cleaned_reply, recommendations)
     answer_text = cleaned_reply if reply_looks_safe else compose_followup_response(updated, intent, recommendations, message)
     append_conversation_turn(updated, "assistant", answer_text)
+    updated.latest_recommendations = list(recommendations)
+    updated.latest_answer_text = answer_text
     store.save(updated)
-    return SessionMessageResponse(intent=intent, updated_session_state=updated, recommendations=recommendations, answer_text=answer_text)
+    cabinet = _cabinet_for_session(store, updated)
+    return SessionMessageResponse(
+        intent=intent,
+        updated_session_state=updated,
+        recommendations=recommendations,
+        answer_text=answer_text,
+        beauty_scan=updated.latest_scan,
+        cabinet=cabinet,
+    )

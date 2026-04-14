@@ -56,6 +56,8 @@ def hard_filter_candidates(
     current_product = next((p for p in load_catalog() if p.sku == current_selection.get(category)), None)
     candidates = []
     excluded_ingredients = {item.lower() for item in context.excluded_ingredients}
+    excluded_common_allergens = {item.lower() for item in context.excluded_common_allergens}
+    excluded_sensitivity = {item.lower() for item in context.excluded_sensitivity_triggers}
     rejected = set(session.rejected_products if session else [])
     category_domain = domain_for_category(category)
 
@@ -68,7 +70,16 @@ def hard_filter_candidates(
             continue
         if not budget_allows(product, context.budget_segment, intent if intent and intent.target_category == category else None, current_product):
             continue
-        if excluded_ingredients.intersection(ingredient.lower() for ingredient in product.ingredients):
+        product_ingredients = {ingredient.lower() for ingredient in product.ingredients}
+        product_irritants = {item.lower() for item in product.common_irritants}
+        product_sensitivity = {item.lower() for item in product.sensitivity_exclusions}
+        if excluded_ingredients.intersection(product_ingredients):
+            continue
+        if excluded_common_allergens.intersection(product_irritants):
+            continue
+        if excluded_sensitivity.intersection(product_sensitivity.union(product_ingredients)):
+            continue
+        if context.halal_only and product.halal_status.value not in {"friendly", "certified"}:
             continue
         if profile.skin_type.value in product.exclude_for or set(profile.primary_concerns).intersection(product.exclude_for):
             continue

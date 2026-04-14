@@ -73,12 +73,16 @@ CRITICAL_INTENT_RULES: list[tuple[str, dict[str, object]]] = [
     ("сделай более матов", {"action": IntentAction.refine, "intent": "transform_matte", "preferred_finish": ["matte"]}),
     ("сделай на вечер", {"action": IntentAction.refine, "intent": "transform_evening", "occasion": "party"}),
     ("сделай натуральнее", {"action": IntentAction.refine, "intent": "transform_natural", "preferred_finish": ["natural"], "preferred_coverage": ["sheer", "light"]}),
+    ("халяль", {"action": IntentAction.refine, "intent": "halal_filter", "halal_only": True}),
+    ("halal", {"action": IntentAction.refine, "intent": "halal_filter", "halal_only": True}),
     ("объясни почему", {"action": IntentAction.explain, "intent": "explain_product"}),
     ("сравни варианты", {"action": IntentAction.compare, "intent": "compare_products"}),
 ]
 POSITIVE_FEEDBACK = ["нрав", "устраивает", "подходит", "leave", "keep", "ok"]
 NEGATIVE_FEEDBACK = ["не нрав", "не подход", "убери", "не то", "too much", "not working", "replace"]
-INGREDIENT_HINTS = ["niacinamide", "retinol", "acids", "fragrance", "alcohol", "acid", "bha", "aha"]
+INGREDIENT_HINTS = ["niacinamide", "retinol", "acids", "fragrance", "alcohol", "acid", "bha", "aha", "limonene", "linalool", "citral", "geraniol", "eugenol", "cinnamal", "benzyl alcohol", "essential oils"]
+COMMON_ALLERGENS = ["fragrance", "limonene", "linalool", "citral", "geraniol", "eugenol", "cinnamal", "benzyl alcohol", "essential_oils"]
+SENSITIVITY_TRIGGERS = ["niacinamide", "retinoids", "aha", "bha", "acids", "alcohol_denat"]
 EXCLUDE_PATTERNS = [
     re.compile(r"(?:без|исключи|исключить|exclude|no|avoid)\s+([a-zа-я0-9_-]+)", re.IGNORECASE),
     re.compile(r"(?:аллергия на|не переношу)\s+([a-zа-я0-9_-]+)", re.IGNORECASE),
@@ -255,6 +259,15 @@ def extract_constraint_updates(text: str) -> dict[str, object]:
     excluded = extract_excluded_ingredients(normalized)
     if excluded:
         updates["excluded_ingredients"] = excluded
+    allergen_hits = [item for item in COMMON_ALLERGENS if item.replace("_", " ") in normalized or item in normalized]
+    sensitivity_hits = [item for item in SENSITIVITY_TRIGGERS if item.replace("_", " ") in normalized or item in normalized]
+    if any(token in normalized for token in ["аллерген", "allergen", "чувствит", "sensitive", "exclude", "без", "исключ"]):
+        if allergen_hits:
+            updates["excluded_common_allergens"] = allergen_hits
+        if sensitivity_hits:
+            updates["excluded_sensitivity_triggers"] = sensitivity_hits
+    if any(token in normalized for token in ["халяль", "halal"]):
+        updates["halal_only"] = True
     if any(token in normalized for token in ["комбинирован", "combination"]):
         updates["skin_type"] = SkinType.combination.value
     if any(token in normalized for token in ["жирн", "oily"]):
@@ -359,6 +372,8 @@ def heuristic_intent(message: str, session: SessionState | None = None) -> Dialo
                 preference_updates["preferred_coverage"] = list(payload["preferred_coverage"])
             if "occasion" in payload:
                 preference_updates["occasion"] = payload["occasion"]
+            if "halal_only" in payload:
+                preference_updates["halal_only"] = payload["halal_only"]
             break
     if action not in {IntentAction.compare, IntentAction.explain}:
         constraints_update.setdefault("goal", message)

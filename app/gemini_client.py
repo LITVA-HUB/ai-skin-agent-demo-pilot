@@ -8,6 +8,7 @@ import httpx
 
 from .config import settings
 from .models import DialogIntent, PhotoAnalysisResult
+from .observability import log_error, log_warning
 
 
 VISION_PROMPT = """
@@ -44,27 +45,121 @@ Use normalized values 0..1. Do not give product advice. Treat skin_tone and unde
 """.strip()
 
 
+MODEL_ALIASES = {
+    "gemini-3.1-flash-light": "gemini-3.1-flash-lite",
+    "gemini 3.1 flash lite": "gemini-3.1-flash-lite",
+    "gemini-3-flash-lite": "gemini-3.1-flash-lite",
+}
+
+
 class GeminiClient:
     def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
         self.api_key = api_key or settings.gemini_api_key
         self.model = model or settings.gemini_model
+        self.active_model = self.model
+        self.last_error: str | None = None
+
+    def _normalize_model(self, value: str | None) -> str | None:
+        raw = (value or "").strip()
+        if not raw:
+            return None
+        key = raw.lower().replace("_", "-")
+        return MODEL_ALIASES.get(key, raw)
+
+    def _candidate_models(self) -> list[str]:
+        normalized = self._normalize_model(self.model)
+        preview_variant = None
+        if normalized == "gemini-3.1-flash-lite" or self.model == "gemini-3.1-flash-lite":
+            preview_variant = "gemini-3.1-flash-lite-preview"
+        models = [
+            self.model,
+            normalized,
+            preview_variant,
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-flash",
+        ]
+        deduped: list[str] = []
+        for item in models:
+            if item and item not in deduped:
+                deduped.append(item)
+        return deduped
 
     async def _generate(self, parts: list[dict[str, Any]], response_mime_type: str = "application/json") -> str | None:
         if not self.api_key:
+            self.last_error = "GEMINI_API_KEY is not configured."
             return None
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+
         payload: dict[str, Any] = {
             "generationConfig": {"temperature": 0.2, "responseMimeType": response_mime_type},
             "contents": [{"parts": parts}],
         }
-        try:
-            async with httpx.AsyncClient(timeout=45) as client:
-                response = await client.post(url, json=payload)
-                response.raise_for_status()
-            data = response.json()
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-        except (httpx.HTTPError, KeyError, ValueError, json.JSONDecodeError):
-            return None
+        errors: list[str] = []
+        alias_model = self._normalize_model(self.model)
+        last_attempted_model = alias_model or self.model
+
+        for candidate_model in self._candidate_models():
+            last_attempted_model = candidate_model
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{candidate_model}:generateContent?key={self.api_key}"
+            try:
+                async with httpx.AsyncClient(timeout=45) as client:
+                    response = await client.post(url, json=payload)
+                    response.raise_for_status()
+                data = response.json()
+                text = data["candidates"][0]["content"]["parts"][0]["text"]
+                self.active_model = candidate_model
+                self.last_error = None
+                if alias_model and alias_model != self.model and candidate_model == alias_model:
+                    log_warning(
+                        "gemini_model_alias_used",
+                        requested_model=self.model,
+                        active_model=candidate_model,
+                    )
+                if candidate_model != self.model:
+                    log_warning(
+                        "gemini_model_fallback_used",
+                        requested_model=self.model,
+                        active_model=candidate_model,
+                    )
+                return text
+            except httpx.HTTPStatusError as exc:
+                detail = ""
+                try:
+                    detail = exc.response.json().get("error", {}).get("message", "") or exc.response.text
+                except Exception:
+                    detail = exc.response.text
+                detail = " ".join(detail.split())
+                errors.append(f"{candidate_model}: {detail or exc.response.reason_phrase}")
+                log_error(
+                    "gemini_http_error",
+                    model=candidate_model,
+                    status_code=exc.response.status_code,
+                    detail=detail[:400],
+                )
+                if "User location is not supported" in detail:
+                    break
+            except (httpx.HTTPError, KeyError, ValueError, json.JSONDecodeError) as exc:
+                errors.append(f"{candidate_model}: {exc}")
+                log_error("gemini_request_failed", model=candidate_model, detail=str(exc)[:400])
+
+        self.active_model = last_attempted_model
+        if errors:
+            preferred_error = next((item for item in errors if "User location is not supported" in item), None)
+            preferred_error = preferred_error or next((item for item in errors if "Quota exceeded" in item), None)
+            self.last_error = preferred_error or errors[0]
+            if self.last_error and ":" in self.last_error:
+                model_name = self.last_error.split(":", 1)[0].strip()
+                if model_name:
+                    self.active_model = model_name
+        else:
+            self.last_error = "Gemini request failed."
+        return None
+
+    async def ping(self) -> bool:
+        text = await self._generate(
+            [{"text": "Reply with exactly: OK"}],
+            response_mime_type="text/plain",
+        )
+        return bool(text and text.strip().upper() == "OK")
 
     async def analyze_photo(self, photo_b64: str) -> PhotoAnalysisResult | None:
         mime_type = "image/jpeg"
