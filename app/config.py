@@ -50,7 +50,7 @@ def _env_int(name: str, default: int) -> int:
 @dataclass(slots=True)
 class Settings:
     gemini_api_key: str | None = None
-    gemini_model: str = 'gemini-2.5-flash-lite'
+    gemini_model: str = 'gemini-3.1-flash-lite-preview'
     session_ttl_hours: int = 24
     log_level: str = 'INFO'
     sqlite_path: str = str(DEFAULT_SQLITE_PATH)
@@ -58,7 +58,7 @@ class Settings:
     def refresh(self) -> None:
         _load_env()
         self.gemini_api_key = _env_str('GEMINI_API_KEY')
-        self.gemini_model = _env_str('GEMINI_MODEL', 'gemini-2.5-flash-lite') or 'gemini-2.5-flash-lite'
+        self.gemini_model = _env_str('GEMINI_MODEL', 'gemini-3.1-flash-lite-preview') or 'gemini-3.1-flash-lite-preview'
         self.session_ttl_hours = _env_int('SESSION_TTL_HOURS', 24)
         self.log_level = (_env_str('LOG_LEVEL', 'INFO') or 'INFO').upper()
         self.sqlite_path = _env_str('SQLITE_PATH', str(DEFAULT_SQLITE_PATH)) or str(DEFAULT_SQLITE_PATH)

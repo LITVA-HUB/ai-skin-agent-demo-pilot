@@ -38,11 +38,11 @@
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+python -m app
 ```
 
 Открыть:
-- `http://127.0.0.1:8000/`
+- `http://127.0.0.1:8010/`
 
 Полезные endpoints:
 - `GET /health`
@@ -64,7 +64,7 @@ uvicorn app.main:app --reload
 
 ```env
 GEMINI_API_KEY=replace-me
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.1-flash-lite-preview
 SESSION_TTL_HOURS=24
 LOG_LEVEL=INFO
 SQLITE_PATH=app/data/sessions.sqlite3
