@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from .beauty_id import build_cabinet, build_profile_summary, build_scan_payload
 from .dialog_service import answer_from_conversation_history, append_conversation_turn, is_memory_question
 from .gemini_client import GeminiClient, is_probably_base64_image
-from .intent_service import heuristic_intent
+from .intent_service import heuristic_intent, is_smalltalk_message
 from .look_harmony import attach_look_profile
 from .look_transforms import apply_look_transform, transformation_label
 from .merchandising import order_for_conversion
@@ -27,10 +27,10 @@ from .models import (
 )
 from .plan_service import build_plan
 from .profile_service import build_skin_profile, merge_context_preferences, mock_photo_analysis
-from .response_service import build_reply_prompt, compose_followup_response, compose_initial_response, sanitize_agent_text
+from .response_service import build_reply_prompt, compose_followup_response, compose_initial_response, compose_smalltalk_response, sanitize_agent_text
 from .retrieval import retrieve_products
 from .store import SessionStore
-from .validation import validate_response_grounding
+from .validation import validate_response_grounding, validate_response_quality
 from .observability import log_warning
 
 UTC = timezone.utc
@@ -337,6 +337,25 @@ async def handle_message(message: str, store: SessionStore, session_id: str, gem
             cabinet=cabinet,
         )
 
+    if is_smalltalk_message(message):
+        updated = session.model_copy(deep=True)
+        append_conversation_turn(updated, "user", message)
+        recommendations = recommendation_items_from_current(updated) or list(updated.latest_recommendations or [])
+        answer_text = compose_smalltalk_response(updated, recommendations, message)
+        append_conversation_turn(updated, "assistant", answer_text)
+        updated.latest_recommendations = recommendations
+        updated.latest_scan = build_scan_payload(updated, recommendations)
+        store.save(updated)
+        cabinet = _cabinet_for_session(store, updated)
+        return SessionMessageResponse(
+            intent=DialogIntent(intent="smalltalk", action=IntentAction.explain, domain=updated.dialog_context.last_domain or IntentDomain.skincare, confidence=1.0),
+            updated_session_state=updated,
+            recommendations=recommendations,
+            answer_text=answer_text,
+            beauty_scan=updated.latest_scan,
+            cabinet=cabinet,
+        )
+
     model_intent = await gemini.parse_intent(message, session_summary(session))
     if model_intent is None and gemini.last_error:
         log_warning(
@@ -391,7 +410,7 @@ async def handle_message(message: str, store: SessionStore, session_id: str, gem
             detail=gemini.last_error,
         )
     cleaned_reply = sanitize_agent_text(reply) if reply else ''
-    reply_looks_safe = validate_response_grounding(cleaned_reply, recommendations)
+    reply_looks_safe = validate_response_grounding(cleaned_reply, recommendations) and validate_response_quality(cleaned_reply, recommendations)
     answer_text = cleaned_reply if reply_looks_safe else compose_followup_response(updated, intent, recommendations, message)
     append_conversation_turn(updated, "assistant", answer_text)
     updated.latest_recommendations = list(recommendations)

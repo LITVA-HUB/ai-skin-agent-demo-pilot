@@ -80,6 +80,10 @@ CRITICAL_INTENT_RULES: list[tuple[str, dict[str, object]]] = [
 ]
 POSITIVE_FEEDBACK = ["нрав", "устраивает", "подходит", "leave", "keep", "ok"]
 NEGATIVE_FEEDBACK = ["не нрав", "не подход", "убери", "не то", "too much", "not working", "replace"]
+SMALLTALK_PATTERNS = [
+    "привет", "здравств", "хай", "hello", "hey",
+    "спасибо", "благодар", "ясно", "понятно", "ок", "okay", "окей",
+]
 INGREDIENT_HINTS = ["niacinamide", "retinol", "acids", "fragrance", "alcohol", "acid", "bha", "aha", "limonene", "linalool", "citral", "geraniol", "eugenol", "cinnamal", "benzyl alcohol", "essential oils"]
 COMMON_ALLERGENS = ["fragrance", "limonene", "linalool", "citral", "geraniol", "eugenol", "cinnamal", "benzyl alcohol", "essential_oils"]
 SENSITIVITY_TRIGGERS = ["niacinamide", "retinoids", "aha", "bha", "acids", "alcohol_denat"]
@@ -121,6 +125,17 @@ def catalog_index() -> dict[str, object]:
 
 def normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", text.lower()).strip()
+
+
+def is_smalltalk_message(text: str) -> bool:
+    normalized = normalize_text(text)
+    if not normalized:
+        return False
+    if normalized in {"привет", "привет!", "спасибо", "ок", "окей", "понятно", "ясно", "hi", "hello", "hey"}:
+        return True
+    if len(normalized.split()) <= 3 and any(token in normalized for token in SMALLTALK_PATTERNS):
+        return True
+    return False
 
 
 def detect_categories(text: str) -> list[ProductCategory]:

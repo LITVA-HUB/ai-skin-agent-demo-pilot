@@ -49,16 +49,26 @@ def _env_int(name: str, default: int) -> int:
 
 @dataclass(slots=True)
 class Settings:
+    llm_provider: str = 'gemini'
     gemini_api_key: str | None = None
     gemini_model: str = 'gemini-3.1-flash-lite-preview'
+    openrouter_api_key: str | None = None
+    openrouter_model: str = 'google/gemini-3.1-flash-lite-preview'
+    openrouter_site_url: str | None = 'http://127.0.0.1:8010'
+    openrouter_app_name: str | None = 'Golden Apple Beauty ID Demo'
     session_ttl_hours: int = 24
     log_level: str = 'INFO'
     sqlite_path: str = str(DEFAULT_SQLITE_PATH)
 
     def refresh(self) -> None:
         _load_env()
+        self.llm_provider = (_env_str('LLM_PROVIDER', 'gemini') or 'gemini').strip().lower()
         self.gemini_api_key = _env_str('GEMINI_API_KEY')
         self.gemini_model = _env_str('GEMINI_MODEL', 'gemini-3.1-flash-lite-preview') or 'gemini-3.1-flash-lite-preview'
+        self.openrouter_api_key = _env_str('OPENROUTER_API_KEY')
+        self.openrouter_model = _env_str('OPENROUTER_MODEL', 'google/gemini-3.1-flash-lite-preview') or 'google/gemini-3.1-flash-lite-preview'
+        self.openrouter_site_url = _env_str('OPENROUTER_SITE_URL', 'http://127.0.0.1:8010')
+        self.openrouter_app_name = _env_str('OPENROUTER_APP_NAME', 'Golden Apple Beauty ID Demo')
         self.session_ttl_hours = _env_int('SESSION_TTL_HOURS', 24)
         self.log_level = (_env_str('LOG_LEVEL', 'INFO') or 'INFO').upper()
         self.sqlite_path = _env_str('SQLITE_PATH', str(DEFAULT_SQLITE_PATH)) or str(DEFAULT_SQLITE_PATH)
@@ -76,8 +86,14 @@ def reload_settings() -> Settings:
 def validate_settings() -> list[str]:
     errors: list[str] = []
 
-    if not settings.gemini_api_key:
+    if settings.llm_provider not in {'gemini', 'openrouter'}:
+        errors.append("LLM_PROVIDER must be either 'gemini' or 'openrouter'.")
+
+    if settings.llm_provider == 'gemini' and not settings.gemini_api_key:
         errors.append('GEMINI_API_KEY is not configured; demo will run with deterministic fallbacks.')
+
+    if settings.llm_provider == 'openrouter' and not settings.openrouter_api_key:
+        errors.append('OPENROUTER_API_KEY is not configured; demo will run with deterministic fallbacks.')
 
     if settings.session_ttl_hours <= 0:
         errors.append('SESSION_TTL_HOURS must be a positive integer.')

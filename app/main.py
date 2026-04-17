@@ -111,16 +111,27 @@ def health(request: Request) -> dict[str, object]:
     gemini = _gemini(request)
     settings_errors = _settings_errors(request)
     store_stats = store.stats()
+    active_provider = getattr(gemini, 'active_provider', getattr(gemini, 'provider', 'gemini'))
+    requested_provider = getattr(gemini, 'provider', active_provider)
+    configured = bool(gemini.api_key)
+    active_model = getattr(gemini, 'active_model', gemini.model)
+    last_error = getattr(gemini, 'last_error', None)
     return {
         'status': 'ok',
         'version': request.app.version,
         'storage': store_stats.get('backend', 'in-memory'),
-        'gemini_configured': bool(gemini.api_key),
-        'gemini_model': getattr(gemini, 'active_model', gemini.model),
+        'ai_provider': active_provider,
+        'ai_requested_provider': requested_provider,
+        'ai_configured': configured,
+        'ai_model': active_model,
+        'ai_requested_model': gemini.model,
+        'ai_last_error': last_error,
+        'gemini_configured': configured,
+        'gemini_model': active_model,
         'gemini_requested_model': gemini.model,
-        'gemini_last_error': getattr(gemini, 'last_error', None),
+        'gemini_last_error': last_error,
         'settings_errors': settings_errors,
-        'production_ready': bool(gemini.api_key) and not getattr(gemini, 'last_error', None) and not settings_errors and store_stats.get('backend') == 'sqlite',
+        'production_ready': configured and not last_error and not settings_errors and store_stats.get('backend') == 'sqlite',
     }
 
 
@@ -128,13 +139,20 @@ def health(request: Request) -> dict[str, object]:
 def ready(request: Request) -> dict[str, object]:
     store = _store(request)
     gemini = _gemini(request)
+    active_provider = getattr(gemini, 'active_provider', getattr(gemini, 'provider', 'gemini'))
+    active_model = getattr(gemini, 'active_model', gemini.model)
+    last_error = getattr(gemini, 'last_error', None)
     return {
         'status': 'ready',
         'version': request.app.version,
         'store': store.stats(),
+        'ai_provider': active_provider,
+        'ai_configured': bool(gemini.api_key),
+        'ai_model': active_model,
+        'ai_last_error': last_error,
         'gemini_configured': bool(gemini.api_key),
-        'gemini_model': getattr(gemini, 'active_model', gemini.model),
-        'gemini_last_error': getattr(gemini, 'last_error', None),
+        'gemini_model': active_model,
+        'gemini_last_error': last_error,
         'settings_errors': _settings_errors(request),
     }
 

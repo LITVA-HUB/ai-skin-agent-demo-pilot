@@ -18,6 +18,7 @@ def test_index_page_served() -> None:
     assert 'Загрузить фото' in response.text
     assert 'Beauty advisor' in response.text
     assert 'Что советует advisor' in response.text
+    assert 'С чего я бы начал' in response.text
     assert 'AI · проверка…' in response.text
     assert 'Корзина' in response.text
     assert 'Сделать дешевле' in response.text
@@ -46,6 +47,7 @@ def test_advisor_and_profile_routes_render_shell() -> None:
     assert 'Чат с advisor' in advisor.text
     assert 'Что мы учитываем сейчас' in advisor.text
     assert 'Ваш результат' in advisor.text
+    assert 'С чего я бы начал' in advisor.text
     assert 'Добавить весь набор' in advisor.text
 
     assert profile.status_code == 200
@@ -53,3 +55,21 @@ def test_advisor_and_profile_routes_render_shell() -> None:
     assert 'Что система запомнила о вас' in profile.text
     assert 'Что учитывать в подборе' in profile.text
     assert 'История заказов' in profile.text
+
+
+def test_scan_led_future_visual_hooks_are_absent() -> None:
+    response = client.get('/')
+    assert response.status_code == 200
+    assert 'data-visual-mode="scan-led-future"' not in response.text
+    assert 'scan-aura' not in response.text
+    assert 'scan-orbit' not in response.text
+    assert 'message-fresh' not in response.text
+    assert 'transition-orbit' not in response.text
+
+
+def test_cart_template_contains_remove_controls() -> None:
+    response = client.get('/')
+    assert response.status_code == 200
+    assert 'window.decrementCartItem' in response.text
+    assert 'window.removeCartItem' in response.text
+    assert 'Удалить' in response.text

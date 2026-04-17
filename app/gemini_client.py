@@ -51,11 +51,26 @@ MODEL_ALIASES = {
     "gemini-3-flash-lite": "gemini-3.1-flash-lite",
 }
 
+OPENROUTER_MODEL_ALIASES = {
+    "gemini-3.1-flash-lite-preview": "google/gemini-3.1-flash-lite-preview",
+    "gemini-3.1-flash-lite": "google/gemini-3.1-flash-lite-preview",
+    "gemini 3.1 flash lite preview": "google/gemini-3.1-flash-lite-preview",
+    "gemini 3.1 flash lite": "google/gemini-3.1-flash-lite-preview",
+    "google/gemini-3.1-flash-lite": "google/gemini-3.1-flash-lite-preview",
+}
+
 
 class GeminiClient:
-    def __init__(self, api_key: str | None = None, model: str | None = None) -> None:
-        self.api_key = api_key or settings.gemini_api_key
-        self.model = model or settings.gemini_model
+    def __init__(self, api_key: str | None = None, model: str | None = None, provider: str | None = None) -> None:
+        self.provider = (provider or settings.llm_provider or "gemini").strip().lower()
+        if self.provider == "openrouter":
+            self.api_key = api_key or settings.openrouter_api_key
+            self.model = model or settings.openrouter_model
+        else:
+            self.provider = "gemini"
+            self.api_key = api_key or settings.gemini_api_key
+            self.model = model or settings.gemini_model
+        self.active_provider = self.provider
         self.active_model = self.model
         self.last_error: str | None = None
 
@@ -66,7 +81,28 @@ class GeminiClient:
         key = raw.lower().replace("_", "-")
         return MODEL_ALIASES.get(key, raw)
 
+    def _normalize_openrouter_model(self, value: str | None) -> str | None:
+        raw = (value or "").strip()
+        if not raw:
+            return None
+        key = raw.lower().replace("_", "-")
+        return OPENROUTER_MODEL_ALIASES.get(key, raw)
+
     def _candidate_models(self) -> list[str]:
+        if self.provider == "openrouter":
+            normalized = self._normalize_openrouter_model(self.model)
+            models = [
+                normalized,
+                self.model,
+                "google/gemini-3.1-flash-lite-preview",
+                "google/gemini-2.5-flash-lite",
+            ]
+            deduped: list[str] = []
+            for item in models:
+                if item and item not in deduped:
+                    deduped.append(item)
+            return deduped
+
         normalized = self._normalize_model(self.model)
         preview_variant = None
         if normalized == "gemini-3.1-flash-lite" or self.model == "gemini-3.1-flash-lite":
@@ -84,7 +120,112 @@ class GeminiClient:
                 deduped.append(item)
         return deduped
 
+    def _openrouter_content(self, parts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        content: list[dict[str, Any]] = []
+        for part in parts:
+            text = part.get("text")
+            if isinstance(text, str):
+                content.append({"type": "text", "text": text})
+                continue
+            inline = part.get("inline_data")
+            if isinstance(inline, dict):
+                mime_type = str(inline.get("mime_type") or "image/jpeg")
+                data = str(inline.get("data") or "")
+                if data:
+                    content.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:{mime_type};base64,{data}"},
+                    })
+        return content
+
+    def _extract_openrouter_text(self, data: dict[str, Any]) -> str:
+        message = data["choices"][0]["message"]["content"]
+        if isinstance(message, str):
+            return message
+        if isinstance(message, list):
+            chunks: list[str] = []
+            for item in message:
+                if isinstance(item, dict) and item.get("type") == "text" and isinstance(item.get("text"), str):
+                    chunks.append(item["text"])
+            if chunks:
+                return "\n".join(chunks)
+        raise KeyError("OpenRouter response did not include message content.")
+
+    async def _generate_openrouter(self, parts: list[dict[str, Any]], response_mime_type: str = "application/json") -> str | None:
+        if not self.api_key:
+            self.last_error = "OPENROUTER_API_KEY is not configured."
+            return None
+
+        errors: list[str] = []
+        alias_model = self._normalize_openrouter_model(self.model)
+        last_attempted_model = alias_model or self.model
+        base_headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        if settings.openrouter_site_url:
+            base_headers["HTTP-Referer"] = settings.openrouter_site_url
+        if settings.openrouter_app_name:
+            base_headers["X-Title"] = settings.openrouter_app_name
+
+        for candidate_model in self._candidate_models():
+            last_attempted_model = candidate_model
+            payload: dict[str, Any] = {
+                "model": candidate_model,
+                "messages": [{"role": "user", "content": self._openrouter_content(parts)}],
+                "temperature": 0.2,
+            }
+            if response_mime_type == "application/json":
+                payload["response_format"] = {"type": "json_object"}
+            try:
+                async with httpx.AsyncClient(timeout=45) as client:
+                    response = await client.post("https://openrouter.ai/api/v1/chat/completions", headers=base_headers, json=payload)
+                    response.raise_for_status()
+                data = response.json()
+                text = self._extract_openrouter_text(data)
+                self.active_provider = "openrouter"
+                self.active_model = candidate_model
+                self.last_error = None
+                if alias_model and alias_model != self.model and candidate_model == alias_model:
+                    log_warning(
+                        "openrouter_model_alias_used",
+                        requested_model=self.model,
+                        active_model=candidate_model,
+                    )
+                if candidate_model != self.model:
+                    log_warning(
+                        "openrouter_model_fallback_used",
+                        requested_model=self.model,
+                        active_model=candidate_model,
+                    )
+                return text
+            except httpx.HTTPStatusError as exc:
+                detail = ""
+                try:
+                    detail = exc.response.json().get("error", {}).get("message", "") or exc.response.text
+                except Exception:
+                    detail = exc.response.text
+                detail = " ".join(detail.split())
+                errors.append(f"{candidate_model}: {detail or exc.response.reason_phrase}")
+                log_error(
+                    "openrouter_http_error",
+                    model=candidate_model,
+                    status_code=exc.response.status_code,
+                    detail=detail[:400],
+                )
+            except (httpx.HTTPError, KeyError, ValueError, json.JSONDecodeError) as exc:
+                errors.append(f"{candidate_model}: {exc}")
+                log_error("openrouter_request_failed", model=candidate_model, detail=str(exc)[:400])
+
+        self.active_provider = "openrouter"
+        self.active_model = last_attempted_model
+        self.last_error = errors[0] if errors else "OpenRouter request failed."
+        return None
+
     async def _generate(self, parts: list[dict[str, Any]], response_mime_type: str = "application/json") -> str | None:
+        if self.provider == "openrouter":
+            return await self._generate_openrouter(parts, response_mime_type=response_mime_type)
+
         if not self.api_key:
             self.last_error = "GEMINI_API_KEY is not configured."
             return None
@@ -106,6 +247,7 @@ class GeminiClient:
                     response.raise_for_status()
                 data = response.json()
                 text = data["candidates"][0]["content"]["parts"][0]["text"]
+                self.active_provider = "gemini"
                 self.active_model = candidate_model
                 self.last_error = None
                 if alias_model and alias_model != self.model and candidate_model == alias_model:
@@ -141,6 +283,7 @@ class GeminiClient:
                 errors.append(f"{candidate_model}: {exc}")
                 log_error("gemini_request_failed", model=candidate_model, detail=str(exc)[:400])
 
+        self.active_provider = "gemini"
         self.active_model = last_attempted_model
         if errors:
             preferred_error = next((item for item in errors if "User location is not supported" in item), None)
@@ -176,7 +319,7 @@ class GeminiClient:
             return None
         try:
             parsed = json.loads(text)
-            parsed["source"] = "gemini"
+            parsed["source"] = self.active_provider
             return PhotoAnalysisResult.model_validate(parsed)
         except (ValueError, json.JSONDecodeError):
             return None

@@ -3,9 +3,8 @@ from __future__ import annotations
 import re
 
 from .catalog import load_catalog
-from .look_harmony import build_cta_from_harmony
-from .merchandising import bundle_story, cta_for_conversion, selling_frame
-from .models import DialogIntent, IntentAction, IntentDomain, ProductCategory, ProductDomain, RecommendationItem, RecommendationPlan, SessionState
+from .merchandising import bundle_story
+from .models import DialogIntent, IntentAction, IntentDomain, ProductCategory, ProductDomain, RecommendationItem, RecommendationPlan, SessionState, SkinProfile
 from .retrieval import retrieve_products
 
 CATEGORY_LABELS = {
@@ -82,30 +81,62 @@ COLOR_LABELS = {
 
 
 TONE_CTA = {
-    "soft_luxury": "Если хочешь, я соберу это ещё более дорого и утончённо по ощущению.",
-    "sexy": "Если хочешь, я сразу усилю это в более чувственный и цепляющий вариант.",
-    "clean_girl": "Если хочешь, я сделаю это ещё свежее, чище и легче по вайбу.",
-    "glam": "Если хочешь, я дожму это в более вечерний и эффектный образ.",
-    "default": "Если хочешь, я могу сразу сделать этот образ более вечерним, более сексуальным или более бюджетным.",
+    "soft_luxury": "Если хочешь, я сделаю версию ещё тише и дороже: меньше шума, больше ощущения ухоженного лица без слоя косметики.",
+    "sexy": "Если хочешь, я сразу уведу это в более цепляющий сценарий: сильнее взгляд, чётче контур и заметнее впечатление вечером.",
+    "clean_girl": "Если хочешь, я облегчу набор ещё сильнее, чтобы осталось ощущение «своя кожа, только заметно лучше».",
+    "glam": "Если хочешь, я дожму это в более вечерний вариант, который увереннее держится в свете, на фото и вживую.",
+    "default": "Если хочешь, я за один ход соберу один из трёх вариантов: тише и натуральнее, заметнее и вечернее или легче по бюджету — без потери впечатления.",
 }
 
 SHORT_REASON_TEMPLATES = {
-    ProductCategory.primer: "сделает тон визуально ровнее и аккуратнее",
-    ProductCategory.foundation: "даст более дорогой и собранный тон лица",
-    ProductCategory.skin_tint: "освежит лицо без тяжёлого слоя",
-    ProductCategory.concealer: "быстро соберёт зону под глазами и мелкие несовершенства",
-    ProductCategory.powder: "поможет макияжу выглядеть чище в течение дня",
-    ProductCategory.blush: "сразу добавит лицу живость и свежесть",
-    ProductCategory.mascara: "раскроет взгляд за пару движений",
-    ProductCategory.lipstick: "даст образу завершённость и настроение",
-    ProductCategory.lip_tint: "даст свежий и более молодой эффект",
-    ProductCategory.lip_gloss: "сделает образ более сочным и притягательным",
-    ProductCategory.eyeshadow_palette: "поможет быстро усилить образ на вечер",
-    ProductCategory.eyeliner: "добавит взгляду остроту и характер",
-    ProductCategory.brow_gel: "соберёт лицо и сделает макияж аккуратнее",
-    ProductCategory.highlighter: "добавит коже дорогого свечения",
-    ProductCategory.setting_spray: "поможет образу дольше выглядеть свежо",
+    ProductCategory.cleanser: "сразу убирает лишний визуальный шум и даёт коже более чистый, спокойный старт",
+    ProductCategory.serum: "делает кожу более ровной, напитанной и ухоженной на вид",
+    ProductCategory.moisturizer: "смягчает рельеф и даёт коже более спокойный, дорогой финиш",
+    ProductCategory.spf: "закрывает дневной слой так, чтобы лицо выглядело аккуратно и без перегруза",
+    ProductCategory.toner: "успокаивает кожу и подготавливает её так, чтобы остальной уход лёг чище",
+    ProductCategory.mask: "быстро возвращает коже живость и комфорт, когда нужен заметный refresh-эффект",
+    ProductCategory.spot_treatment: "точечно убирает лишние акценты, не перегружая всё лицо",
+    ProductCategory.makeup_remover: "снимает макияж мягко, чтобы кожа не выглядела уставшей и раздражённой",
+    ProductCategory.primer: "сразу делает тон визуально ровнее и аккуратнее",
+    ProductCategory.foundation: "сразу делает тон более дорогим, ровным и собранным",
+    ProductCategory.skin_tint: "освежает лицо без ощущения тяжёлого слоя",
+    ProductCategory.concealer: "быстро собирает зону под глазами и убирает лишнюю усталость с лица",
+    ProductCategory.powder: "держит финиш чище и аккуратнее в течение дня",
+    ProductCategory.blush: "возвращает лицу живость, свежесть и лёгкий комплиментарный цвет",
+    ProductCategory.mascara: "раскрывает взгляд за пару движений и делает лицо выразительнее",
+    ProductCategory.lipstick: "добавляет образу завершённость, статус и понятное настроение",
+    ProductCategory.lip_tint: "делает лицо свежее и моложе по ощущению без тяжёлой помады",
+    ProductCategory.lip_gloss: "добавляет образу сочность и более притягательный финиш",
+    ProductCategory.eyeshadow_palette: "позволяет быстро усилить образ и сделать его вечернее",
+    ProductCategory.eyeliner: "добавляет взгляду остроту и более собранный характер",
+    ProductCategory.brow_gel: "собирает лицо и делает весь макияж заметно аккуратнее",
+    ProductCategory.highlighter: "добавляет коже дорогого свечения без эффекта жирного блеска",
+    ProductCategory.setting_spray: "помогает образу дольше выглядеть свежо и дорого на расстоянии",
 }
+
+CONCERN_EFFECT_TEMPLATES = {
+    "redness": "кожа выглядит спокойнее и чище",
+    "breakouts": "рельеф читается мягче и аккуратнее",
+    "dryness": "кожа выглядит более гладкой и напитанной",
+    "oiliness": "Т-зона выглядит собраннее и чище",
+    "maintenance": "лицо выглядит ухоженнее и стабильнее",
+    "tone_match": "тон лица выглядит ровнее и дороже",
+    "under_eye": "взгляд выглядит более отдохнувшим",
+}
+
+STYLE_EFFECT_ENDINGS = {
+    "soft_luxury": "В итоге образ ощущается тише, дороже и очень ухоженно даже вблизи.",
+    "sexy": "В итоге лицо цепляет сильнее и держит внимание заметно дольше.",
+    "clean_girl": "В итоге всё выглядит чисто, легко и будто это просто ваша хорошая кожа.",
+    "glam": "В итоге образ лучше работает на фото, в вечернем свете и в живом общении.",
+    "default": "В итоге лицо выглядит собранно, свежо и заметно дороже без перегруза.",
+}
+
+OLD_SALES_BLOCK_LABELS = (
+    "Что это даст образу",
+    "Что я беру в набор",
+    "Что делаем дальше",
+)
 
 
 def humanize_shade_token(value: str) -> str:
@@ -152,10 +183,23 @@ def sanitize_agent_text(text: str) -> str:
     return cleaned.strip()
 
 
-def _pick_highlight_line(item: RecommendationItem) -> str:
-    title = pretty_product_title(item.title)
-    reason = SHORT_REASON_TEMPLATES.get(item.category, "хорошо встанет в образ")
-    return f"- {CATEGORY_LABELS.get(item.category, item.category.value).capitalize()}: {title} — {reason}."
+def _normalize_sales_blocks(text: str) -> str:
+    lines = [line.strip() for line in str(text or "").splitlines() if line.strip()]
+    if not lines:
+        return text
+
+    normalized: dict[str, str] = {}
+    for line in lines:
+        plain = re.sub(r"^\s*(?:[-*]\s*|\d+[.)]\s*)", "", line).strip()
+        match = re.match(rf"^({'|'.join(re.escape(label) for label in OLD_SALES_BLOCK_LABELS)})\s*[:\-—]\s*(.+)$", plain)
+        if match:
+            normalized[match.group(1)] = match.group(2).strip()
+
+    if len(normalized) >= 2:
+        ordered = [f"{label}: {normalized[label]}" for label in OLD_SALES_BLOCK_LABELS if normalized.get(label)]
+        return "\n".join(ordered)
+
+    return text
 
 
 def _style_mode(session_or_profile) -> str:
@@ -179,39 +223,192 @@ def _style_mode(session_or_profile) -> str:
 def _opening_line(profile) -> str:
     mode = _style_mode(profile)
     if mode == 'soft_luxury':
-        return 'Я бы собирал это в более дорогой, ухоженный и quietly luxurious образ — без лишнего шума.'
+        return 'Тон выглядит чище, кожа — спокойнее, а всё лицо собирается в тихий дорогой вид без лишнего слоя.'
     if mode == 'sexy':
-        return 'Я бы собирал это так, чтобы образ сразу цеплял: более выразительно, притягательно и с правильным акцентом.'
+        return 'Черты становятся выразительнее, взгляд цепляет сильнее, а лицо в целом выглядит заметно собраннее.'
     if mode == 'glam':
-        return 'Я бы сразу двигал это в более эффектный и заметный образ, который хорошо держит внимание.'
+        return 'Лицо станет ярче и контрастнее: взгляд сильнее, тон чище, а результат увереннее держится в свете и на фото.'
     if mode == 'clean_girl':
-        return 'Я бы собирал это в очень свежий, чистый и дорогой на вид образ — легко, но с эффектом.'
-    return 'Я бы собирал образ так, чтобы лицо сразу выглядело свежее, дороже и выразительнее — без перегруза.'
+        return 'Кожа выглядит как своя, только лучше: ровнее, свежее и светлее, без ощущения плотного слоя.'
+    return 'Лицо выглядит ровнее, свежее и собраннее; вблизи кожа кажется ухоженной, а на фото результат читается чище и дороже.'
+
+
+def _profile_for_effects(session_or_profile: SessionState | SkinProfile) -> SkinProfile:
+    return session_or_profile.skin_profile if hasattr(session_or_profile, "skin_profile") else session_or_profile
+
+
+def _concern_effects(session_or_profile: SessionState | SkinProfile) -> list[str]:
+    profile = _profile_for_effects(session_or_profile)
+    concerns = [*getattr(profile, "primary_concerns", []), *getattr(profile, "secondary_concerns", [])]
+    values: list[str] = []
+    for concern in concerns:
+        key = concern.value if hasattr(concern, "value") else str(concern)
+        phrase = CONCERN_EFFECT_TEMPLATES.get(key)
+        if phrase and phrase not in values:
+            values.append(phrase)
+    return values[:2]
+
+
+def _default_effect_line(session_or_profile: SessionState | SkinProfile) -> str:
+    details = _concern_effects(session_or_profile)
+    ending = STYLE_EFFECT_ENDINGS.get(_style_mode(session_or_profile), STYLE_EFFECT_ENDINGS["default"])
+    if len(details) >= 2:
+        if details[0].startswith("кожа выглядит ") and details[1].startswith("кожа выглядит "):
+            first = details[0].replace("кожа выглядит ", "", 1)
+            second = details[1].replace("кожа выглядит ", "", 1)
+            return f"Кожа выглядит {first}, а по текстуре — {second}. {ending}"
+        return f"{details[0].capitalize()}, а {details[1]}. {ending}"
+    if details:
+        return f"{details[0].capitalize()}. {ending}"
+    return _opening_line(session_or_profile)
+
+
+def _sales_effect_line(session_or_profile, plan: RecommendationPlan | None = None, intent_name: str | None = None) -> str:
+    intent_map = {
+        "cheaper_alternative": "Сохраняем тот же собранный эффект, но режем всё лишнее: лицо всё равно выглядит чище, ровнее и дороже, просто без переплаты за второстепенные шаги.",
+        "premium_alternative": "Финиш станет мягче, чище и статуснее. Это уже не просто аккуратный результат, а ощущение действительно дорогой, очень продуманной сборки.",
+        "transform_radiant": "Кожа будет выглядеть живее и светлее по впечатлению: лицо сразу кажется бодрее, а тон — свежее и комплиментарнее.",
+        "transform_matte": "Финиш станет чище и собраннее, поэтому лицо будет выглядеть аккуратно не только сразу после нанесения, но и позже, когда обычно всё начинает плыть.",
+        "transform_natural": "Эффект будет такой, будто у тебя просто хороший тон кожи и более отдохнувшее лицо. Всё выглядит легче, чище и заметно дороже вблизи.",
+        "transform_evening": "Черты станут заметнее, взгляд — глубже, а лицо лучше держит внимание в вечернем свете и на фото. Это уже не просто аккуратно, а по-настоящему выразительно.",
+        "halal_filter": "Сохраняем аккуратный, цельный результат, но делаем набор строже по составу. Визуально лицо всё равно выглядит чисто, спокойно и собранно.",
+        "simplify_routine": "Убираем лишнее и оставляем только шаги, которые сразу читаются на лице: чище тон, спокойнее кожа, свежее общее впечатление.",
+        "replace_product": "Меняем слабое место на шаг, который даст более современный и выигрышный результат. Лицо сразу выглядит увереннее и лучше собрано.",
+        "exclude_ingredient": "Сохраняем видимый эффект, но делаем набор комфортнее по составу. То есть кожа остаётся спокойной, а лицо — всё так же собранным и выигрышным.",
+    }
+    if intent_name in intent_map:
+        return intent_map[intent_name]
+    if intent_name == "general_advice":
+        domain = getattr(session_or_profile.current_plan, "primary_domain", None) if hasattr(session_or_profile, "current_plan") else None
+        if domain == ProductDomain.makeup:
+            return "Лицо будет выглядеть ровнее и дороже по впечатлению: вблизи кожа кажется аккуратнее, а на фото всё читается чище и собраннее."
+    return _default_effect_line(session_or_profile)
+
+
+def _product_phrase(item: RecommendationItem, lead: str) -> str:
+    title = pretty_product_title(item.title)
+    reason = SHORT_REASON_TEMPLATES.get(item.category, "усиливает образ и делает его аккуратнее без лишнего шума")
+    return f"{lead} {title}: он {reason}."
+
+
+def _bundle_line(recommendations: list[RecommendationItem]) -> str:
+    hero, support = bundle_story(recommendations[:3])
+    phrases: list[str] = []
+    if hero:
+        phrases.append(_product_phrase(hero, "Главным шагом ставлю"))
+    support_leads = ("Следом добавляю", "И закрываю набор")
+    for index, item in enumerate(support[:2]):
+        lead = support_leads[index] if index < len(support_leads) else "Дальше добавляю"
+        phrases.append(_product_phrase(item, lead))
+    if not phrases and recommendations:
+        phrases.append(_product_phrase(recommendations[0], "Главным шагом ставлю"))
+    return " ".join(phrases)
+
+
+def _conversation_opening(session: SessionState | SkinProfile, intent: DialogIntent | None = None) -> str:
+    intent_name = intent.intent if intent else ""
+    by_intent = {
+        "transform_evening": "Если увести это в вечер, лицо станет заметнее: взгляд глубже, тон чище, и всё вместе сильнее держит внимание.",
+        "transform_natural": "Если сделать это натуральнее, эффект будет ближе к «своя кожа, только заметно лучше» — без чувства, что на лице много продукта.",
+        "transform_radiant": "Если увести это в более сияющий вариант, лицо будет выглядеть живее и бодрее, а кожа — светлее по впечатлению.",
+        "cheaper_alternative": "Здесь можно спокойно облегчить чек и не убить впечатление: лицо всё равно будет выглядеть собранно и аккуратно.",
+        "premium_alternative": "Если собрать более дорогую версию, выигрыш будет не в количестве шагов, а в том, насколько чище и статуснее выглядит результат.",
+    }
+    if intent_name in by_intent:
+        return by_intent[intent_name]
+    return _sales_effect_line(session, getattr(session, "current_plan", None), intent_name)
+
+
+def _conversation_logic_line(recommendations: list[RecommendationItem]) -> str:
+    if not recommendations:
+        return "Сейчас я бы не усложнял и сначала уточнил, в какую сторону ты хочешь увести результат."
+    hero = recommendations[0]
+    title = pretty_product_title(hero.title)
+    reason = SHORT_REASON_TEMPLATES.get(hero.category, "даёт более понятный и собранный результат")
+    if len(recommendations) == 1:
+        return f"Я бы начал с {title}, потому что он {reason} и уже сам по себе задаёт правильное направление."
+    support = recommendations[1]
+    support_title = pretty_product_title(support.title)
+    support_reason = SHORT_REASON_TEMPLATES.get(support.category, "докручивает результат и убирает ощущение недосборки")
+    if len(recommendations) >= 3:
+        third = recommendations[2]
+        third_title = pretty_product_title(third.title)
+        third_reason = SHORT_REASON_TEMPLATES.get(third.category, "закрывает последний важный шаг и собирает результат до конца")
+        return (
+            f"Я бы начал с {title}, потому что он {reason}. "
+            f"Следом оставил бы {support_title}, чтобы он {support_reason}. "
+            f"И третьим шагом добавил бы {third_title}, потому что он {third_reason}."
+        )
+    return f"Я бы начал с {title}, потому что он {reason}. Следом добавил бы {support_title}, чтобы он {support_reason}."
+
+
+def _initial_intro(profile: SkinProfile, recommendations: list[RecommendationItem], plan: RecommendationPlan) -> str:
+    primary_domain = getattr(plan, "primary_domain", None)
+    if primary_domain is None and recommendations:
+        primary_domain = recommendations[0].domain
+    if primary_domain == ProductDomain.skincare:
+        if len(recommendations) >= 3:
+            return "Я собрал спокойный базовый уход без лишнего: мягко очистить кожу, выровнять ощущение по текстуре и закрыть день нормальной защитой."
+        return "Я собрал спокойную базу без лишних шагов, чтобы кожа выглядела ровнее и ухоженнее уже с первого цикла."
+    if primary_domain == ProductDomain.makeup:
+        return "Я собрал понятный макияжный старт без перегруза, чтобы лицо выглядело ровнее, свежее и сразу более собранно."
+    return _sales_effect_line(profile, plan)
+
+
+def _next_step_line(session: SessionState | SkinProfile, intent: DialogIntent | None = None) -> str:
+    intent_name = intent.intent if intent else ""
+    action_map = {
+        "cheaper_alternative": "Если хочешь, я следующим сообщением оставлю только 2 самых выгодных шага, чтобы чек стал легче, а лицо всё равно выглядело собранно и дорого.",
+        "premium_alternative": "Если хочешь, я сейчас соберу более статусную версию — ту, где результат сразу читается как более дорогой и взрослый.",
+        "transform_radiant": "Если хочешь, я усилю свечение ещё на полшага или соберу более заметную версию, которая сильнее работает вживую и на фото.",
+        "transform_matte": "Если хочешь, я сделаю финиш ещё чище и спокойнее или переведу это в очень удобный daily-вариант без лишнего блеска.",
+        "transform_natural": "Если хочешь, я ещё сильнее упрощу набор и доведу его до ощущения «своя кожа, только заметно лучше».",
+        "transform_evening": "Если хочешь, я сразу добавлю более вечерний акцент — на тон, губы или взгляд, чтобы лицо стало ещё заметнее и сильнее держало внимание.",
+        "compare_products": "Если хочешь, я сразу зафиксирую победителя и дособеру к нему всё остальное так, чтобы результат был цельным, а не случайным.",
+        "explain_product": "Если хочешь, я прямо сейчас подберу к нему ещё 1-2 шага, чтобы эффект на лице стал понятнее и ощутимо сильнее.",
+        "halal_filter": "Если хочешь, я сейчас оставлю только halal-friendly основу и уберу всё спорное, не просаживая визуальный результат.",
+    }
+    if intent_name in action_map:
+        return action_map[intent_name]
+    mode = _style_mode(session)
+    return TONE_CTA.get(mode, TONE_CTA["default"])
+
+
+def _join_reply_parts(*parts: str) -> str:
+    return "\n\n".join(part.strip() for part in parts if part and part.strip())
+
+
+def compose_smalltalk_response(session: SessionState, recommendations: list[RecommendationItem], message: str) -> str:
+    normalized = message.lower()
+    if any(token in normalized for token in ["привет", "здар", "здрав"]):
+        if recommendations:
+            hero = pretty_product_title(recommendations[0].title)
+            return f"Привет. Я уже вижу текущий набор и могу быстро с ним помочь: сейчас в центре у нас {hero}. Куда хочешь двинуть результат — сделать его спокойнее, заметнее или просто понятнее по шагам?"
+        return "Привет. Давай быстро соберём это нормально. Скажи, ты хочешь сейчас уход, макияж или вариант под конкретный случай?"
+    if any(token in normalized for token in ["спасибо", "благодар"]):
+        return "Пожалуйста. Если хочешь, я не буду грузить лишним и просто предложу следующий самый удачный шаг."
+    return "Я с тобой. Скажи коротко, какой результат хочешь получить, и я отвечу без шаблонов — просто как нормальный консультант."
 
 
 def compose_initial_response(profile, recommendations: list[RecommendationItem], plan: RecommendationPlan) -> str:
-    lines = [_opening_line(profile)]
-    hero, support = bundle_story(recommendations)
-    if hero:
-        lines.append(f"Я бы начал с главного акцента: {_pick_highlight_line(hero)[2:]}")
-    if support:
-        lines.append('Чтобы образ выглядел цельно, я бы добавил к нему:')
-        for item in support:
-            lines.append(_pick_highlight_line(item))
-    elif recommendations:
-        for item in recommendations[1:4]:
-            lines.append(_pick_highlight_line(item))
-    lines.append('Если хочешь, я могу сразу дособрать это в готовый комплект под день, вечер или более дорогой вайб.')
-    return '\n'.join(lines)
+    return _join_reply_parts(
+        _initial_intro(profile, recommendations, plan),
+        _conversation_logic_line(recommendations),
+        _next_step_line(profile),
+    )
 
 
 def build_reply_prompt(session: SessionState, intent: DialogIntent, recommendations: list[RecommendationItem], message: str) -> str:
     rec_lines = "\n".join(f"- {pretty_product_title(item.title)} | brand={item.brand} | category={item.category.value} | price={item.price_value} | why={item.why}" for item in recommendations[:3])
     mode = _style_mode(session)
     return f"""
-Ты — сильный beauty-консультант в стиле премиального ритейла Golden Apple.
+Ты — очень сильный beauty-консультант Golden Apple.
 Отвечай по-русски.
 Текущий retail-tone mode: {mode}.
+Ты говоришь как живой консультант в магазине: спокойно, умно, по-человечески и без шаблонной роботской структуры.
+Ты не звучишь как врач, нейтральный бот или рекламный баннер.
+Ты пишешь интересно и живо, но без рекламной жижи.
+Ответ должен быть таким, чтобы его хотелось дочитать и чтобы хотелось написать ещё; после него хочется продолжить разговор, а не закрыть чат.
 КРИТИЧЕСКИЕ ОГРАНИЧЕНИЯ:
 - НЕЛЬЗЯ придумывать бренды, товары, SKU, линейки, текстуры или продукты, которых нет в списке ниже.
 - Можно упоминать ТОЛЬКО продукты из блока ПОДБОРКА.
@@ -219,11 +416,22 @@ def build_reply_prompt(session: SessionState, intent: DialogIntent, recommendati
 - Нельзя уводить пользователя в другой домен без фактической подборки.
 - Нельзя советовать новые бренды "от себя".
 ФОРМАТ ОТВЕТА:
-- максимум 3 коротких абзаца
+- 2-4 коротких абзаца или 3-5 коротких предложений
+- не используй жёсткий шаблон из трёх блоков
+- не используй заголовки "Что это даст образу", "Что я беру в набор", "Что делаем дальше"
 - максимум 2-3 продукта в тексте
 - без длинных редакторских вступлений
 - без сухой диагностики
 - без markdown-звёздочек и заголовков
+- нельзя писать пустые формулы вроде "хорошо встанет в образ", "просто подойдёт", "закрывает задачу"
+- нельзя писать рекламные клише вроде "безупречно", "премиальный уход", "словно после спа", "абсолютный комфорт", "идеальное покрытие"
+- нельзя давить фразами "добавьте это в корзину", "берите прямо сейчас", "вам срочно нужно"
+- ответ должен звучать как живой консультант, а не как заскриптованная рамочная штука
+- сначала коротко скажи, какой визуальный результат человек получит
+- в ответе должен быть понятный визуальный выигрыш, а не расплывчатая оценка
+- потом по-человечески объясни логику 1-2 ключевых продуктов через "потому что", "за счёт этого", "поэтому"
+- закончи одним нормальным следующим шагом или вопросом, который действительно двигает разговор
+- если пользователь пишет просто "привет", "ок", "спасибо" или что-то короткое бытовое — отвечай как человек, а не как продавец с подборкой
 ЗАДАЧА:
 - коротко продать текущую подборку
 - объяснить эффект образа
@@ -327,10 +535,10 @@ def compose_compare_response(session: SessionState, intent: DialogIntent, recomm
     if len(items) < 2:
         return "Сейчас не из чего собрать честное сравнение. Скажи, что сравнить — например две помады или два варианта для глаз."
     first, second = items[:2]
-    return (
-        f"{pretty_product_title(first.title)} — даёт более собранный и выразительный эффект.\n"
-        f"{pretty_product_title(second.title)} — смотрится мягче и спокойнее.\n"
-        f"Если хочешь, я сразу скажу, какой из них выгоднее именно под твой запрос."
+    return _join_reply_parts(
+        f"Если нужен более собранный и заметный результат, я бы ставил выше {pretty_product_title(first.title)}. Если хочется мягче и спокойнее по ощущению, ближе {pretty_product_title(second.title)}.",
+        f"Логика тут простая: {pretty_product_title(first.title)} выглядит сильнее под текущий запрос, а {pretty_product_title(second.title)} — аккуратнее и тише.",
+        "Если хочешь, я сразу выберу победителя и дособеру к нему остальное без лишних сравнений.",
     )
 
 
@@ -340,10 +548,10 @@ def compose_explain_response(session: SessionState, intent: DialogIntent, recomm
     if not focus:
         return "Скажи, какой именно продукт разобрать — я коротко объясню, почему он работает в образе."
     pretty_title = pretty_product_title(focus.title)
-    return (
-        f"{pretty_title} здесь работает очень внятно: он сразу делает образ более собранным и выигрышным.\n"
-        f"По ощущению результата — {describe_item(focus, session)}.\n"
-        f"Если хочешь, я сразу подберу к нему ещё 1-2 вещи, чтобы добить образ."
+    return _join_reply_parts(
+        f"{pretty_title} здесь не для галочки. Он нужен, чтобы лицо выглядело собраннее и чище по впечатлению.",
+        f"Я оставляю его в наборе, потому что по факту он {describe_item(focus, session)}.",
+        "Если хочешь, я сразу подберу к нему ещё 1-2 вещи, чтобы результат сложился до конца.",
     )
 
 
@@ -352,43 +560,15 @@ def compose_followup_response(session: SessionState, intent: DialogIntent, recom
         return compose_compare_response(session, intent, recommendations)
     if intent.action == IntentAction.explain:
         return compose_explain_response(session, intent, recommendations)
-
-    preface = {
-        "cheaper_alternative": "Нашёл более доступный вариант, который всё ещё выглядит вкусно и не дешево по ощущению.",
-        "premium_alternative": "Поднял подборку в более премиальный сегмент — с акцентом на качество финиша и стойкость.",
-        "transform_radiant": "Сделал подборку более сияющей, чтобы кожа выглядела живее и свежее.",
-        "transform_matte": "Сдвинул подборку в более матовый сценарий для аккуратного контролируемого финиша.",
-        "transform_natural": "Собрал более натуральную версию: мягче покрытие и спокойнее общий эффект.",
-        "replace_product": "Вот версия, которая выглядит выигрышнее и современнее.",
-        "exclude_ingredient": "Пересобрал подборку так, чтобы сохранить эффект, но убрать лишнее ограничение из состава.",
-        "simplify_routine": "Собрал более лёгкую версию — чтобы выглядело дорого, но без лишних шагов.",
-        "build_full_look": "Вот образ, который уже ощущается более цельным, собранным и привлекательным.",
-        "add_category": "Добавил ещё один штрих, который делает образ заметно живее и интереснее.",
-        "general_advice": "Вот вариант, который сейчас выглядит особенно удачно.",
-    }.get(intent.intent, "Подборку обновил.")
-
-    lines = [preface]
-    visible_items = []
-    for item in recommendations[:4]:
+    visible_items: list[RecommendationItem] = []
+    for item in recommendations[:3]:
         if intent.target_category and intent.action in {IntentAction.replace, IntentAction.cheaper} and item.category != intent.target_category:
             continue
         visible_items.append(item)
-    hero, support = bundle_story(visible_items)
-    if hero:
-        lines.append(f"Главный ход здесь — {_pick_highlight_line(hero)[2:]}")
-    for item in support:
-        lines.append(_pick_highlight_line(item))
-    if not support:
-        for item in visible_items[1:3]:
-            lines.append(_pick_highlight_line(item))
-    for frame_line in selling_frame(visible_items, session.current_plan, session.user_preferences):
-        lines.append(frame_line)
-    previous = session.dialog_context.current_recommendations or {}
-    changed_categories = [item.category for item in visible_items if previous.get(item.category) and previous.get(item.category) != item.sku]
-    if changed_categories:
-        labels = [CATEGORY_LABELS.get(category, category.value) for category in changed_categories[:3]]
-        lines.append(f"По сравнению с прошлым шагом обновил: {', '.join(labels)}.")
-    harmony_cta = build_cta_from_harmony(session.dialog_context.look_profile) if session.dialog_context.look_profile else TONE_CTA.get(_style_mode(session), TONE_CTA['default'])
-    lines.append(cta_for_conversion(session.current_plan, session.user_preferences))
-    lines.append(harmony_cta)
-    return "\n".join(lines)
+    if not visible_items:
+        visible_items = recommendations[:3]
+    return _join_reply_parts(
+        _conversation_opening(session, intent),
+        _conversation_logic_line(visible_items),
+        _next_step_line(session, intent),
+    )

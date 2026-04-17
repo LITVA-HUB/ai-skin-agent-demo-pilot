@@ -11,19 +11,25 @@
       --surface: rgba(255, 250, 244, 0.92);
       --surface-strong: #fffaf4;
       --surface-soft: #f1e4d4;
+      --surface-tint: rgba(249, 240, 229, 0.92);
+      --surface-deep: rgba(28, 21, 17, 0.94);
       --ink: #191410;
       --muted: #675c51;
       --line: rgba(25, 20, 16, 0.1);
       --gold: #c7963e;
       --berry: #7c415c;
+      --glow-gold: rgba(199, 150, 62, 0.36);
+      --glow-shell: rgba(255, 250, 242, 0.78);
+      --mesh-line: rgba(255, 245, 232, 0.82);
       --success: #edf5e7;
       --success-ink: #35522b;
       --shadow: 0 16px 44px rgba(31, 20, 12, 0.12);
+      --shadow-soft: 0 8px 22px rgba(31, 20, 12, 0.08);
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 18px;
       --radius-sm: 14px;
-      --page-width: 980px;
+      --page-width: 1080px;
       --frame-left: 22%;
       --frame-top: 12%;
       --frame-width: 56%;
@@ -41,6 +47,35 @@
         radial-gradient(circle at 92% 0%, rgba(199, 150, 62, 0.12) 0%, transparent 18%),
         linear-gradient(180deg, #fbf7f2 0%, #f6ede2 48%, #f3e8dc 100%);
       padding-bottom: env(safe-area-inset-bottom);
+      position: relative;
+      min-height: 100vh;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(26px);
+      opacity: 0.7;
+    }
+
+    body::before {
+      width: 360px;
+      height: 360px;
+      top: -120px;
+      right: -80px;
+      background: radial-gradient(circle, rgba(199, 150, 62, 0.18) 0%, rgba(199, 150, 62, 0.06) 48%, transparent 72%);
+    }
+
+    body::after {
+      width: 300px;
+      height: 300px;
+      left: -110px;
+      top: 34vh;
+      background: radial-gradient(circle, rgba(124, 65, 92, 0.12) 0%, rgba(124, 65, 92, 0.04) 52%, transparent 74%);
     }
 
     h1, h2, h3, p { margin: 0; }
@@ -66,9 +101,24 @@
     .page {
       max-width: var(--page-width);
       margin: 0 auto;
-      padding: 14px 14px 40px;
+      padding: 18px 16px 56px;
       display: grid;
-      gap: 14px;
+      gap: 18px;
+      position: relative;
+      isolation: isolate;
+    }
+
+    .page::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.52) 0%, transparent 24%),
+        radial-gradient(circle at 82% 14%, rgba(199, 150, 62, 0.14) 0%, transparent 20%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 52%);
+      opacity: 0.85;
     }
 
     .shell,
@@ -91,6 +141,10 @@
       position: sticky;
       top: 8px;
       z-index: 10;
+      background: linear-gradient(180deg, rgba(255, 252, 247, 0.96), rgba(255, 248, 239, 0.86));
+      box-shadow:
+        0 18px 40px rgba(31, 20, 12, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
     .brand small {
@@ -613,18 +667,41 @@
     .advisor-flow,
     .profile-screen {
       display: grid;
-      gap: 12px;
+      gap: 16px;
     }
 
     .advisor-hero-card {
-      padding: 16px 18px 18px;
+      padding: 18px 18px 20px;
       display: grid;
-      gap: 12px;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(199, 150, 62, 0.16) 0%, transparent 24%),
+        radial-gradient(circle at 8% 18%, rgba(255, 255, 255, 0.42) 0%, transparent 26%),
+        linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(251, 244, 236, 0.94));
+    }
+
+    .advisor-hero-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.12) 30%, transparent 58%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.08));
+      opacity: 0.8;
+    }
+
+    .advisor-head-note {
+      min-width: min(100%, 320px);
+      background: linear-gradient(180deg, rgba(255, 251, 246, 0.94), rgba(246, 235, 220, 0.9));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
     }
 
     .advisor-stage-stack {
       display: grid;
-      gap: 12px;
+      gap: 16px;
     }
 
     .analysis-visual {
@@ -634,12 +711,15 @@
     }
 
     .analysis-stage {
-      width: min(100%, 320px);
+      width: min(100%, 340px);
       min-height: 0;
       max-height: none;
       background:
         radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.18) 0%, transparent 20%),
         linear-gradient(180deg, #dfd4c7 0%, #cdbfae 100%);
+      box-shadow:
+        0 24px 40px rgba(31, 20, 12, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.42);
     }
 
     .analysis-placeholder {
@@ -673,6 +753,7 @@
       border-radius: 18px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow-soft);
     }
 
     .summary-tile strong {
@@ -689,16 +770,19 @@
 
     .advisor-insight-stack {
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
 
     .bundle-summary-tile {
       display: grid;
       gap: 8px;
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.82);
+      padding: 16px 16px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(199, 150, 62, 0.18);
+      background:
+        radial-gradient(circle at top right, rgba(199, 150, 62, 0.12) 0%, transparent 28%),
+        linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(246, 236, 225, 0.92));
+      box-shadow: var(--shadow-soft);
     }
 
     .bundle-summary-tile strong {
@@ -734,6 +818,13 @@
       justify-self: start;
     }
 
+    .chat-bubble.error {
+      background: rgba(255, 245, 242, 0.98);
+      border-color: rgba(189, 76, 57, 0.18);
+      color: #7c3225;
+      max-width: 100%;
+    }
+
     .chat-bubble.user {
       background: rgba(25, 20, 16, 0.92);
       color: white;
@@ -748,15 +839,34 @@
     #chatComposer {
       grid-template-columns: 1fr auto;
       align-items: center;
+      gap: 12px;
     }
 
     #chatInput {
-      min-height: 52px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.92);
-      padding: 0 14px;
+      min-height: 72px;
+      max-height: 132px;
+      border-radius: 20px;
+      border: 1px solid rgba(25, 20, 16, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 246, 238, 0.94));
+      padding: 14px 16px;
       color: var(--ink);
+      resize: vertical;
+      line-height: 1.5;
+      font: inherit;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .bundle-state-line {
+      padding: 13px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(199, 150, 62, 0.18);
+      background:
+        radial-gradient(circle at top right, rgba(199, 150, 62, 0.14) 0%, transparent 22%),
+        linear-gradient(180deg, rgba(255, 253, 249, 0.98), rgba(244, 234, 222, 0.9));
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      box-shadow: var(--shadow-soft);
     }
 
     #cartDrawerBackdrop {
@@ -797,20 +907,25 @@
     }
 
     .advisor-head {
+      display: grid;
+      gap: 12px;
       background:
         radial-gradient(circle at top right, rgba(199, 150, 62, 0.12) 0%, transparent 26%),
         linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 249, 243, 0.88));
     }
 
     .results-head h2 {
-      font-size: 22px;
-      letter-spacing: -0.03em;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 0.96;
+      letter-spacing: -0.06em;
     }
 
     .results-head p {
       color: var(--muted);
       font-size: 14px;
       line-height: 1.55;
+      max-width: 46ch;
     }
 
     .results-nav,
@@ -856,9 +971,34 @@
     }
 
     .results-panel {
-      padding: 16px 18px 18px;
+      padding: 18px 18px 20px;
       display: grid;
-      gap: 12px;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(250, 242, 232, 0.9));
+    }
+
+    .results-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.08) 34%, transparent 64%);
+      opacity: 0.45;
+    }
+
+    .chat-panel {
+      background:
+        radial-gradient(circle at 100% 0%, rgba(124, 65, 92, 0.06) 0%, transparent 24%),
+        linear-gradient(180deg, rgba(255, 252, 247, 0.99), rgba(246, 237, 227, 0.92));
+    }
+
+    .product-panel {
+      background:
+        radial-gradient(circle at 100% 0%, rgba(199, 150, 62, 0.12) 0%, transparent 24%),
+        linear-gradient(180deg, rgba(255, 253, 249, 0.99), rgba(247, 239, 230, 0.94));
     }
 
     .results-panel.hidden {
@@ -871,8 +1011,8 @@
     }
 
     .panel-head h3 {
-      font-size: 18px;
-      letter-spacing: -0.02em;
+      font-size: 20px;
+      letter-spacing: -0.03em;
     }
 
     .panel-head p {
@@ -882,12 +1022,13 @@
     }
 
     .scan-summary {
-      padding: 14px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.8);
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(25, 20, 16, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(251, 244, 235, 0.86));
       color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.7;
+      box-shadow: var(--shadow-soft);
     }
 
     .metric-list,
@@ -913,9 +1054,10 @@
     .profile-card,
     .history-card {
       padding: 14px;
-      border-radius: 18px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      border: 1px solid rgba(25, 20, 16, 0.08);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow-soft);
     }
 
     .metric-item strong,
@@ -933,6 +1075,64 @@
       margin: 0 0 6px;
       font-size: 14px;
       letter-spacing: -0.01em;
+    }
+
+    .cart-item {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cart-item-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .cart-item-meta {
+      display: grid;
+      gap: 4px;
+    }
+
+    .cart-qty-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+      width: fit-content;
+    }
+
+    .cart-qty-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(25, 20, 16, 0.05);
+      color: var(--ink);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cart-qty-value {
+      min-width: 22px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .cart-remove-btn {
+      padding: 0;
+      background: transparent;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(25, 20, 16, 0.16);
+      width: fit-content;
+      font-size: 13px;
     }
 
     .fact-stack {
@@ -1003,7 +1203,7 @@
 
     .quick-action,
     .filter-chip {
-      padding: 10px 12px;
+      padding: 11px 14px;
       border-radius: 999px;
       border: 1px solid var(--line);
       background: rgba(255, 255, 255, 0.9);
@@ -1032,14 +1232,20 @@
       display: grid;
       grid-template-columns: 92px 1fr;
       gap: 12px;
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 36px rgba(31, 20, 12, 0.12);
     }
 
     .product-card.hero {
-      padding: 16px;
+      padding: 18px;
       border-color: rgba(199, 150, 62, 0.22);
       background:
         radial-gradient(circle at top right, rgba(199, 150, 62, 0.14) 0%, transparent 24%),
-        rgba(255, 255, 255, 0.88);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 240, 228, 0.9));
     }
 
     .product-card.hero img {
@@ -1048,7 +1254,7 @@
     }
 
     .product-card.supporting {
-      background: rgba(255, 255, 255, 0.74);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(251, 245, 237, 0.82));
     }
 
     .product-card.added {
@@ -1066,7 +1272,7 @@
 
     .product-meta {
       display: grid;
-      gap: 8px;
+      gap: 10px;
     }
 
     .product-title-row {
@@ -1259,9 +1465,49 @@
       to { transform: translateY(100%); }
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      .scan-beam,
+      .product-card,
+      .quick-action,
+      .filter-chip,
+      .nav-link,
+      .secondary-btn,
+      .link-btn {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
     @media (min-width: 860px) {
       .page {
         padding-top: 18px;
+      }
+
+      .advisor-head {
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.75fr);
+        align-items: end;
+      }
+
+      .advisor-stage-stack {
+        grid-template-columns: minmax(300px, 340px) minmax(0, 1fr);
+        align-items: start;
+      }
+
+      .analysis-visual {
+        align-items: start;
+      }
+
+      .analysis-stage {
+        position: sticky;
+        top: 104px;
+      }
+
+      .support-section {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .support-head {
+        grid-column: 1 / -1;
       }
 
       .scan-layout {
@@ -1322,6 +1568,10 @@
         font-size: 34px;
       }
 
+      .results-head h2 {
+        font-size: 30px;
+      }
+
       .scan-launch-copy p,
       .scan-top p {
         font-size: 13px;
@@ -1348,6 +1598,11 @@
 
       #chatComposer {
         grid-template-columns: 1fr;
+      }
+
+      #chatMessages {
+        min-height: 300px;
+        max-height: 50svh;
       }
 
       .mode-pane .button-row {
@@ -1392,6 +1647,11 @@
 
       .metric-list.compact {
         grid-template-columns: 1fr;
+      }
+
+      .chat-bubble {
+        max-width: 96%;
+        margin: 8px;
       }
     }
 
@@ -1544,14 +1804,11 @@
         <div>
           <span class="hero-kicker">Beauty ID готов</span>
           <h2>Beauty advisor</h2>
-          <p id="resultsLead">Фото, короткий разбор и дальше один понятный диалог без перегруза.</p>
+          <p id="resultsLead">Фото, короткий разбор и дальше один живой диалог, который двигает к покупке.</p>
         </div>
-        <div class="quick-actions" id="quickActions">
-          <button class="quick-action" type="button" data-message="Сделать дешевле">Сделать дешевле</button>
-          <button class="quick-action" type="button" data-message="Сделай более сияющий">Более сияющий</button>
-          <button class="quick-action" type="button" data-message="Сделай на вечер">На вечер</button>
-          <button class="quick-action" type="button" data-message="Сделай натуральнее">Натуральнее</button>
-          <button class="quick-action" type="button" data-message="Халяль">Халяль</button>
+        <div class="summary-tile advisor-head-note">
+          <strong>Один разговор, один понятный набор</strong>
+          <span>Сначала считываем эффект по лицу, потом спокойно дожимаем подборку через advisor.</span>
         </div>
       </section>
 
@@ -1585,38 +1842,41 @@
           </div>
         </section>
 
-        <section class="card results-panel">
+        <section class="card results-panel chat-panel">
           <div class="panel-head">
             <h3>Чат с advisor</h3>
-            <p>Один короткий диалог, чтобы уточнить сценарий без длинной переписки.</p>
+            <p>Здесь агент должен вести к покупке: коротко, связно и с понятным следующим шагом.</p>
+          </div>
+          <div class="bundle-summary-tile">
+            <strong>С чего я бы начал</strong>
+            <span id="answerText">После сканирования advisor коротко объяснит, с какого шага лучше начать и почему.</span>
           </div>
           <div id="chatMessages" class="history-list"></div>
           <div id="dialogSuggestions" class="filter-row">
-            <button class="filter-chip" type="button" data-suggestion="Сделай набор легче на каждый день">На каждый день</button>
-            <button class="filter-chip" type="button" data-suggestion="Исключи fragrance и сильные раздражители">Без fragrance</button>
-            <button class="filter-chip" type="button" data-suggestion="Подбери более дорогой hero продукт">Сделай премиальнее</button>
+            <button class="filter-chip" type="button" data-quick-action="true" data-message="Сделать дешевле">Сделать дешевле</button>
+            <button class="filter-chip" type="button" data-quick-action="true" data-message="Сделай более сияющий">Более сияющий</button>
+            <button class="filter-chip" type="button" data-quick-action="true" data-message="Сделай на вечер">На вечер</button>
+            <button class="filter-chip" type="button" data-quick-action="true" data-message="Сделай натуральнее">Натуральнее</button>
+            <button class="filter-chip" type="button" data-quick-action="true" data-message="Халяль">Халяль</button>
           </div>
           <form id="chatComposer" class="button-row">
-            <input id="chatInput" type="text" placeholder="Например: натуральнее, без fragrance, дешевле" />
+            <textarea id="chatInput" placeholder="Например: сделай дороже по ощущению, но без перегруза; или собери более натуральный вариант на каждый день"></textarea>
             <button id="sendMessageBtn" class="primary-btn" type="submit">Отправить</button>
           </form>
         </section>
 
-        <section class="card results-panel">
+        <section class="card results-panel product-panel">
           <div class="panel-head">
             <h3>Что советует advisor</h3>
-            <p>Сначала главный набор, потом продукты, которые его поддерживают.</p>
+            <p>Ниже всегда текущая подборка после последнего сообщения в чате.</p>
           </div>
-          <div class="bundle-summary-tile">
-            <strong>Почему именно этот набор</strong>
-            <span id="answerText">После сканирования здесь появится короткая и понятная подборка.</span>
-          </div>
+          <div id="bundleStateLine" class="bundle-state-line">Стартовый набор после Beauty ID.</div>
           <div id="bundleActions" class="secondary-row">
             <button id="addBundleBtn" class="primary-btn" type="button">Добавить весь набор</button>
             <button id="openCartInlineBtn" class="secondary-btn" type="button">Открыть корзину</button>
           </div>
           <div class="summary-tile">
-            <strong>Быстро изменить набор</strong>
+            <strong>Точнее настроить ограничения</strong>
             <div id="filterRow" class="filter-row"></div>
           </div>
           <div id="recommendations" class="product-list"></div>
@@ -1720,6 +1980,11 @@
       activeQuickAction: null,
       cartToastTimer: null,
       latestAnalysisSessionId: null,
+      pendingUserMessage: null,
+      isAgentTyping: false,
+      lastChatError: null,
+      shouldAutoScroll: true,
+      lastBundleStatus: "Стартовый набор после Beauty ID.",
     };
 
     const byId = (id) => document.getElementById(id);
@@ -1768,6 +2033,7 @@
     const signalHighlights = byId("signalHighlights");
     const metricList = byId("metricList");
     const answerText = byId("answerText");
+    const bundleStateLine = byId("bundleStateLine");
     const recommendations = byId("recommendations");
     const activePreferenceList = byId("activePreferenceList");
     const cartList = byId("cartList");
@@ -1780,7 +2046,7 @@
     const filterRow = byId("filterRow");
     const dialogSuggestions = byId("dialogSuggestions");
     const cartToast = byId("cartToast");
-    const quickActionButtons = Array.from(document.querySelectorAll("#quickActions button"));
+    const quickActionButtons = Array.from(document.querySelectorAll("#dialogSuggestions [data-quick-action='true']"));
 
     const CATEGORY_LABELS = {
       serum: "Сыворотка",
@@ -1895,16 +2161,37 @@
     }
 
     function formatChatMessage(message = "") {
-      const chunks = String(message || "")
+      const lines = String(message || "")
         .split(/\n+/)
-        .flatMap((part) => part.match(/[^.!?]+[.!?]?/g) || [])
         .map((part) => part.trim())
         .filter(Boolean);
 
-      const visible = chunks.slice(0, 4);
-      return visible.length
-        ? visible.map((part) => `<p>${escapeHtml(part)}</p>`).join("")
+      const blocks = lines.map((line) => {
+        const match = line.match(/^(?:\d+\.\s*)?(Что [^:]+)\s*[:\-—]\s*(.+)$/);
+        if (!match) return null;
+        return `<div class="chat-block"><strong class="chat-label">${escapeHtml(match[1])}</strong><p>${escapeHtml(match[2])}</p></div>`;
+      });
+
+      if (blocks.length && blocks.every(Boolean)) {
+        return blocks.join("");
+      }
+
+      return lines.length
+        ? lines.map((part) => `<p>${escapeHtml(part)}</p>`).join("")
         : `<p>${escapeHtml(message)}</p>`;
+    }
+
+    function extractAnswerLead(text = "") {
+      const lines = String(text || "")
+        .split(/\n+/)
+        .map((part) => part.trim())
+        .filter(Boolean);
+      const firstMeaningful = lines.find((line) => !/^(?:привет|спасибо|пожалуйста|я с тобой)\b/i.test(line));
+      const firstBlock = lines.find((line) => /^(?:\d+\.\s*)?Что это даст образу\s*[:\-—]/.test(line));
+      if (firstBlock) {
+        return shortSentence(firstBlock.replace(/^(?:\d+\.\s*)?Что это даст образу\s*[:\-—]\s*/i, "").trim());
+      }
+      return shortSentence(firstMeaningful || lines[0] || "");
     }
 
     function setQuickActionActive(message = null) {
@@ -1913,6 +2200,53 @@
         const active = Boolean(message) && button.dataset.message === message;
         button.classList.toggle("active", active);
       });
+    }
+
+    function isChatNearBottom() {
+      return (chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight) < 36;
+    }
+
+    function scrollChatToBottom(force = false) {
+      if (!force && !state.shouldAutoScroll) return;
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function setChatSendState(isSending) {
+      sendMessageBtn.disabled = isSending;
+      sendMessageBtn.textContent = isSending ? "Отправляем..." : "Отправить";
+      chatComposer.classList.toggle("loading", isSending);
+    }
+
+    function renderMessageBubble(role, message, extraClass = "", meta = "") {
+      const body = role === "user" ? `<p>${escapeHtml(message)}</p>` : formatChatMessage(message);
+      const bubbleClass = [role === "user" ? "user" : "agent", extraClass].filter(Boolean).join(" ");
+      return `
+        <div class="chat-bubble ${bubbleClass}">
+          ${body}
+          ${meta ? `<div class="chat-meta">${meta}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function buildBundleStatus(responseLike, sessionState) {
+      const intentName = responseLike?.intent?.intent || "";
+      const intentMap = {
+        cheaper_alternative: "Собрали более доступный вариант без просадки по ощущению качества.",
+        premium_alternative: "Собрали более премиальный вариант с более сильным wow-эффектом.",
+        transform_radiant: "Собрали более сияющий и комплиментарный вариант.",
+        transform_matte: "Собрали более собранный и контролируемый по финишу вариант.",
+        transform_natural: "Собрали более натуральный и лёгкий вариант.",
+        transform_evening: "Собрали более вечерний и заметный вариант.",
+        halal_filter: "Оставили halal-friendly логику и пересобрали набор под неё.",
+        compare_products: "Подсветили, какой вариант сильнее под ваш текущий сценарий.",
+        explain_product: "Разобрали, почему именно этот продукт держит на себе образ.",
+      };
+      if (intentMap[intentName]) return intentMap[intentName];
+      const prefs = sessionState?.user_preferences || {};
+      if (prefs.budget_direction === "cheaper") return "Сейчас активен более доступный сценарий без лишних трат.";
+      if ((prefs.preferred_finish || []).includes("natural")) return "Сейчас активен более натуральный и чистый по ощущению сценарий.";
+      if ((prefs.preferred_finish || []).includes("radiant")) return "Сейчас активен более сияющий и живой сценарий.";
+      return "Стартовый набор после Beauty ID.";
     }
 
     function showCartToast(message) {
@@ -1985,6 +2319,12 @@
       if (message.includes("User location is not supported")) {
         return "На этой сети Gemini 3.1 Flash-Lite Preview сейчас блокируется региональным ограничением, поэтому advisor работает на встроенной demo-логике. Как только смените сеть, регион или ключ проекта, живой LLM снова подключится.";
       }
+      if (message.includes("No endpoints found") || message.includes("No provider available")) {
+        return "OpenRouter сейчас не нашёл живой endpoint для этой модели, поэтому advisor временно работает на встроенной demo-логике. Обычно это лечится заменой модели или повторной проверкой ключа.";
+      }
+      if (message.includes("openrouter")) {
+        return "OpenRouter сейчас не ответил как live-провайдер, поэтому advisor временно работает на встроенной demo-логике.";
+      }
       if (message.includes("Quota exceeded")) {
         return "Ключ Gemini подключён, но сейчас упёрся в лимит запросов. Пока лимит не обновится или вы не подставите другой ключ, advisor будет работать на встроенной demo-логике.";
       }
@@ -1995,8 +2335,12 @@
     }
 
     function renderRuntimeStatus(runtime) {
-      const hasLiveAi = Boolean(runtime?.gemini_configured) && !runtime?.gemini_last_error;
-      aiStatusPill.textContent = hasLiveAi ? `AI · ${runtime?.gemini_model || "online"}` : "AI · demo-режим";
+      const provider = runtime?.ai_provider || "ai";
+      const configured = Boolean(runtime?.ai_configured ?? runtime?.gemini_configured);
+      const lastError = runtime?.ai_last_error || runtime?.gemini_last_error || "";
+      const model = runtime?.ai_model || runtime?.gemini_model || "online";
+      const hasLiveAi = configured && !lastError;
+      aiStatusPill.textContent = hasLiveAi ? `AI · ${provider} · ${model}` : "AI · demo-режим";
       aiStatusPill.classList.toggle("warn", !hasLiveAi);
 
       if (hasLiveAi) {
@@ -2006,7 +2350,7 @@
       }
 
       runtimeNotice.classList.remove("hidden");
-      runtimeNotice.textContent = explainRuntimeError(runtime?.gemini_last_error || "");
+      runtimeNotice.textContent = explainRuntimeError(lastError);
     }
 
     function sessionPhotoKey(sessionId) {
@@ -3161,8 +3505,18 @@
       cartList.innerHTML = items.length
         ? items.map((item) => `
           <div class="cart-item">
-            <strong>${item.title}</strong>
-            <div class="small-text">${item.brand} · ${item.quantity} шт. · ${formatPrice(item.price_value)}</div>
+            <div class="cart-item-head">
+              <div class="cart-item-meta">
+                <strong>${item.title}</strong>
+                <div class="small-text">${item.brand} · ${formatPrice(item.price_value)}</div>
+              </div>
+              <div class="cart-qty-controls" aria-label="Количество товара">
+                <button class="cart-qty-btn" type="button" onclick="window.decrementCartItem('${item.sku}')">−</button>
+                <span class="cart-qty-value">${item.quantity}</span>
+                <button class="cart-qty-btn" type="button" onclick="window.addToCart('${item.sku}')">+</button>
+              </div>
+            </div>
+            <button class="cart-remove-btn" type="button" onclick="window.removeCartItem('${item.sku}')">Удалить</button>
           </div>
         `).join("")
         : `<div class="empty">Корзина пока пустая.</div>`;
@@ -3200,13 +3554,40 @@
     }
 
     function renderConversation(conversation = []) {
-      const visibleConversation = conversation.slice(-4);
-      chatMessages.innerHTML = visibleConversation.length
-        ? visibleConversation.map((turn) => `
-          <div class="chat-bubble ${turn.role === "user" ? "user" : "agent"}">${turn.role === "user" ? `<p>${escapeHtml(turn.message)}</p>` : formatChatMessage(turn.message)}</div>
-        `).join("")
-        : `<div class="empty">После первого скана здесь появится диалог с advisor.</div>`;
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      const conversationMarkup = conversation.map((turn) => renderMessageBubble(turn.role, turn.message)).join("");
+      const pendingMarkup = state.pendingUserMessage
+        ? renderMessageBubble("user", state.pendingUserMessage, state.lastChatError ? "failed" : "pending", state.lastChatError ? "Не отправилось" : "Отправляем...")
+        : "";
+      const typingMarkup = state.isAgentTyping
+        ? `
+          <div class="chat-bubble agent typing">
+            <p>advisor печатает…</p>
+          </div>
+        `
+        : "";
+      const errorMarkup = state.lastChatError
+        ? `
+          <div class="chat-bubble error">
+            <p><strong>Не удалось отправить.</strong> ${escapeHtml(state.lastChatError.detail || "Ответ от advisor не пришёл.")}</p>
+            <p>
+              <button id="retryMessageBtn" class="secondary-btn" type="button">Повторить</button>
+            </p>
+          </div>
+        `
+        : "";
+
+      chatMessages.innerHTML = (conversationMarkup || pendingMarkup || typingMarkup || errorMarkup)
+        ? `${conversationMarkup}${pendingMarkup}${typingMarkup}${errorMarkup}`
+        : `<div class="empty">После первого скана здесь появится живой диалог с advisor.</div>`;
+
+      const retryButton = byId("retryMessageBtn");
+      if (retryButton) {
+        retryButton.addEventListener("click", async () => {
+          if (!state.lastChatError?.message) return;
+          await sendChatMessage(state.lastChatError.message, { keepQuickAction: Boolean(state.activeQuickAction) });
+        });
+      }
+      requestAnimationFrame(() => scrollChatToBottom());
     }
 
     function joinPlain(values, fallback = "не задано") {
@@ -3350,7 +3731,12 @@
       state.currentSession = sessionState;
       state.lastBeautyScan = responseLike?.beauty_scan || sessionState.latest_scan || null;
       state.recommendations = responseLike?.recommendations || sessionState.latest_recommendations || [];
-      answerText.textContent = shortSentence(responseLike?.answer_text || sessionState.latest_answer_text || "") || "Подборка появится после первого ответа advisor.";
+      state.pendingUserMessage = null;
+      state.isAgentTyping = false;
+      state.lastChatError = null;
+      state.lastBundleStatus = buildBundleStatus(responseLike, sessionState);
+      answerText.textContent = extractAnswerLead(responseLike?.answer_text || sessionState.latest_answer_text || "") || "После первого ответа advisor здесь будет короткий смысл текущего шага.";
+      bundleStateLine.textContent = state.lastBundleStatus;
       if (state.lastBeautyScan) {
         await renderScan(state.lastBeautyScan);
       } else {
@@ -3449,19 +3835,9 @@
     }
 
     async function sendQuick(message) {
-      if (!state.sessionId || state.isAnalyzing) return;
+      if (!state.sessionId || state.isAnalyzing || state.isAgentTyping) return;
       setQuickActionActive(message);
-      setStage("Обновляем подборку", "Пересобираем рекомендации под новый запрос.");
-      await preserveViewportAnchor(quickActions, async () => {
-        const data = await jsonFetch(`/v1/session/${state.sessionId}/message`, {
-          method: "POST",
-          body: JSON.stringify({ message }),
-        });
-        await hydrateAdvisor(data.updated_session_state, data);
-        setStage("Подборка обновлена", "Ниже уже показан новый вариант.");
-        goToRoute("advisor", { preserveScroll: true, push: false });
-      });
-      quickActions.scrollIntoView({ block: "nearest", behavior: "auto" });
+      await sendChatMessage(message, { keepQuickAction: true });
     }
 
     function buildFilterChips(library) {
@@ -3493,6 +3869,34 @@
       renderRecommendations(state.recommendations);
       const product = state.recommendations.find((item) => item.sku === sku);
       showCartToast(product ? `Добавили ${product.title} в корзину` : "Товар добавлен в корзину");
+    };
+
+    window.decrementCartItem = async function decrementCartItem(sku) {
+      if (!state.sessionId) return;
+      const currentQuantity = state.cartSkuCounts[sku] || 0;
+      if (!currentQuantity) return;
+      if (currentQuantity <= 1) {
+        await window.removeCartItem(sku);
+        return;
+      }
+      const cart = await jsonFetch(`/v1/session/${state.sessionId}/cart/items/${sku}`, {
+        method: "PATCH",
+        body: JSON.stringify({ quantity: currentQuantity - 1 }),
+      });
+      renderCart(cart);
+      renderRecommendations(state.recommendations);
+      showCartToast("Убрали одну штуку из корзины");
+    };
+
+    window.removeCartItem = async function removeCartItem(sku) {
+      if (!state.sessionId) return;
+      const product = state.recommendations.find((item) => item.sku === sku);
+      const cart = await jsonFetch(`/v1/session/${state.sessionId}/cart/items/${sku}`, {
+        method: "DELETE",
+      });
+      renderCart(cart);
+      renderRecommendations(state.recommendations);
+      showCartToast(product ? `Убрали ${product.title} из корзины` : "Товар убран из корзины");
     };
 
     window.openProduct = function openProduct(sku) {
@@ -3537,20 +3941,35 @@
       }
     }
 
-    async function sendChatMessage(message) {
+    async function sendChatMessage(message, options = {}) {
       const text = String(message || "").trim();
-      if (!text || !state.sessionId || state.isAnalyzing) return;
-      setQuickActionActive(null);
+      if (!text || !state.sessionId || state.isAnalyzing || state.isAgentTyping) return;
+      if (!options.keepQuickAction) {
+        setQuickActionActive(null);
+      }
+      state.shouldAutoScroll = true;
+      state.pendingUserMessage = text;
+      state.lastChatError = null;
+      state.isAgentTyping = true;
       chatInput.value = "";
-      await preserveViewportAnchor(chatComposer, async () => {
+      renderConversation(state.currentSession?.conversation_history || []);
+      setChatSendState(true);
+      try {
         const data = await jsonFetch(`/v1/session/${state.sessionId}/message`, {
           method: "POST",
           body: JSON.stringify({ message: text }),
         });
         await hydrateAdvisor(data.updated_session_state, data);
-        goToRoute("advisor", { preserveScroll: true, push: false });
-      });
-      chatComposer.scrollIntoView({ block: "nearest", behavior: "auto" });
+      } catch (error) {
+        state.isAgentTyping = false;
+        state.lastChatError = {
+          message: text,
+          detail: String(error.message || error),
+        };
+        renderConversation(state.currentSession?.conversation_history || []);
+      } finally {
+        setChatSendState(false);
+      }
       chatInput.focus();
     }
 
@@ -3595,16 +4014,19 @@
       event.preventDefault();
       await sendChatMessage(chatInput.value);
     });
+    chatMessages.addEventListener("scroll", () => {
+      state.shouldAutoScroll = isChatNearBottom();
+    });
+    chatInput.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        await sendChatMessage(chatInput.value);
+      }
+    });
 
     quickActionButtons.forEach((button) => {
       button.disabled = true;
       button.addEventListener("click", () => sendQuick(button.dataset.message));
-    });
-
-    dialogSuggestions.querySelectorAll("[data-suggestion]").forEach((button) => {
-      button.addEventListener("click", async () => {
-        await sendChatMessage(button.dataset.suggestion);
-      });
     });
 
     byId("photoInput").addEventListener("change", async (event) => {

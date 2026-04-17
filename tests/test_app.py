@@ -66,6 +66,27 @@ def test_compare_and_explain_modes() -> None:
     assert len(explain_data['answer_text']) > 20
 
 
+def test_smalltalk_message_stays_conversational() -> None:
+    analyze = client.post('/v1/photo/analyze', json={
+        'image_url': 'https://example.com/hello.jpg',
+        'user_context': {
+            'budget_segment': 'mid',
+            'preferred_brands': [],
+            'excluded_ingredients': [],
+            'routine_size': 'standard',
+            'goal': 'pick a calm skincare set'
+        }
+    })
+    session_id = analyze.json()['session_id']
+
+    resp = client.post(f'/v1/session/{session_id}/message', json={'message': 'привет'})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data['intent']['intent'] == 'smalltalk'
+    assert 'привет' in data['answer_text'].lower()
+    assert 'что это даст образу' not in data['answer_text'].lower()
+
+
 def test_cart_flow_add_update_remove() -> None:
     analyze = client.post('/v1/photo/analyze', json={
         'image_url': 'https://example.com/cart.jpg',
