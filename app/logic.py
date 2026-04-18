@@ -292,6 +292,7 @@ async def analyze_photo(request: AnalyzePhotoRequest, store: SessionStore, gemin
         ),
         conversation_history=[],
         analysis_created_at=created_at,
+        demo_user_id=request.demo_user_id or "demo-user",
     )
     attach_look_profile(session, recommendations)
     session.latest_scan = build_scan_payload(session, recommendations)

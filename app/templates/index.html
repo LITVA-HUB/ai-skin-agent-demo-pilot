@@ -205,6 +205,156 @@
       gap: 10px;
     }
 
+    .access-card {
+      min-height: calc(100dvh - 118px);
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+      align-content: space-between;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(199, 150, 62, 0.18) 0%, transparent 22%),
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.48) 0%, transparent 24%),
+        linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(246, 237, 227, 0.94));
+      overflow: hidden;
+      position: relative;
+    }
+
+    .access-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 70% 78%, rgba(124, 65, 92, 0.08) 0%, transparent 24%),
+        linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.12) 32%, transparent 62%);
+      opacity: 0.9;
+    }
+
+    .access-shell {
+      display: grid;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .access-hero {
+      display: grid;
+      gap: 10px;
+      max-width: 720px;
+    }
+
+    .access-hero h1 {
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(38px, 7vw, 72px);
+      line-height: 0.92;
+      letter-spacing: -0.08em;
+      max-width: 9ch;
+    }
+
+    .access-hero p {
+      max-width: 50ch;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .access-grid {
+      display: grid;
+      gap: 18px;
+      align-items: start;
+      max-width: 560px;
+    }
+
+    .auth-choice-row,
+    .auth-switch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .text-link-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      padding: 0;
+      color: var(--muted);
+      font: inherit;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 0.18em;
+    }
+
+    .text-link-btn:hover,
+    .text-link-btn:focus-visible {
+      color: var(--ink);
+      outline: none;
+    }
+
+    .access-form-card {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(199, 150, 62, 0.16);
+      background:
+        radial-gradient(circle at top right, rgba(199, 150, 62, 0.12) 0%, transparent 26%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 243, 235, 0.92));
+      box-shadow: 0 20px 42px rgba(31, 20, 12, 0.12);
+    }
+
+    .access-form-head {
+      display: grid;
+      gap: 6px;
+    }
+
+    .access-form-head h2 {
+      font-size: 24px;
+      letter-spacing: -0.04em;
+    }
+
+    .access-form-head p,
+    .access-note,
+    .access-form-error {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .access-form-error {
+      color: #8f2b2b;
+    }
+
+    .access-form-error {
+      color: var(--berry);
+    }
+
+    .access-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .access-field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .access-field input {
+      width: 100%;
+      min-height: 54px;
+      padding: 0 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(25, 20, 16, 0.08);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .access-form-card .primary-btn {
+      min-height: 54px;
+    }
+
     .scan-screen {
       min-height: calc(100dvh - 118px);
       align-content: start;
@@ -1483,6 +1633,10 @@
         padding-top: 18px;
       }
 
+      .access-grid {
+        grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.78fr);
+      }
+
       .advisor-head {
         grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.75fr);
         align-items: end;
@@ -1561,6 +1715,15 @@
       .scan-screen {
         min-height: calc(100svh - 90px);
         padding-bottom: 100px;
+      }
+
+      .access-card {
+        min-height: calc(100svh - 90px);
+      }
+
+      .access-hero h1 {
+        max-width: 10ch;
+        font-size: 42px;
       }
 
       .scan-launch-copy h1 {
@@ -1681,6 +1844,99 @@
         <button id="cartFabBtn" class="status-pill hidden" type="button">Корзина · <span id="cartFabCount">0</span></button>
       </div>
     </header>
+
+    <section id="accessScreen" class="screen">
+      <section class="card access-card">
+        <div class="access-shell">
+          <div class="access-hero">
+            <span class="hero-kicker">Beauty Access</span>
+            <h1>Вход в ваш персональный Beauty ID.</h1>
+            <p>Сохраните свой Beauty ID, историю сканов и подборки в одном личном аккаунте.</p>
+          </div>
+
+          <div class="access-grid">
+            <div id="accessWelcomePanel" class="access-form-card">
+              <div class="access-form-head">
+                <h2>Продолжить в Beauty ID</h2>
+                <p>Создайте demo-аккаунт или войдите в уже сохранённый, чтобы вернуть свой scan, advisor и кабинет.</p>
+              </div>
+              <div class="auth-choice-row">
+                <button id="showRegisterBtn" class="primary-btn" type="button">Создать аккаунт</button>
+                <button id="showLoginBtn" class="secondary-btn" type="button">Войти</button>
+              </div>
+              <div class="access-note">Это demo-auth flow: выглядит как реальный аккаунт, но без тяжёлой регистрации и писем.</div>
+            </div>
+
+            <form id="registerForm" class="access-form-card hidden">
+              <div class="access-form-head">
+                <h2>Создать аккаунт</h2>
+                <p>Имя, email и пароль — этого хватит, чтобы сохранить личный Beauty ID и вернуться к подборке позже.</p>
+              </div>
+              <div class="access-field">
+                <label for="registerNameInput">Имя</label>
+                <input id="registerNameInput" type="text" autocomplete="name" placeholder="Например, Дима" />
+              </div>
+              <div class="access-field">
+                <label for="registerEmailInput">Email</label>
+                <input id="registerEmailInput" type="email" autocomplete="email" placeholder="name@example.com" />
+              </div>
+              <div class="access-field">
+                <label for="registerPasswordInput">Пароль</label>
+                <input id="registerPasswordInput" type="password" autocomplete="new-password" placeholder="Минимум 6 символов" />
+              </div>
+              <div class="access-field">
+                <label for="registerConfirmPasswordInput">Подтвердите пароль</label>
+                <input id="registerConfirmPasswordInput" type="password" autocomplete="new-password" placeholder="Повторите пароль" />
+              </div>
+              <div id="authErrorRegister" class="access-form-error hidden"></div>
+              <button id="registerSubmitBtn" class="primary-btn" type="submit">Создать аккаунт</button>
+              <div class="auth-switch-row">
+                <button id="registerBackBtn" class="text-link-btn" type="button">Назад</button>
+                <button id="registerToLoginBtn" class="text-link-btn" type="button">Уже есть аккаунт? Войти</button>
+              </div>
+            </form>
+
+            <form id="loginForm" class="access-form-card hidden">
+              <div class="access-form-head">
+                <h2>Войти</h2>
+                <p>Введите email и пароль, чтобы вернуться в свой Beauty ID, кабинет и историю подборок.</p>
+              </div>
+              <div class="access-field">
+                <label for="loginEmailInput">Email</label>
+                <input id="loginEmailInput" type="email" autocomplete="email" placeholder="name@example.com" />
+              </div>
+              <div class="access-field">
+                <label for="loginPasswordInput">Пароль</label>
+                <input id="loginPasswordInput" type="password" autocomplete="current-password" placeholder="Ваш пароль" />
+              </div>
+              <div id="authErrorLogin" class="access-form-error hidden"></div>
+              <button id="loginSubmitBtn" class="primary-btn" type="submit">Войти</button>
+              <div class="auth-switch-row">
+                <button id="loginBackBtn" class="text-link-btn" type="button">Назад</button>
+                <button id="forgotPasswordBtn" class="text-link-btn" type="button">Забыли пароль?</button>
+                <button id="loginToRegisterBtn" class="text-link-btn" type="button">Нет аккаунта? Создать</button>
+              </div>
+            </form>
+
+            <form id="forgotPasswordForm" class="access-form-card hidden">
+              <div class="access-form-head">
+                <h2>Забыли пароль?</h2>
+                <p>Для демо мы не шлём реальные письма, но покажем привычный recovery-flow.</p>
+              </div>
+              <div class="access-field">
+                <label for="forgotEmailInput">Email</label>
+                <input id="forgotEmailInput" type="email" autocomplete="email" placeholder="name@example.com" />
+              </div>
+              <div id="authErrorForgot" class="access-form-error hidden"></div>
+              <button id="forgotSubmitBtn" class="primary-btn" type="submit">Отправить ссылку</button>
+              <div class="auth-switch-row">
+                <button id="forgotBackBtn" class="text-link-btn" type="button">Назад ко входу</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </section>
 
     <section id="scanScreen" class="screen">
       <section class="card scan-card scan-screen">
@@ -1900,6 +2156,7 @@
         <div id="profileActions" class="secondary-row">
           <button id="profileNewScanBtn" class="primary-btn" type="button">Новый скан</button>
           <button id="profileOpenAdvisorBtn" class="secondary-btn" type="button">Открыть диалог</button>
+          <button id="profileLogoutBtn" class="secondary-btn" type="button">Выйти</button>
         </div>
         <div id="cabinetSummary" class="cabinet-summary"></div>
         <div id="profileList" class="profile-list"></div>
@@ -1958,6 +2215,8 @@
       scanState: "idle",
       stream: null,
       photoB64: null,
+      currentAccount: null,
+      authMode: "welcome",
       sessionId: null,
       recommendations: [],
       allergens: null,
@@ -1985,6 +2244,7 @@
       lastChatError: null,
       shouldAutoScroll: true,
       lastBundleStatus: "Стартовый набор после Beauty ID.",
+      isAuthSubmitting: false,
     };
 
     const byId = (id) => document.getElementById(id);
@@ -2010,9 +2270,33 @@
     const stageMessage = byId("stageMessage");
     const zoneOverlay = byId("zoneOverlay");
     const hotspotLayer = byId("hotspotLayer");
+    const accessScreen = byId("accessScreen");
     const scanScreen = byId("scanScreen");
     const advisorScreen = byId("advisorScreen");
     const profileScreen = byId("profileScreen");
+    const accessWelcomePanel = byId("accessWelcomePanel");
+    const registerForm = byId("registerForm");
+    const loginForm = byId("loginForm");
+    const forgotPasswordForm = byId("forgotPasswordForm");
+    const registerNameInput = byId("registerNameInput");
+    const registerEmailInput = byId("registerEmailInput");
+    const registerPasswordInput = byId("registerPasswordInput");
+    const registerConfirmPasswordInput = byId("registerConfirmPasswordInput");
+    const loginEmailInput = byId("loginEmailInput");
+    const loginPasswordInput = byId("loginPasswordInput");
+    const forgotEmailInput = byId("forgotEmailInput");
+    const authErrorRegister = byId("authErrorRegister");
+    const authErrorLogin = byId("authErrorLogin");
+    const authErrorForgot = byId("authErrorForgot");
+    const showRegisterBtn = byId("showRegisterBtn");
+    const showLoginBtn = byId("showLoginBtn");
+    const registerBackBtn = byId("registerBackBtn");
+    const registerToLoginBtn = byId("registerToLoginBtn");
+    const loginBackBtn = byId("loginBackBtn");
+    const forgotPasswordBtn = byId("forgotPasswordBtn");
+    const loginToRegisterBtn = byId("loginToRegisterBtn");
+    const forgotBackBtn = byId("forgotBackBtn");
+    const profileLogoutBtn = byId("profileLogoutBtn");
     const navScanBtn = byId("navScanBtn");
     const navAdvisorBtn = byId("navAdvisorBtn");
     const navProfileBtn = byId("navProfileBtn");
@@ -2047,6 +2331,9 @@
     const dialogSuggestions = byId("dialogSuggestions");
     const cartToast = byId("cartToast");
     const quickActionButtons = Array.from(document.querySelectorAll("#dialogSuggestions [data-quick-action='true']"));
+
+    const ACCOUNT_ID_KEY = "beauty-id-account-id";
+    const LEGACY_PROFILE_KEY = ["beauty", "id", "access", "profile"].join("-");
 
     const CATEGORY_LABELS = {
       serum: "Сыворотка",
@@ -2357,6 +2644,81 @@
       return `beauty-id-photo-${sessionId}`;
     }
 
+    function loadStoredAccountId() {
+      return String(localStorage.getItem(ACCOUNT_ID_KEY) || "").trim() || null;
+    }
+
+    function hasCurrentAccount() {
+      return Boolean(state.currentAccount?.account_id);
+    }
+
+    function saveCurrentAccount(account) {
+      if (!account?.account_id) return null;
+      state.currentAccount = {
+        account_id: String(account.account_id),
+        name: String(account.name || "").trim(),
+        email: String(account.email || "").trim(),
+      };
+      localStorage.setItem(ACCOUNT_ID_KEY, state.currentAccount.account_id);
+      return state.currentAccount;
+    }
+
+    function clearCurrentAccount() {
+      state.currentAccount = null;
+      localStorage.removeItem(ACCOUNT_ID_KEY);
+      localStorage.removeItem(LEGACY_PROFILE_KEY);
+      localStorage.removeItem("beauty-id-session");
+      state.sessionId = null;
+    }
+
+    async function loadCurrentAccount() {
+      const accountId = loadStoredAccountId();
+      if (!accountId) return null;
+      try {
+        const account = await jsonFetch(`/v1/auth/me?account_id=${encodeURIComponent(accountId)}`);
+        return saveCurrentAccount(account);
+      } catch (error) {
+        clearCurrentAccount();
+        return null;
+      }
+    }
+
+    function setAuthMode(mode = "welcome") {
+      state.authMode = mode;
+      accessWelcomePanel.classList.toggle("hidden", mode !== "welcome");
+      registerForm.classList.toggle("hidden", mode !== "register");
+      loginForm.classList.toggle("hidden", mode !== "login");
+      forgotPasswordForm.classList.toggle("hidden", mode !== "forgot");
+      [authErrorRegister, authErrorLogin, authErrorForgot].forEach((node) => {
+        node.textContent = "";
+        node.classList.add("hidden");
+      });
+    }
+
+    function setAuthError(mode, message = "") {
+      const map = {
+        register: authErrorRegister,
+        login: authErrorLogin,
+        forgot: authErrorForgot,
+      };
+      const node = map[mode];
+      if (!node) return;
+      node.textContent = message;
+      node.classList.toggle("hidden", !message);
+    }
+
+    function setAuthBusy(isBusy) {
+      state.isAuthSubmitting = isBusy;
+      [showRegisterBtn, showLoginBtn, registerBackBtn, registerToLoginBtn, loginBackBtn, forgotPasswordBtn, loginToRegisterBtn, forgotBackBtn].forEach((button) => {
+        if (button) button.disabled = isBusy;
+      });
+      [registerForm, loginForm, forgotPasswordForm].forEach((form) => {
+        form.querySelectorAll("input, button[type='submit']").forEach((element) => {
+          element.disabled = isBusy;
+        });
+      });
+    }
+
     function currentPathMode() {
       if (location.pathname === "/profile") return "profile";
       if (location.pathname === "/advisor") return "advisor";
@@ -2368,6 +2730,7 @@
       navAdvisorBtn.classList.toggle("active", route === "advisor");
       navProfileBtn.classList.toggle("active", route === "profile");
       navAdvisorBtn.disabled = !state.sessionId;
+      navProfileBtn.disabled = !hasCurrentAccount();
       cartFabBtn.classList.toggle("hidden", route !== "advisor" || !state.sessionId);
     }
 
@@ -2377,7 +2740,9 @@
       if (options.push !== false && location.pathname !== path) {
         history.pushState({ route }, "", path);
       }
-      scanScreen.classList.toggle("hidden", route !== "scan");
+      const showAccess = route === "scan" && !hasCurrentAccount();
+      accessScreen.classList.toggle("hidden", !showAccess);
+      scanScreen.classList.toggle("hidden", route !== "scan" || showAccess);
       advisorScreen.classList.toggle("hidden", route !== "advisor");
       profileScreen.classList.toggle("hidden", route !== "profile");
       syncNav(route);
@@ -3337,7 +3702,9 @@
           method: "POST",
           body: JSON.stringify({
             photo_b64: state.photoB64,
+            demo_user_id: state.currentAccount?.account_id || "demo-user",
             user_context: {
+              profile_name: state.currentAccount?.name || "Demo user",
               goal: goalValue(),
             },
           }),
@@ -3621,6 +3988,8 @@
       const orders = cabinet?.order_history || [];
       const latestAnalysis = analyses[0] || null;
       state.latestAnalysisSessionId = latestAnalysis?.session_id || null;
+      const displayName = state.currentAccount?.name || profile?.name || "Beauty guest";
+      const displayContact = state.currentAccount?.email || "";
 
       cabinetSummary.innerHTML = `
         <div class="cabinet-stat">
@@ -3639,12 +4008,17 @@
 
       profileList.innerHTML = profile ? `
         <div class="profile-card">
-          <strong>${profile.name}</strong>
+          <strong>${displayName}</strong>
           <div class="fact-stack">
             <div class="fact-row">
               <span class="fact-label">Кратко</span>
               <span class="fact-value">${profile.beauty_summary}</span>
             </div>
+            ${displayContact ? `
+            <div class="fact-row">
+              <span class="fact-label">Контакт для доступа</span>
+              <span class="fact-value">${displayContact}</span>
+            </div>` : ""}
             <div class="fact-row">
               <span class="fact-label">Последний скан</span>
               <span class="fact-value">${latestAnalysis ? compactDate(latestAnalysis.created_at) : "ещё не было сканов"}</span>
@@ -3830,7 +4204,8 @@
     }
 
     async function refreshCabinet() {
-      const cabinet = await jsonFetch("/v1/profile/demo");
+      const accountId = state.currentAccount?.account_id || "demo-user";
+      const cabinet = await jsonFetch(`/v1/profile/demo?account_id=${encodeURIComponent(accountId)}`);
       renderCabinet(cabinet);
     }
 
@@ -3973,6 +4348,77 @@
       chatInput.focus();
     }
 
+    async function submitRegisterForm() {
+      setAuthError("register", "");
+      setAuthBusy(true);
+      try {
+        const account = await jsonFetch("/v1/auth/register", {
+          method: "POST",
+          body: JSON.stringify({
+            name: registerNameInput.value,
+            email: registerEmailInput.value,
+            password: registerPasswordInput.value,
+            confirm_password: registerConfirmPasswordInput.value,
+          }),
+        });
+        saveCurrentAccount(account);
+        registerPasswordInput.value = "";
+        registerConfirmPasswordInput.value = "";
+        await refreshCabinet();
+        goToRoute("scan", { push: false, forceScrollTop: true });
+      } catch (error) {
+        setAuthError("register", String(error.message || error));
+      } finally {
+        setAuthBusy(false);
+      }
+    }
+
+    async function submitLoginForm() {
+      setAuthError("login", "");
+      setAuthBusy(true);
+      try {
+        const account = await jsonFetch("/v1/auth/login", {
+          method: "POST",
+          body: JSON.stringify({
+            email: loginEmailInput.value,
+            password: loginPasswordInput.value,
+          }),
+        });
+        saveCurrentAccount(account);
+        loginPasswordInput.value = "";
+        await refreshCabinet();
+        goToRoute("scan", { push: false, forceScrollTop: true });
+      } catch (error) {
+        setAuthError("login", String(error.message || error));
+      } finally {
+        setAuthBusy(false);
+      }
+    }
+
+    async function submitForgotPasswordForm() {
+      setAuthError("forgot", "");
+      setAuthBusy(true);
+      try {
+        const response = await jsonFetch("/v1/auth/forgot-password", {
+          method: "POST",
+          body: JSON.stringify({
+            email: forgotEmailInput.value,
+          }),
+        });
+        setAuthError("forgot", response.message || "Если аккаунт существует, мы уже отправили ссылку.");
+      } catch (error) {
+        setAuthError("forgot", String(error.message || error));
+      } finally {
+        setAuthBusy(false);
+      }
+    }
+
+    function logoutCurrentAccount() {
+      clearCurrentAccount();
+      setAuthMode("welcome");
+      goToRoute("scan", { push: true, forceScrollTop: true });
+    }
+
     async function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -3998,15 +4444,40 @@
     byId("checkoutBtn").addEventListener("click", checkout);
     byId("profileNewScanBtn").addEventListener("click", () => goToRoute("scan", { push: true }));
     byId("profileOpenAdvisorBtn").addEventListener("click", openBestAdvisorSource);
+    registerForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await submitRegisterForm();
+    });
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await submitLoginForm();
+    });
+    forgotPasswordForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await submitForgotPasswordForm();
+    });
+    showRegisterBtn.addEventListener("click", () => setAuthMode("register"));
+    showLoginBtn.addEventListener("click", () => setAuthMode("login"));
+    registerBackBtn.addEventListener("click", () => setAuthMode("welcome"));
+    registerToLoginBtn.addEventListener("click", () => setAuthMode("login"));
+    loginBackBtn.addEventListener("click", () => setAuthMode("welcome"));
+    loginToRegisterBtn.addEventListener("click", () => setAuthMode("register"));
+    forgotPasswordBtn.addEventListener("click", () => setAuthMode("forgot"));
+    forgotBackBtn.addEventListener("click", () => setAuthMode("login"));
     navScanBtn.addEventListener("click", () => goToRoute("scan"));
     navAdvisorBtn.addEventListener("click", async () => {
       if (!state.sessionId) return;
       await goToAdvisor(null, { push: true });
     });
     navProfileBtn.addEventListener("click", async () => {
+      if (!hasCurrentAccount()) {
+        goToRoute("scan", { push: true });
+        return;
+      }
       await refreshCabinet();
       goToRoute("profile");
     });
+    profileLogoutBtn.addEventListener("click", logoutCurrentAccount);
     cartFabBtn.addEventListener("click", openCartDrawer);
     closeCartBtn.addEventListener("click", closeCartDrawer);
     cartDrawerBackdrop.addEventListener("click", closeCartDrawer);
@@ -4059,7 +4530,7 @@
       const route = currentPathMode();
       if (route === "advisor" && state.sessionId) {
         await goToAdvisor(null, { push: false });
-      } else if (route === "profile") {
+      } else if (route === "profile" && hasCurrentAccount()) {
         await refreshCabinet();
         goToRoute("profile", { push: false });
       } else {
@@ -4072,8 +4543,13 @@
       renderRuntimeStatus(runtime);
       const library = await jsonFetch("/v1/preferences/allergens");
       state.allergens = library;
+      localStorage.removeItem(LEGACY_PROFILE_KEY);
+      await loadCurrentAccount();
+      setAuthMode("welcome");
       buildFilterChips(library);
-      await refreshCabinet();
+      if (hasCurrentAccount()) {
+        await refreshCabinet();
+      }
       setMode("camera");
       const savedSession = localStorage.getItem("beauty-id-session");
       if (savedSession) {
@@ -4086,7 +4562,7 @@
       const route = currentPathMode();
       if (route === "advisor" && state.sessionId) {
         await goToAdvisor(null, { push: false });
-      } else if (route === "profile") {
+      } else if (route === "profile" && hasCurrentAccount()) {
         goToRoute("profile", { push: false });
       } else {
         goToRoute("scan", { push: false });

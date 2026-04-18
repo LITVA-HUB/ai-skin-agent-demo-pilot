@@ -10,8 +10,12 @@ def test_index_page_served() -> None:
     assert response.status_code == 200
     assert 'Golden Apple' in response.text
     assert 'Beauty ID' in response.text
+    assert 'Beauty Access' in response.text
     assert 'Beauty ID Scan' in response.text
     assert 'Скан лица и быстрый переход к beauty advisor.' in response.text
+    assert 'Продолжить в Beauty ID' in response.text
+    assert 'Создать аккаунт' in response.text
+    assert 'Войти' in response.text
     assert 'Начните со скана' in response.text
     assert 'Поднесите лицо к камере' in response.text
     assert 'С камеры' in response.text
@@ -73,3 +77,18 @@ def test_cart_template_contains_remove_controls() -> None:
     assert 'window.decrementCartItem' in response.text
     assert 'window.removeCartItem' in response.text
     assert 'Удалить' in response.text
+
+
+def test_access_profile_helpers_are_present() -> None:
+    response = client.get('/')
+    assert response.status_code == 200
+    assert 'beauty-id-account-id' in response.text
+    assert 'beauty-id-access-profile' not in response.text
+    assert 'loadCurrentAccount' in response.text
+    assert 'registerForm' in response.text
+    assert 'loginForm' in response.text
+    assert 'forgotPasswordForm' in response.text
+    assert 'Создать аккаунт' in response.text
+    assert 'Войти' in response.text
+    assert 'Забыли пароль?' in response.text
+    assert 'Выйти' in response.text

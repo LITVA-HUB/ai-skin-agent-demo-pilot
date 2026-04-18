@@ -6,7 +6,7 @@ from pathlib import Path
 from threading import RLock
 
 from .config import settings
-from .models import AnalysisHistoryEntry, DemoProfileSummary, OrderHistoryEntry, SessionState
+from .models import AnalysisHistoryEntry, DemoAccount, DemoProfileSummary, OrderHistoryEntry, SessionState
 
 UTC = timezone.utc
 
@@ -38,6 +38,17 @@ class SessionStore:
                         payload TEXT NOT NULL,
                         created_at TEXT DEFAULT '',
                         updated_at TEXT DEFAULT ''
+                    )
+                    '''
+                )
+                connection.execute(
+                    '''
+                    CREATE TABLE IF NOT EXISTS demo_accounts (
+                        account_id TEXT PRIMARY KEY,
+                        email TEXT NOT NULL UNIQUE,
+                        payload TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL
                     )
                     '''
                 )
@@ -84,6 +95,50 @@ class SessionStore:
 
     def _expiry(self) -> datetime:
         return datetime.now(UTC) + timedelta(hours=settings.session_ttl_hours)
+
+    def create_account(self, account: DemoAccount) -> DemoAccount:
+        if not self._sqlite_enabled:
+            raise ValueError('demo accounts require sqlite backend')
+        try:
+            with self._lock, self._connect() as connection:
+                connection.execute(
+                    '''
+                    INSERT INTO demo_accounts (account_id, email, payload, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    ''',
+                    (
+                        account.account_id,
+                        account.email.lower().strip(),
+                        account.model_dump_json(),
+                        account.created_at,
+                        account.updated_at,
+                    ),
+                )
+                connection.commit()
+                return account
+        except sqlite3.IntegrityError as exc:
+            raise ValueError('account with this email already exists') from exc
+
+    def get_account(self, account_id: str) -> DemoAccount | None:
+        if not self._sqlite_enabled:
+            return None
+        with self._lock, self._connect() as connection:
+            row = connection.execute(
+                'SELECT payload FROM demo_accounts WHERE account_id = ?',
+                (account_id,),
+            ).fetchone()
+            return DemoAccount.model_validate_json(row['payload']) if row else None
+
+    def get_account_by_email(self, email: str) -> DemoAccount | None:
+        if not self._sqlite_enabled:
+            return None
+        normalized = email.lower().strip()
+        with self._lock, self._connect() as connection:
+            row = connection.execute(
+                'SELECT payload FROM demo_accounts WHERE email = ?',
+                (normalized,),
+            ).fetchone()
+            return DemoAccount.model_validate_json(row['payload']) if row else None
 
     def save(self, session: SessionState) -> None:
         expires = self._expiry()

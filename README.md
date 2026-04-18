@@ -8,6 +8,7 @@
 - **Current demo branch snapshot:** `v0.6.0`
 
 Текущее состояние ветки ориентировано на **стабильный demo-сценарий guided choice**, а не на production:
+- demo-auth с аккаунтом, паролем, входом и demo-восстановлением пароля,
 - camera/photo-driven старт (живой scan shell + анализ фото + первая подборка),
 - session-aware follow-up диалог с conversational advisor,
 - быстрые quick actions для управляемого refinement (`дешевле / сияющий / вечер / натуральнее / халяль`),
@@ -21,30 +22,35 @@
 
 Сейчас в демке уже есть цельный путь:
 
-1. `Scan`
+1. `Auth`
+- `Создать аккаунт` / `Войти`,
+- demo password recovery,
+- персональный кабинет, привязанный к аккаунту.
+
+2. `Scan`
 - запуск с камеры или по фото,
 - аккуратный face-frame и guided state machine,
 - переход в результат и advisor без отдельного “технического” экрана.
 
-2. `Advisor`
+3. `Advisor`
 - стартовое explanation после scan,
 - чат с короткими follow-up сообщениями,
 - быстрые refinement-actions прямо в диалоге,
 - curated recommendations под текущий сценарий.
 
-3. `Recommendations`
+4. `Recommendations`
 - hero product + supporting products,
 - why-text на карточках,
 - add/open actions,
 - связка с текущим intent пользователя.
 
-4. `Cart`
+5. `Cart`
 - добавление из набора,
 - `+` / `−` по количеству,
 - полное удаление позиции,
 - subtotal / count / demo checkout.
 
-5. `Cabinet`
+6. `Cabinet`
 - профиль и краткий beauty summary,
 - история анализов,
 - история demo-заказов.
@@ -53,12 +59,13 @@
 
 Если показывать проект как pilot demo, сейчас лучше всего работает такой сценарий:
 
-1. открыть `Scan`,
-2. сделать фото или быстрый camera scan,
-3. открыть `Advisor`,
-4. сделать 1-2 уточнения через quick actions или короткое сообщение,
-5. добавить товары в корзину,
-6. показать `Cabinet` и историю.
+1. создать demo-аккаунт или войти,
+2. открыть `Scan`,
+3. сделать фото или быстрый camera scan,
+4. открыть `Advisor`,
+5. сделать 1-2 уточнения через quick actions или короткое сообщение,
+6. добавить товары в корзину,
+7. показать `Cabinet` и историю.
 
 ### Что рекомендую использовать на показе
 
@@ -159,7 +166,7 @@ SQLITE_PATH=app/data/sessions.sqlite3
 Ограничения:
 - каталог synthetic/mock,
 - нет real checkout/integration с retail backend,
-- нет auth/multi-tenant/per-user persistence,
+- auth остаётся demo-grade: без email-верификации, secure cookie/session architecture и real password reset,
 - ограниченные guardrails LLM (есть grounded fallback, но не полный enterprise safety layer),
 - UX и тексты заточены под демонстрацию основного сценария (skincare + complexion, photo → refinement → cart).
 

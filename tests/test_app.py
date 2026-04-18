@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+import uuid
 
 from app.main import app
 
@@ -9,6 +10,56 @@ def test_health() -> None:
     response = client.get('/health')
     assert response.status_code == 200
     assert response.json()['status'] == 'ok'
+
+
+def test_demo_auth_register_login_forgot_and_me() -> None:
+    email = f"mila-auth-{uuid.uuid4().hex[:8]}@example.com"
+    register = client.post('/v1/auth/register', json={
+        'name': 'Mila',
+        'email': email,
+        'password': 'secret123',
+        'confirm_password': 'secret123',
+    })
+    assert register.status_code == 200
+    reg_body = register.json()
+    assert reg_body['account_id']
+    assert reg_body['name'] == 'Mila'
+    assert reg_body['email'] == email
+
+    duplicate = client.post('/v1/auth/register', json={
+        'name': 'Mila',
+        'email': email,
+        'password': 'secret123',
+        'confirm_password': 'secret123',
+    })
+    assert duplicate.status_code == 400
+
+    login = client.post('/v1/auth/login', json={
+        'email': email,
+        'password': 'secret123',
+    })
+    assert login.status_code == 200
+    login_body = login.json()
+    assert login_body['account_id'] == reg_body['account_id']
+    assert login_body['email'] == email
+
+    wrong_password = client.post('/v1/auth/login', json={
+        'email': email,
+        'password': 'wrongpass',
+    })
+    assert wrong_password.status_code == 401
+
+    forgot = client.post('/v1/auth/forgot-password', json={'email': email})
+    assert forgot.status_code == 200
+    forgot_body = forgot.json()
+    assert forgot_body['ok'] is True
+    assert forgot_body['message']
+
+    me = client.get('/v1/auth/me', params={'account_id': reg_body['account_id']})
+    assert me.status_code == 200
+    me_body = me.json()
+    assert me_body['name'] == 'Mila'
+    assert me_body['email'] == email
 
 
 def test_analyze_makeup_and_followup() -> None:

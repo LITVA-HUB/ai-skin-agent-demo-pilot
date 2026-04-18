@@ -10,9 +10,15 @@ from fastapi.responses import HTMLResponse, Response
 from .beauty_id import allergen_library, build_cabinet, build_profile_summary
 from .catalog import load_catalog
 from .logic import analyze_photo, handle_message
+from .auth_service import forgot_password, load_account, login_account, register_account
 from .models import (
     AddCartItemRequest,
     AnalyzePhotoRequest,
+    AuthForgotPasswordRequest,
+    AuthForgotPasswordResponse,
+    AuthAccountResponse,
+    AuthLoginRequest,
+    AuthRegisterRequest,
     CartItem,
     CartResponse,
     CheckoutResponse,
@@ -96,6 +102,26 @@ def _product_svg(product) -> str:
     <text x="152" y="558" font-family="Arial, sans-serif" font-size="28" fill="#6a5d52">{price}</text>
     <text x="152" y="602" font-family="Arial, sans-serif" font-size="22" fill="#8a7d70">Визуал карточки товара</text>
     </svg>'''
+
+
+@app.post('/v1/auth/register', response_model=AuthAccountResponse)
+def auth_register(request: Request, payload: AuthRegisterRequest) -> AuthAccountResponse:
+    return register_account(_store(request), payload)
+
+
+@app.post('/v1/auth/login', response_model=AuthAccountResponse)
+def auth_login(request: Request, payload: AuthLoginRequest) -> AuthAccountResponse:
+    return login_account(_store(request), payload)
+
+
+@app.post('/v1/auth/forgot-password', response_model=AuthForgotPasswordResponse)
+def auth_forgot_password(request: Request, payload: AuthForgotPasswordRequest) -> AuthForgotPasswordResponse:
+    return forgot_password(_store(request), payload)
+
+
+@app.get('/v1/auth/me', response_model=AuthAccountResponse)
+def auth_me(request: Request, account_id: str) -> AuthAccountResponse:
+    return load_account(_store(request), account_id)
 
 
 @app.get('/', response_class=HTMLResponse)
@@ -195,9 +221,9 @@ def get_session(request: Request, session_id: str) -> SessionState:
 
 
 @app.get('/v1/profile/demo')
-def get_demo_profile(request: Request):
+def get_demo_profile(request: Request, account_id: str = 'demo-user'):
     store = _store(request)
-    profile = store.get_profile('demo-user')
+    profile = store.get_profile(account_id)
     if profile is None:
         placeholder = SessionState.model_validate({
             'session_id': 'demo-profile',
@@ -205,10 +231,14 @@ def get_demo_profile(request: Request):
             'skin_profile': {'skin_type': 'normal', 'primary_concerns': [], 'confidence_overall': 0.0},
             'current_plan': {'required_categories': []},
             'user_preferences': {},
+            'demo_user_id': account_id,
         })
         profile = build_profile_summary(placeholder)
+        account = store.get_account(account_id)
+        if account:
+            profile.name = account.name
         store.save_profile(profile)
-    return build_cabinet(profile, store.list_analysis_history('demo-user'), store.list_order_history('demo-user'))
+    return build_cabinet(profile, store.list_analysis_history(account_id), store.list_order_history(account_id))
 
 
 @app.get('/v1/session/{session_id}/cart', response_model=CartResponse)

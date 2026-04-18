@@ -441,6 +441,7 @@ class AnalyzePhotoRequest(BaseModel):
     photo_b64: str | None = None
     image_url: str | None = None
     user_context: UserContext = Field(default_factory=UserContext)
+    demo_user_id: str | None = None
 
 
 class AnalysisHistoryEntry(BaseModel):
@@ -464,6 +465,42 @@ class DemoProfileSummary(BaseModel):
     preferred_coverage: list[str] = Field(default_factory=list)
     budget_direction: str
     future_features: list[str] = Field(default_factory=list)
+
+
+class DemoAccount(BaseModel):
+    account_id: str
+    name: str
+    email: str
+    password_hash: str
+    created_at: str
+    updated_at: str
+
+
+class AuthRegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    confirm_password: str
+
+
+class AuthLoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class AuthForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class AuthAccountResponse(BaseModel):
+    account_id: str
+    name: str
+    email: str
+
+
+class AuthForgotPasswordResponse(BaseModel):
+    ok: bool = True
+    message: str
 
 
 class DemoOrderItem(BaseModel):

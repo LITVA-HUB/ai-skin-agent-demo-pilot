@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.6.0
+
+### Added
+- Demo auth flow with register / login / forgot-password / logout.
+- Account-backed cabinet summaries and profile persistence.
+- OpenRouter-backed live LLM path with Gemini 3.1 Flash-Lite Preview routing.
+- Cart item decrement and remove controls.
+- Cleaner onboarding and advisor copy for the current pilot demo.
+
+### Changed
+- Scan, advisor, recommendations, and cabinet were tightened into a more coherent demo flow.
+- README now reflects the current run mode, architecture, and recommended demo path.
+- Internal smoke checks were updated to match the current OpenRouter configuration.
+
+### Fixed
+- Removed stale onboarding artifacts and internal scratch files from the repo.
+- Reworked the demo-auth plumbing so the account flow is consistent after refresh.
+- Cleaned up a smoke script so it validates the current model/provider setup.
+
 ## v0.2.0
 
 ### Added

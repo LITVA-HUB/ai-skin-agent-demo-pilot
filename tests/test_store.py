@@ -1,5 +1,6 @@
 from app.models import (
     AnalysisHistoryEntry,
+    DemoAccount,
     DemoProfileSummary,
     OrderHistoryEntry,
     PhotoAnalysisResult,
@@ -63,3 +64,34 @@ def test_store_persists_profile_analysis_and_order_history(tmp_path) -> None:
     )
     store.add_order_history('demo-user', order)
     assert store.list_order_history('demo-user')[0].order_id == 'order-1'
+
+
+def test_store_persists_demo_accounts_and_enforces_unique_email(tmp_path) -> None:
+    store = SessionStore(str(tmp_path / 'sessions.sqlite3'))
+    account = DemoAccount(
+        account_id='account-1',
+        name='Mila',
+        email='mila@example.com',
+        password_hash='hash-1',
+        created_at='2026-04-18T18:00:00+00:00',
+        updated_at='2026-04-18T18:00:00+00:00',
+    )
+    created = store.create_account(account)
+    assert created.account_id == 'account-1'
+    assert store.get_account('account-1') is not None
+    assert store.get_account_by_email('mila@example.com') is not None
+
+    duplicate = DemoAccount(
+        account_id='account-2',
+        name='Mila 2',
+        email='mila@example.com',
+        password_hash='hash-2',
+        created_at='2026-04-18T18:01:00+00:00',
+        updated_at='2026-04-18T18:01:00+00:00',
+    )
+    try:
+        store.create_account(duplicate)
+    except ValueError as exc:
+        assert 'already exists' in str(exc)
+    else:
+        raise AssertionError('expected duplicate email to be rejected')
